@@ -23,23 +23,14 @@ func New(snapshot string) (*TimeSnapshot, error) {
         if err != nil {
             return &TimeSnapshot{}, err
         }
-		sec, err = strconv.Atoi(snapshot)
-        if err != nil {
-            return &TimeSnapshot{}, err
-        }
+		sec, _ = strconv.Atoi(snapshot)
 	} else if  m, err := regexp.MatchString(`^\d+:\d{2}$`, snapshot); m {
         if err != nil {
             return &TimeSnapshot{}, err
         }
         s := strings.Split(snapshot, ":")
-        min, err = strconv.Atoi(s[0])
-        if err != nil {
-            return &TimeSnapshot{}, err
-        }
-        sec, err = strconv.Atoi(s[1])
-        if err != nil {
-            return &TimeSnapshot{}, err
-        }
+        min, _ = strconv.Atoi(s[0])
+        sec, _ = strconv.Atoi(s[1])
         if sec >= 60 {
             return &TimeSnapshot{}, fmt.Errorf("seconds field must be less than 60")
         }
@@ -48,18 +39,9 @@ func New(snapshot string) (*TimeSnapshot, error) {
             return &TimeSnapshot{}, err
         }
         s := strings.Split(snapshot, ":")
-        hr, err = strconv.Atoi(s[0])
-        if err != nil {
-            return &TimeSnapshot{}, err
-        }
-        min, err = strconv.Atoi(s[1])
-        if err != nil {
-            return &TimeSnapshot{}, err
-        }
-        sec, err = strconv.Atoi(s[2])
-        if err != nil {
-            return &TimeSnapshot{}, err
-        }
+        hr, _ = strconv.Atoi(s[0])
+        min, _ = strconv.Atoi(s[1])
+        sec, _ = strconv.Atoi(s[2])
 
         // Error handling
         if min >= 60 && sec >= 60 {
