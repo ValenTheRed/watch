@@ -16,6 +16,21 @@ type TimeSnapshot struct {
 	TotalSeconds int
 }
 
+func CheckField(sec, min int, checkMin bool) error {
+    var err error
+    if checkMin && min >= 60 && sec >= 60 {
+        err = fmt.Errorf("minute's and second's")
+    } else if checkMin && min >= 60 {
+        err = fmt.Errorf("minute's")
+    } else if sec >= 60 {
+        err = fmt.Errorf("second's")
+    }
+    if err != nil {
+        err = fmt.Errorf("%v field must be less than 60", err)
+    }
+    return err
+}
+
 func New(snapshot string) (*TimeSnapshot, error) {
 	var hr, min, sec int
 
@@ -31,8 +46,8 @@ func New(snapshot string) (*TimeSnapshot, error) {
         s := strings.Split(snapshot, ":")
         min, _ = strconv.Atoi(s[0])
         sec, _ = strconv.Atoi(s[1])
-        if sec >= 60 {
-            return &TimeSnapshot{}, fmt.Errorf("seconds field must be less than 60")
+        if err = CheckField(sec, min, false); err != nil {
+            return &TimeSnapshot{}, err
         }
 	} else if  m, err := regexp.MatchString(`^\d+:\d{2}:\d{2}$`, snapshot); m {
         if err != nil {
@@ -42,17 +57,7 @@ func New(snapshot string) (*TimeSnapshot, error) {
         hr, _ = strconv.Atoi(s[0])
         min, _ = strconv.Atoi(s[1])
         sec, _ = strconv.Atoi(s[2])
-
-        // Error handling
-        if min >= 60 && sec >= 60 {
-            err = fmt.Errorf("minutes and seconds")
-        } else if min >= 60 {
-            err = fmt.Errorf("minutes")
-        } else if sec >= 60 {
-            err = fmt.Errorf("seconds")
-        }
-        if err != nil {
-            err = fmt.Errorf("%v field must be less than 60", err)
+        if err = CheckField(sec, min, true); err != nil {
             return &TimeSnapshot{}, err
         }
     } else {
