@@ -77,15 +77,20 @@ func (t TimeSnapshot) String() string {
 	return fmt.Sprintf("%02d:%02d:%02d", hrs, min, sec)
 }
 
-func countup(duration string) {
-	for i := 0; ; i++ {
-		fmt.Printf("%d\r", i)
-		time.Sleep(time.Second)
-	}
+// Countup from some time instant t till infinity
+func countup(t TimeSnapshot) {
+    for rsec := t.TotalSeconds; ; rsec++ {
+        fmt.Printf("%s\r", TimeSnapshot{TotalSeconds: rsec})
+        time.Sleep(1 * time.Second)
+    }
 }
 
-func countdown(duration string) {
-
+// Countdown from some time instant t till zero seconds
+func countdown(t TimeSnapshot) {
+    for rsec := t.TotalSeconds; rsec > 0; rsec-- {
+        fmt.Printf("%s\r", TimeSnapshot{TotalSeconds: rsec})
+        time.Sleep(1 * time.Second)
+    }
 }
 
 func ArgParse() (string, string) {
@@ -116,10 +121,10 @@ func main() {
         fmt.Fprintf(os.Stderr, "%s: %v\n", prog, err)
         os.Exit(1)
     }
-    fmt.Println(t)
 	if duration == "" {
-		// countup(duration)
+		countup(*t)
 	} else {
-		// countdown(duration)
+        fmt.Println("Time's up!")
+		countdown(*t)
 	}
 }
