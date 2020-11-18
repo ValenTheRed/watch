@@ -78,7 +78,7 @@ func (t TimeSnapshot) String() string {
 }
 
 // Countup from some time instant t till infinity
-func countup(t TimeSnapshot) {
+func (t TimeSnapshot) Countup() {
     for rsec := t.TotalSeconds; ; rsec++ {
         fmt.Printf("%s\r", TimeSnapshot{TotalSeconds: rsec})
         time.Sleep(1 * time.Second)
@@ -86,7 +86,7 @@ func countup(t TimeSnapshot) {
 }
 
 // Countdown from some time instant t till zero seconds
-func countdown(t TimeSnapshot) {
+func (t TimeSnapshot) Countdown() {
     for rsec := t.TotalSeconds; rsec > 0; rsec-- {
         fmt.Printf("%s\r", TimeSnapshot{TotalSeconds: rsec})
         time.Sleep(1 * time.Second)
@@ -122,9 +122,9 @@ func main() {
         os.Exit(1)
     }
 	if duration == "" {
-		countup(*t)
+		t.Countup()
 	} else {
+		t.Countdown()
         fmt.Println("Time's up!")
-		countdown(*t)
 	}
 }
