@@ -5,12 +5,27 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 	"syscall"
 	"time"
+    "flag"
+)
+
+const (
+    progName  = "wtc"
+    progUsage = "usage: wtc [-help] [duration]"
+    usage     = progUsage + `
+Terminal based watch with timer and stopwatch functionality.
+
+Specify no arguments to start a stopwatch.
+Specify duration to start a timer.
+
+optional arguments:
+  duration    supported formats - [[hh:]mm:]ss
+  -help       display this help message and exit
+    `
 )
 
 type TimeSnapshot struct {
@@ -93,12 +108,19 @@ func (t TimeSnapshot) Countdown() {
 	}
 }
 
-func ArgParse() (string, string) {
-	var duration string
-	if len(os.Args) > 1 {
-		duration = os.Args[1]
-	}
-	return duration, filepath.Base(os.Args[0])
+func ArgParse() string {
+    flagHelp := flag.Bool("help", false, "display this help message and exit")
+    flag.Usage = func() {
+        fmt.Fprintf(os.Stderr, "%s\n", progUsage)
+    }
+    flag.Parse()
+
+    if *flagHelp {
+        fmt.Println(usage)
+        os.Exit(0)
+    }
+    duration := flag.Arg(0)
+	return duration
 }
 
 // Handle signals SIGINT and SIGTERM
@@ -115,10 +137,10 @@ func HandleInterruption() {
 func main() {
 	HandleInterruption()
 
-	duration, prog := ArgParse()
+	duration := ArgParse()
 	t, err := New(duration)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s: %v\n", prog, err)
+		fmt.Fprintf(os.Stderr, "%s: %v\n", progName, err)
 		os.Exit(1)
 	}
 	if duration == "" {
