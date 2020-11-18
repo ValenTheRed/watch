@@ -96,8 +96,8 @@ func ArgParse() (string, string) {
 	return duration, filepath.Base(os.Args[0])
 }
 
-func main() {
-	// Handle interruptions
+// Handle signals SIGINT and SIGTERM
+func HandleInterruption() {
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -105,8 +105,11 @@ func main() {
 		fmt.Println()
 		os.Exit(1)
 	}()
+}
 
-	// Main program
+func main() {
+    HandleInterruption()
+
 	duration, prog := ArgParse()
     t, err := New(duration)
     if err != nil {
