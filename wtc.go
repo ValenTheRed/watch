@@ -1,3 +1,4 @@
+// Program wtc implements a watch with timer and stopwatch functionality
 package main
 
 import (
@@ -16,6 +17,7 @@ type TimeSnapshot struct {
 	TotalSeconds int
 }
 
+// Return error if sec/min field are not less than 60
 func CheckField(sec, min int, checkMin bool) error {
     var err error
     if checkMin && min >= 60 && sec >= 60 {
@@ -31,6 +33,8 @@ func CheckField(sec, min int, checkMin bool) error {
     return err
 }
 
+// Returns a new TimeSnapshot whose TotalSeconds is equal to the
+// total seconds in some snapshot of format [[hh:]mm:]ss
 func New(snapshot string) (*TimeSnapshot, error) {
 	var hr, min, sec int
 
