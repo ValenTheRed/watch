@@ -8,20 +8,21 @@ import (
 	"time"
 )
 
-// Return error if sec/min field are not less than 60
-func checkField(sec, min int, checkMin bool) error {
-	var err error
-	if checkMin && min >= 60 && sec >= 60 {
-		err = fmt.Errorf("minute's and second's")
-	} else if checkMin && min >= 60 {
-		err = fmt.Errorf("minute's")
-	} else if sec >= 60 {
-		err = fmt.Errorf("second's")
+// checkField returns error if sec/min field are not less than 60.
+func checkField(sec, min int) error {
+	var errmsg string
+	if sec >= 60 {
+		errmsg = "second's"
 	}
-	if err != nil {
-		err = fmt.Errorf("%v field must be less than 60", err)
+	if min >= 60 && errmsg == "" {
+		errmsg = "minute's"
+	} else if min >= 60 {
+		errmsg += " and minute's"
 	}
-	return err
+	if errmsg != "" {
+		return fmt.Errorf("%v field must be less than 60", errmsg)
+	}
+	return nil
 }
 
 // ParseDuration returns the total number of seconds in dur, which must
@@ -41,7 +42,8 @@ func ParseDuration(dur string) (int, error) {
 		s := strings.Split(dur, ":")
 		min, _ = strconv.Atoi(s[0])
 		sec, _ = strconv.Atoi(s[1])
-		if err = checkField(sec, min, false); err != nil {
+		// it's okay for minute field to be more than 60
+		if err = checkField(sec, 0); err != nil {
 			return 0, err
 		}
 	} else if m, err := regexp.MatchString(`^\d+:\d{2}:\d{2}$`, dur); m {
@@ -52,7 +54,7 @@ func ParseDuration(dur string) (int, error) {
 		hr, _ = strconv.Atoi(s[0])
 		min, _ = strconv.Atoi(s[1])
 		sec, _ = strconv.Atoi(s[2])
-		if err = checkField(sec, min, true); err != nil {
+		if err = checkField(sec, min); err != nil {
 			return 0, err
 		}
 	} else {
