@@ -60,7 +60,7 @@ func New(snapshot string) (*TimeSnapshot, error) {
 			return &TimeSnapshot{}, err
 		}
 	} else {
-        return &TimeSnapshot{}, fmt.Errorf("duration must be in [[hh:]mm:]ss format")
+		return &TimeSnapshot{}, fmt.Errorf("duration must be in [[hh:]mm:]ss format")
 	}
 	return &TimeSnapshot{TotalSeconds: (hr * 3600) + (min * 60) + sec}, nil
 }
@@ -87,4 +87,3 @@ func (t TimeSnapshot) Countdown() {
 		time.Sleep(1 * time.Second)
 	}
 }
-

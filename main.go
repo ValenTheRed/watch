@@ -38,7 +38,7 @@ func main() {
 		os.Exit(1)
 	}()
 
-    flag.Parse()
+	flag.Parse()
 
 	if err := run(flag.Arg(0)); err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %v\n", binaryName, err)
