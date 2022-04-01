@@ -8,10 +8,6 @@ import (
 	"time"
 )
 
-type TimeSnapshot struct {
-	TotalSeconds int
-}
-
 // Return error if sec/min field are not less than 60
 func checkField(sec, min int, checkMin bool) error {
 	var err error
