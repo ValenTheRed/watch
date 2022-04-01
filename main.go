@@ -51,10 +51,10 @@ func run(duration string) error {
 		return err
 	}
 
-	if t.TotalSeconds == 0 {
-		t.Countup()
+	if t == 0 {
+		Countup(t)
 	} else {
-		t.Countdown()
+		Countdown(t)
 		fmt.Println("Time's up!")
 	}
 	return nil

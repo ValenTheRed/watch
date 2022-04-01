@@ -73,18 +73,18 @@ func (t TimeSnapshot) String() string {
 	return fmt.Sprintf("%02d:%02d:%02d", hrs, min, sec)
 }
 
-// Countup from some time instant t till infinity
-func (t TimeSnapshot) Countup() {
-	for rsec := t.TotalSeconds; ; rsec++ {
-		fmt.Printf("%s\r", TimeSnapshot{TotalSeconds: rsec})
+// Countup counts up from some time instant from till infinity.
+func Countup(from int) {
+	for t := from; ; t++ {
+		fmt.Printf("%s\r", TimeSnapshot{TotalSeconds: t})
 		time.Sleep(1 * time.Second)
 	}
 }
 
-// Countdown from some time instant t till zero seconds
-func (t TimeSnapshot) Countdown() {
-	for rsec := t.TotalSeconds; rsec > 0; rsec-- {
-		fmt.Printf("%s\r", TimeSnapshot{TotalSeconds: rsec})
+// Countdown counts down from some time instant from till zero seconds.
+func Countdown(from int) {
+	for t := from; t > 0; t-- {
+		fmt.Printf("%s\r", TimeSnapshot{TotalSeconds: t})
 		time.Sleep(1 * time.Second)
 	}
 }
