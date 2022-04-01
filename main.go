@@ -19,8 +19,7 @@ Specify duration to start a timer.
 
 optional arguments:
   duration    supported formats - [[hh:]mm:]ss
-  -help       display this help message and exit
-`
+  -help       display this help message and exit`
 
 func init() {
 	flag.Usage = func() {
