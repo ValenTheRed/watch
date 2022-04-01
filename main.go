@@ -46,7 +46,7 @@ func main() {
 }
 
 func run(duration string) error {
-	t, err := New(duration)
+	t, err := ParseDuration(duration)
 	if err != nil {
 		return err
 	}

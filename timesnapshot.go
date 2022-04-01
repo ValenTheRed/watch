@@ -28,41 +28,42 @@ func checkField(sec, min int, checkMin bool) error {
 	return err
 }
 
-// Returns a new TimeSnapshot whose TotalSeconds is equal to the
-// total seconds in some snapshot of format [[hh:]mm:]ss
-func New(snapshot string) (*TimeSnapshot, error) {
+// ParseDuration returns the total number of seconds in dur, which must
+// be of format [[hh:]mm:]ss.
+func ParseDuration(dur string) (int, error) {
 	var hr, min, sec int
 
-	if m, err := regexp.MatchString(`^\d*$`, snapshot); m {
+	if m, err := regexp.MatchString(`^\d*$`, dur); m {
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
-		sec, _ = strconv.Atoi(snapshot)
-	} else if m, err := regexp.MatchString(`^\d+:\d{2}$`, snapshot); m {
+		sec, _ = strconv.Atoi(dur)
+	} else if m, err := regexp.MatchString(`^\d+:\d{2}$`, dur); m {
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
-		s := strings.Split(snapshot, ":")
+		s := strings.Split(dur, ":")
 		min, _ = strconv.Atoi(s[0])
 		sec, _ = strconv.Atoi(s[1])
 		if err = checkField(sec, min, false); err != nil {
-			return nil, err
+			return 0, err
 		}
-	} else if m, err := regexp.MatchString(`^\d+:\d{2}:\d{2}$`, snapshot); m {
+	} else if m, err := regexp.MatchString(`^\d+:\d{2}:\d{2}$`, dur); m {
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
-		s := strings.Split(snapshot, ":")
+		s := strings.Split(dur, ":")
 		hr, _ = strconv.Atoi(s[0])
 		min, _ = strconv.Atoi(s[1])
 		sec, _ = strconv.Atoi(s[2])
 		if err = checkField(sec, min, true); err != nil {
-			return nil, err
+			return 0, err
 		}
 	} else {
-		return nil, fmt.Errorf("duration must be in [[hh:]mm:]ss format")
+		return 0, fmt.Errorf("duration must be in [[hh:]mm:]ss format")
 	}
-	return &TimeSnapshot{TotalSeconds: (hr * 3600) + (min * 60) + sec}, nil
+
+	return (hr * 3600) + (min * 60) + sec, nil
 }
 
 func (t TimeSnapshot) String() string {
