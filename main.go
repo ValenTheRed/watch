@@ -24,19 +24,10 @@ optional arguments:
     `
 )
 
-func ArgParse() string {
-    flagHelp := flag.Bool("help", false, "display this help message and exit")
+func init() {
     flag.Usage = func() {
         fmt.Fprintf(os.Stderr, "%s\n", progUsage)
     }
-    flag.Parse()
-
-    if *flagHelp {
-        fmt.Println(usage)
-        os.Exit(0)
-    }
-    duration := flag.Arg(0)
-	return duration
 }
 
 func main() {
@@ -49,7 +40,9 @@ func main() {
 		os.Exit(1)
 	}()
 
-	duration := ArgParse()
+    flag.Parse()
+
+    duration := flag.Arg(0)
 	t, err := New(duration)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %v\n", progName, err)
