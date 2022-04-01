@@ -8,10 +8,6 @@ import (
 	"time"
 )
 
-type TimeSnapshot struct {
-	TotalSeconds int
-}
-
 // Return error if sec/min field are not less than 60
 func checkField(sec, min int, checkMin bool) error {
 	var err error
@@ -28,62 +24,63 @@ func checkField(sec, min int, checkMin bool) error {
 	return err
 }
 
-// Returns a new TimeSnapshot whose TotalSeconds is equal to the
-// total seconds in some snapshot of format [[hh:]mm:]ss
-func New(snapshot string) (*TimeSnapshot, error) {
+// ParseDuration returns the total number of seconds in dur, which must
+// be of format [[hh:]mm:]ss.
+func ParseDuration(dur string) (int, error) {
 	var hr, min, sec int
 
-	if m, err := regexp.MatchString(`^\d*$`, snapshot); m {
+	if m, err := regexp.MatchString(`^\d*$`, dur); m {
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
-		sec, _ = strconv.Atoi(snapshot)
-	} else if m, err := regexp.MatchString(`^\d+:\d{2}$`, snapshot); m {
+		sec, _ = strconv.Atoi(dur)
+	} else if m, err := regexp.MatchString(`^\d+:\d{2}$`, dur); m {
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
-		s := strings.Split(snapshot, ":")
+		s := strings.Split(dur, ":")
 		min, _ = strconv.Atoi(s[0])
 		sec, _ = strconv.Atoi(s[1])
 		if err = checkField(sec, min, false); err != nil {
-			return nil, err
+			return 0, err
 		}
-	} else if m, err := regexp.MatchString(`^\d+:\d{2}:\d{2}$`, snapshot); m {
+	} else if m, err := regexp.MatchString(`^\d+:\d{2}:\d{2}$`, dur); m {
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
-		s := strings.Split(snapshot, ":")
+		s := strings.Split(dur, ":")
 		hr, _ = strconv.Atoi(s[0])
 		min, _ = strconv.Atoi(s[1])
 		sec, _ = strconv.Atoi(s[2])
 		if err = checkField(sec, min, true); err != nil {
-			return nil, err
+			return 0, err
 		}
 	} else {
-		return nil, fmt.Errorf("duration must be in [[hh:]mm:]ss format")
+		return 0, fmt.Errorf("duration must be in [[hh:]mm:]ss format")
 	}
-	return &TimeSnapshot{TotalSeconds: (hr * 3600) + (min * 60) + sec}, nil
+
+	return (hr * 3600) + (min * 60) + sec, nil
 }
 
-func (t TimeSnapshot) String() string {
-	hrs := t.TotalSeconds / 3600
-	min := (t.TotalSeconds / 60) % 60
-	sec := t.TotalSeconds % 60
+func FormatSecond(s int) string {
+	hrs := s / 3600
+	min := (s / 60) % 60
+	sec := s % 60
 	return fmt.Sprintf("%02d:%02d:%02d", hrs, min, sec)
 }
 
-// Countup from some time instant t till infinity
-func (t TimeSnapshot) Countup() {
-	for rsec := t.TotalSeconds; ; rsec++ {
-		fmt.Printf("%s\r", TimeSnapshot{TotalSeconds: rsec})
+// Countup counts up from some time instant from till infinity.
+func Countup(from int) {
+	for t := from; ; t++ {
+		fmt.Printf("%s\r", FormatSecond(t))
 		time.Sleep(1 * time.Second)
 	}
 }
 
-// Countdown from some time instant t till zero seconds
-func (t TimeSnapshot) Countdown() {
-	for rsec := t.TotalSeconds; rsec > 0; rsec-- {
-		fmt.Printf("%s\r", TimeSnapshot{TotalSeconds: rsec})
+// Countdown counts down from some time instant from till zero seconds.
+func Countdown(from int) {
+	for t := from; t > 0; t-- {
+		fmt.Printf("%s\r", FormatSecond(t))
 		time.Sleep(1 * time.Second)
 	}
 }

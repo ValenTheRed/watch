@@ -46,15 +46,15 @@ func main() {
 }
 
 func run(duration string) error {
-	t, err := New(duration)
+	t, err := ParseDuration(duration)
 	if err != nil {
 		return err
 	}
 
-	if t.TotalSeconds == 0 {
-		t.Countup()
+	if t == 0 {
+		Countup(t)
 	} else {
-		t.Countdown()
+		Countdown(t)
 		fmt.Println("Time's up!")
 	}
 	return nil
