@@ -35,32 +35,32 @@ func New(snapshot string) (*TimeSnapshot, error) {
 
 	if m, err := regexp.MatchString(`^\d*$`, snapshot); m {
 		if err != nil {
-			return &TimeSnapshot{}, err
+			return nil, err
 		}
 		sec, _ = strconv.Atoi(snapshot)
 	} else if m, err := regexp.MatchString(`^\d+:\d{2}$`, snapshot); m {
 		if err != nil {
-			return &TimeSnapshot{}, err
+			return nil, err
 		}
 		s := strings.Split(snapshot, ":")
 		min, _ = strconv.Atoi(s[0])
 		sec, _ = strconv.Atoi(s[1])
 		if err = checkField(sec, min, false); err != nil {
-			return &TimeSnapshot{}, err
+			return nil, err
 		}
 	} else if m, err := regexp.MatchString(`^\d+:\d{2}:\d{2}$`, snapshot); m {
 		if err != nil {
-			return &TimeSnapshot{}, err
+			return nil, err
 		}
 		s := strings.Split(snapshot, ":")
 		hr, _ = strconv.Atoi(s[0])
 		min, _ = strconv.Atoi(s[1])
 		sec, _ = strconv.Atoi(s[2])
 		if err = checkField(sec, min, true); err != nil {
-			return &TimeSnapshot{}, err
+			return nil, err
 		}
 	} else {
-		return &TimeSnapshot{}, fmt.Errorf("duration must be in [[hh:]mm:]ss format")
+		return nil, fmt.Errorf("duration must be in [[hh:]mm:]ss format")
 	}
 	return &TimeSnapshot{TotalSeconds: (hr * 3600) + (min * 60) + sec}, nil
 }
