@@ -9,10 +9,9 @@ import (
 	"syscall"
 )
 
-const (
-    progName  = "wtc"
-    progUsage = "usage: wtc [-help] [duration]"
-    usage     = progUsage + `
+const binaryName = "wtc"
+
+var usage = fmt.Sprintf("usage: %s [-help] [duration]", binaryName) + `
 Terminal based watch with timer and stopwatch functionality.
 
 Specify no arguments to start a stopwatch.
@@ -21,13 +20,12 @@ Specify duration to start a timer.
 optional arguments:
   duration    supported formats - [[hh:]mm:]ss
   -help       display this help message and exit
-    `
-)
+`
 
 func init() {
-    flag.Usage = func() {
-        fmt.Fprintf(os.Stderr, "%s\n", progUsage)
-    }
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "%s\n", usage)
+	}
 }
 
 func main() {
@@ -43,7 +41,7 @@ func main() {
     flag.Parse()
 
 	if err := run(flag.Arg(0)); err != nil {
-		fmt.Fprintf(os.Stderr, "%s: %v\n", progName, err)
+		fmt.Fprintf(os.Stderr, "%s: %v\n", binaryName, err)
 		os.Exit(1)
 	}
 }
