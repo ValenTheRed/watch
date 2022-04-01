@@ -42,16 +42,23 @@ func main() {
 
     flag.Parse()
 
-    duration := flag.Arg(0)
-	t, err := New(duration)
-	if err != nil {
+	if err := run(flag.Arg(0)); err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %v\n", progName, err)
 		os.Exit(1)
 	}
-	if duration == "" {
+}
+
+func run(duration string) error {
+	t, err := New(duration)
+	if err != nil {
+		return err
+	}
+
+	if t.TotalSeconds == 0 {
 		t.Countup()
 	} else {
 		t.Countdown()
 		fmt.Println("Time's up!")
 	}
+	return nil
 }
