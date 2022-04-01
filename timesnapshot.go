@@ -66,17 +66,17 @@ func ParseDuration(dur string) (int, error) {
 	return (hr * 3600) + (min * 60) + sec, nil
 }
 
-func (t TimeSnapshot) String() string {
-	hrs := t.TotalSeconds / 3600
-	min := (t.TotalSeconds / 60) % 60
-	sec := t.TotalSeconds % 60
+func FormatSecond(s int) string {
+	hrs := s / 3600
+	min := (s / 60) % 60
+	sec := s % 60
 	return fmt.Sprintf("%02d:%02d:%02d", hrs, min, sec)
 }
 
 // Countup counts up from some time instant from till infinity.
 func Countup(from int) {
 	for t := from; ; t++ {
-		fmt.Printf("%s\r", TimeSnapshot{TotalSeconds: t})
+		fmt.Printf("%s\r", FormatSecond(t))
 		time.Sleep(1 * time.Second)
 	}
 }
@@ -84,7 +84,7 @@ func Countup(from int) {
 // Countdown counts down from some time instant from till zero seconds.
 func Countdown(from int) {
 	for t := from; t > 0; t-- {
-		fmt.Printf("%s\r", TimeSnapshot{TotalSeconds: t})
+		fmt.Printf("%s\r", FormatSecond(t))
 		time.Sleep(1 * time.Second)
 	}
 }
