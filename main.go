@@ -7,6 +7,11 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
+
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/flac"
+	"github.com/faiface/beep/speaker"
 )
 
 const binaryName = "wtc"
@@ -55,7 +60,34 @@ func run(duration string) error {
 		Countup(t)
 	} else {
 		Countdown(t)
-		fmt.Println("Time's up!")
+		go fmt.Println("Time's up!")
+
+		pingf, err := os.Open("./ping[1.3s].flac")
+		if err != nil {
+			return err
+		}
+		// Ping will close pingf
+		if err := Ping(pingf); err != nil {
+			return err
+		}
 	}
+
+	return nil
+}
+
+func Ping(pingf *os.File) error {
+	streamer, format, err := flac.Decode(pingf)
+	if err != nil {
+		return err
+	}
+	defer streamer.Close()
+
+	done := make(chan struct{})
+	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second / 10))
+	speaker.Play(beep.Seq(streamer, beep.Callback(func() {
+		done <- struct{}{}
+	})))
+
+	<-done
 	return nil
 }
