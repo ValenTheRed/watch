@@ -2,8 +2,11 @@
 package main
 
 import (
+	"bytes"
+	_ "embed"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"syscall"
@@ -16,15 +19,19 @@ import (
 
 const binaryName = "wtc"
 
-var usage = fmt.Sprintf("usage: %s [-help] [duration]", binaryName) + `
+var (
+	//go:embed "ping.flac"
+	pingFile []byte
+	usage = fmt.Sprintf("usage: %s [-help] [duration]", binaryName) + `
 Terminal based watch with timer and stopwatch functionality.
 
 Specify no arguments to start a stopwatch.
 Specify duration to start a timer.
 
 optional arguments:
-  duration    supported formats - [[hh:]mm:]ss
-  -help       display this help message and exit`
+duration	supported formats - [[hh:]mm:]ss
+-help	    display this help message and exit`
+)
 
 func init() {
 	flag.Usage = func() {
@@ -62,12 +69,8 @@ func run(duration string) error {
 		Countdown(t)
 		go fmt.Println("Time's up!")
 
-		pingf, err := os.Open("./ping[1.3s].flac")
-		if err != nil {
-			return err
-		}
-		// Ping will close pingf
-		if err := Ping(pingf); err != nil {
+		// Ping will close pingFile
+		if err := Ping(bytes.NewReader(pingFile)); err != nil {
 			return err
 		}
 	}
@@ -75,8 +78,8 @@ func run(duration string) error {
 	return nil
 }
 
-func Ping(pingf *os.File) error {
-	streamer, format, err := flac.Decode(pingf)
+func Ping(r io.Reader) error {
+	streamer, format, err := flac.Decode(r)
 	if err != nil {
 		return err
 	}
