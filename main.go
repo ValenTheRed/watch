@@ -83,7 +83,7 @@ func main() {
 	if duration == 0 {
 		go countup(textview, stateMsg)
 	} else {
-		go countdown(duration, textview)
+		go countdown(duration, stateMsg, textview)
 	}
 
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -132,10 +132,29 @@ func countup(tv *tview.TextView, msg <-chan TimerState) {
 // countdown ends.
 //
 // Progress is written to tv.
-func countdown(duration int, tv *tview.TextView) {
-	for t := duration; t > 0; t-- {
-		tv.SetText(FormatSecond(t))
-		time.Sleep(1 * time.Second)
+func countdown(duration int, msg <-chan TimerState, tv *tview.TextView) {
+	tick := time.NewTicker(1 * time.Second)
+	for t := duration; t > 0; {
+		select {
+		case m := <-msg:
+			switch m {
+			case timerReset:
+				t = duration
+				tick.Reset(1 * time.Second)
+			case timerPause:
+				tick.Stop()
+				for e := range msg {
+					if e == timerStart {
+						break
+					}
+				}
+				tick.Reset(1 * time.Second)
+			}
+		case <-tick.C:
+			t--
+		default:
+			tv.SetText(FormatSecond(t))
+		}
 	}
 	go tv.SetText(fmt.Sprintf("Your %s's up!\n", FormatSecond(duration)))
 
