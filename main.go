@@ -67,7 +67,7 @@ func run(duration string) error {
 		Countup(t)
 	} else {
 		Countdown(t)
-		go fmt.Println("Time's up!")
+		go fmt.Printf("Your %s's up!\n", FormatSecond(t))
 
 		// Ping will close pingFile
 		if err := Ping(bytes.NewReader(pingFile)); err != nil {
