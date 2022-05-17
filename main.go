@@ -60,9 +60,9 @@ func main() {
 		SetBorder(true)
 
 	if duration == 0 {
-		go Countup(textview)
+		go countup(textview)
 	} else {
-		go Countdown(duration, textview)
+		go countdown(duration, textview)
 	}
 
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -77,15 +77,21 @@ func main() {
 	}
 }
 
-func Countup(tv *tview.TextView) {
+// countup counts up from zero seconds till infinity.
+//
+// Progress is written to tv.
+func countup(tv *tview.TextView) {
 	for t := 0; ; t++ {
 		tv.SetText(FormatSecond(t))
 		time.Sleep(1 * time.Second)
 	}
 }
 
-func Countdown(duration int, tv *tview.TextView) {
-	// Countdown counts down from some time instant from till zero seconds.
+// countdown counts down for duration seconds, and runs pingFile when
+// countdown ends.
+//
+// Progress is written to tv.
+func countdown(duration int, tv *tview.TextView) {
 	for t := duration; t > 0; t-- {
 		tv.SetText(FormatSecond(t))
 		time.Sleep(1 * time.Second)
