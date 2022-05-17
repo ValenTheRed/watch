@@ -46,10 +46,20 @@ func exitOnErr(err error) {
 	}
 }
 
+type TimerState int8
+
+const (
+	timerReset TimerState = 1 << iota
+	timerPause
+	timerStart
+)
+
 func main() {
 	flag.Parse()
 	duration, err := ParseDuration(flag.Arg(0))
 	exitOnErr(err)
+
+	stateMsg := make(chan TimerState)
 
 	app := tview.NewApplication()
 	textview := tview.NewTextView()
@@ -57,10 +67,21 @@ func main() {
 		SetChangedFunc(func() {
 			app.Draw()
 		}).
+		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+			switch event.Rune() {
+			case 'r':
+				stateMsg <- timerReset
+			case 'p':
+				stateMsg <- timerPause
+			case 's':
+				stateMsg <- timerStart
+			}
+			return event
+		}).
 		SetBorder(true)
 
 	if duration == 0 {
-		go countup(textview)
+		go countup(textview, stateMsg)
 	} else {
 		go countdown(duration, textview)
 	}
@@ -75,15 +96,35 @@ func main() {
 	if err := app.SetRoot(textview, true).Run(); err != nil {
 		panic(err)
 	}
+	close(stateMsg)
 }
 
 // countup counts up from zero seconds till infinity.
 //
 // Progress is written to tv.
-func countup(tv *tview.TextView) {
-	for t := 0; ; t++ {
-		tv.SetText(FormatSecond(t))
-		time.Sleep(1 * time.Second)
+func countup(tv *tview.TextView, msg <-chan TimerState) {
+	tick := time.NewTicker(1 * time.Second)
+	for t := 0; ; {
+		select {
+		case m := <-msg:
+			switch m {
+			case timerReset:
+				t = 0
+				tick.Reset(1 * time.Second)
+			case timerPause:
+				tick.Stop()
+				for e := range msg {
+					if e == timerStart {
+						break
+					}
+				}
+				tick.Reset(1 * time.Second)
+			}
+		case <-tick.C:
+			t++
+		default:
+			tv.SetText(FormatSecond(t))
+		}
 	}
 }
 
