@@ -69,7 +69,7 @@ func main() {
 		if event.Rune() == 'q' {
 			app.Stop()
 		}
-		return nil
+		return event
 	})
 
 	if err := app.SetRoot(textview, true).Run(); err != nil {
