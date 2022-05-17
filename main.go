@@ -8,13 +8,13 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/flac"
 	"github.com/faiface/beep/speaker"
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
 )
 
 const binaryName = "wtc"
@@ -22,7 +22,7 @@ const binaryName = "wtc"
 var (
 	//go:embed "ping.flac"
 	pingFile []byte
-	usage = fmt.Sprintf("usage: %s [-help] [duration]", binaryName) + `
+	usage    = fmt.Sprintf("usage: %s [-help] [duration]", binaryName) + `
 Terminal based watch with timer and stopwatch functionality.
 
 Specify no arguments to start a stopwatch.
@@ -39,43 +39,63 @@ func init() {
 	}
 }
 
-func main() {
-	// Handle signals SIGINT and SIGTERM
-	c := make(chan os.Signal, 2)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-c
-		fmt.Println()
-		os.Exit(1)
-	}()
-
-	flag.Parse()
-
-	if err := run(flag.Arg(0)); err != nil {
+func exitOnErr(err error) {
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %v\n", binaryName, err)
 		os.Exit(1)
 	}
 }
 
-func run(duration string) error {
-	t, err := ParseDuration(duration)
-	if err != nil {
-		return err
-	}
+func main() {
+	flag.Parse()
+	duration, err := ParseDuration(flag.Arg(0))
+	exitOnErr(err)
 
-	if t == 0 {
-		Countup(t)
+	app := tview.NewApplication()
+	textview := tview.NewTextView()
+	textview.
+		SetChangedFunc(func() {
+			app.Draw()
+		}).
+		SetBorder(true)
+
+	if duration == 0 {
+		go Countup(duration, textview)
 	} else {
-		Countdown(t)
-		go fmt.Printf("Your %s's up!\n", FormatSecond(t))
-
-		// Ping will close pingFile
-		if err := Ping(bytes.NewReader(pingFile)); err != nil {
-			return err
-		}
+		go Countdown(duration, textview)
 	}
 
-	return nil
+	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Rune() == 'q' {
+			app.Stop()
+		}
+		return nil
+	})
+
+	if err := app.SetRoot(textview, true).Run(); err != nil {
+		panic(err)
+	}
+}
+
+func Countup(duration int, tv *tview.TextView) {
+	for t := duration; t > 0; t-- {
+		tv.SetText(FormatSecond(t))
+		time.Sleep(1 * time.Second)
+	}
+}
+
+func Countdown(duration int, tv *tview.TextView) {
+	// Countdown counts down from some time instant from till zero seconds.
+	for t := duration; t > 0; t-- {
+		tv.SetText(FormatSecond(t))
+		time.Sleep(1 * time.Second)
+	}
+	go tv.SetText(fmt.Sprintf("Your %s's up!\n", FormatSecond(duration)))
+
+	// if err := Ping(bytes.NewReader(pingFile)); err != nil {
+	//	 return err
+	// }
+	Ping(bytes.NewReader(pingFile))
 }
 
 func Ping(r io.Reader) error {
@@ -86,7 +106,7 @@ func Ping(r io.Reader) error {
 	defer streamer.Close()
 
 	done := make(chan struct{})
-	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second / 10))
+	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
 	speaker.Play(beep.Seq(streamer, beep.Callback(func() {
 		done <- struct{}{}
 	})))
