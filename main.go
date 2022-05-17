@@ -60,7 +60,7 @@ func main() {
 		SetBorder(true)
 
 	if duration == 0 {
-		go Countup(duration, textview)
+		go Countup(textview)
 	} else {
 		go Countdown(duration, textview)
 	}
@@ -77,8 +77,8 @@ func main() {
 	}
 }
 
-func Countup(duration int, tv *tview.TextView) {
-	for t := duration; t > 0; t-- {
+func Countup(tv *tview.TextView) {
+	for t := 0; ; t++ {
 		tv.SetText(FormatSecond(t))
 		time.Sleep(1 * time.Second)
 	}
