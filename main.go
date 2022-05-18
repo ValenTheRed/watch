@@ -121,9 +121,8 @@ func countup(tv *tview.TextView, msg <-chan TimerState) {
 				tick.Reset(1 * time.Second)
 			}
 		case <-tick.C:
-			t++
-		default:
 			tv.SetText(FormatSecond(t))
+			t++
 		}
 	}
 }
@@ -151,9 +150,8 @@ func countdown(duration int, msg <-chan TimerState, tv *tview.TextView) {
 				tick.Reset(1 * time.Second)
 			}
 		case <-tick.C:
-			t--
-		default:
 			tv.SetText(FormatSecond(t))
+			t--
 		}
 	}
 	go tv.SetText(fmt.Sprintf("Your %s's up!\n", FormatSecond(duration)))
