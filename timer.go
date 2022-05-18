@@ -57,7 +57,7 @@ func (t *timer) UpdateDisplay() {
 }
 
 func (t *timer) Start() {
-	if !t.running {
+	if !t.running && t.timeLeft > 0 {
 		t.running = true
 		go worker(func() {
 			if t.timeLeft > 0 {
