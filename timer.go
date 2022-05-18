@@ -10,6 +10,7 @@ import (
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/flac"
 	"github.com/faiface/beep/speaker"
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -34,6 +35,18 @@ func NewTimer(duration int) *timer {
 		duration: duration,
 		timeLeft: duration,
 	}
+	t.TextView.
+		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+			switch event.Rune() {
+			case 'r':
+				t.Reset()
+			case 'p':
+				t.Stop()
+			case 's':
+				t.Start()
+			}
+			return event
+		})
 	return t
 }
 

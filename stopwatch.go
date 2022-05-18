@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -16,6 +17,18 @@ func NewStopwatch() *stopwatch {
 		TextView: tview.NewTextView(),
 		stopMsg:  make(chan struct{}),
 	}
+	sw.TextView.
+		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+			switch event.Rune() {
+			case 'r':
+				sw.Reset()
+			case 'p':
+				sw.Stop()
+			case 's':
+				sw.Start()
+			}
+			return event
+		})
 	return sw
 }
 
