@@ -49,6 +49,7 @@ func NewTimer(duration int) *timer {
 		}).
 		SetTitle("Timer")
 
+	t.UpdateDisplay()
 	return t
 }
 

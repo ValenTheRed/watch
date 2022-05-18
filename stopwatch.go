@@ -31,6 +31,7 @@ func NewStopwatch() *stopwatch {
 		}).
 		SetTitle("Stopwatch")
 
+	sw.UpdateDisplay()
 	return sw
 }
 
@@ -42,8 +43,8 @@ func (sw *stopwatch) Start() {
 	if !sw.running {
 		sw.running = true
 		go worker(func() {
-			sw.UpdateDisplay()
 			sw.elapsed++
+			sw.UpdateDisplay()
 		}, sw.stopMsg)
 	}
 }
