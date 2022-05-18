@@ -11,8 +11,8 @@ type Wtc struct {
 }
 
 func NewWtc(app *tview.Application) *Wtc {
-	tv := tview.NewTextView()
-	tv.
+	main := tview.NewTextView()
+	main.
 		SetTextAlign(tview.AlignCenter).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
@@ -20,6 +20,6 @@ func NewWtc(app *tview.Application) *Wtc {
 
 	return &Wtc{
 		app:  app,
-		main: tv,
+		main: main,
 	}
 }
