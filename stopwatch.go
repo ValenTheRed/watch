@@ -18,6 +18,7 @@ func NewStopwatch() *stopwatch {
 		stopMsg:  make(chan struct{}),
 	}
 	sw.TextView.
+		SetTextAlign(tview.AlignCenter).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
 			case 'r':
@@ -28,7 +29,11 @@ func NewStopwatch() *stopwatch {
 				sw.Start()
 			}
 			return event
-		})
+		}).
+		SetTitle("Stopwatch").
+		SetTitleAlign(tview.AlignLeft).
+		SetBorder(true).
+		SetBackgroundColor(tcell.ColorDefault)
 	return sw
 }
 

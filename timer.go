@@ -36,6 +36,7 @@ func NewTimer(duration int) *timer {
 		timeLeft: duration,
 	}
 	t.TextView.
+		SetTextAlign(tview.AlignCenter).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
 			case 'r':
@@ -46,7 +47,12 @@ func NewTimer(duration int) *timer {
 				t.Start()
 			}
 			return event
-		})
+		}).
+		SetTitle("Timer").
+		SetTitleAlign(tview.AlignLeft).
+		SetBorder(true).
+		SetBackgroundColor(tcell.ColorDefault)
+
 	return t
 }
 
