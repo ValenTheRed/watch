@@ -53,15 +53,19 @@ func NewTimer(duration int) *timer {
 	return t
 }
 
+func (t *timer) IsTimeLeft() bool {
+	return t.timeLeft > 0
+}
+
 func (t *timer) UpdateDisplay() {
 	wtc.main.SetText(FormatSecond(t.timeLeft))
 }
 
 func (t *timer) Start() {
-	if !t.running && t.timeLeft > 0 {
+	if !t.running && t.IsTimeLeft() {
 		t.running = true
 		go worker(func() {
-			if t.timeLeft > 0 {
+			if t.IsTimeLeft() {
 				t.timeLeft--
 				t.UpdateDisplay()
 			} else {
