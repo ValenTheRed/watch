@@ -2,11 +2,9 @@ package main
 
 import (
 	"github.com/gdamore/tcell/v2"
-	"github.com/rivo/tview"
 )
 
 type stopwatch struct {
-	*tview.TextView
 	elapsed int
 	running bool
 	stopMsg chan struct{}
@@ -14,11 +12,12 @@ type stopwatch struct {
 
 func NewStopwatch() *stopwatch {
 	sw := &stopwatch{
-		TextView: tview.NewTextView(),
-		stopMsg:  make(chan struct{}),
+		stopMsg: make(chan struct{}),
 	}
-	sw.TextView.
-		SetTextAlign(tview.AlignCenter).
+	wtc.main.
+		SetChangedFunc(func() {
+			wtc.app.Draw()
+		}).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
 			case 'r':
@@ -30,15 +29,13 @@ func NewStopwatch() *stopwatch {
 			}
 			return event
 		}).
-		SetTitle("Stopwatch").
-		SetTitleAlign(tview.AlignLeft).
-		SetBorder(true).
-		SetBackgroundColor(tcell.ColorDefault)
+		SetTitle("Stopwatch")
+
 	return sw
 }
 
 func (sw *stopwatch) UpdateDisplay() {
-	sw.SetText(FormatSecond(sw.elapsed))
+	wtc.main.SetText(FormatSecond(sw.elapsed))
 }
 
 func (sw *stopwatch) Start() {

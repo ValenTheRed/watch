@@ -2,11 +2,9 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -15,7 +13,7 @@ import (
 const binaryName = "wtc"
 
 var (
-	usage    = fmt.Sprintf("usage: %s [-help] [duration]", binaryName) + `
+	usage = fmt.Sprintf("usage: %s [-help] [duration]", binaryName) + `
 Terminal based watch with timer and stopwatch functionality.
 
 Specify no arguments to start a stopwatch.
@@ -24,6 +22,9 @@ Specify duration to start a timer.
 optional arguments:
 duration	supported formats - [[hh:]mm:]ss
 -help	    display this help message and exit`
+
+	// Global controller for the whole application.
+	wtc *Wtc
 )
 
 func init() {
@@ -39,123 +40,29 @@ func exitOnErr(err error) {
 	}
 }
 
-type TimerState int8
-
-const (
-	timerReset TimerState = 1 << iota
-	timerPause
-	timerStart
-)
-
 func main() {
 	flag.Parse()
 	duration, err := ParseDuration(flag.Arg(0))
 	exitOnErr(err)
 
-	stateMsg := make(chan TimerState)
-
-	app := tview.NewApplication()
-	textview := tview.NewTextView()
-	textview.
-		SetChangedFunc(func() {
-			app.Draw()
-		}).
-		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-			switch event.Rune() {
-			case 'r':
-				stateMsg <- timerReset
-			case 'p':
-				stateMsg <- timerPause
-			case 's':
-				stateMsg <- timerStart
-			}
-			return event
-		}).
-		SetBorder(true)
+	wtc = NewWtc(tview.NewApplication())
 
 	if duration == 0 {
-		go countup(textview, stateMsg)
+		sw := NewStopwatch()
+		sw.Start()
 	} else {
-		go countdown(duration, stateMsg, textview)
+		t := NewTimer(duration)
+		t.Start()
 	}
 
-	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+	wtc.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Rune() == 'q' {
-			app.Stop()
+			wtc.app.Stop()
 		}
 		return event
 	})
 
-	if err := app.SetRoot(textview, true).Run(); err != nil {
+	if err := wtc.app.SetRoot(wtc.main, true).Run(); err != nil {
 		panic(err)
 	}
-	close(stateMsg)
-}
-
-// countup counts up from zero seconds till infinity.
-//
-// Progress is written to tv.
-func countup(tv *tview.TextView, msg <-chan TimerState) {
-	tick := time.NewTicker(1 * time.Second)
-	for t := 0; ; {
-		select {
-		case m := <-msg:
-			switch m {
-			case timerReset:
-				t = 0
-				tick.Reset(1 * time.Second)
-			case timerPause:
-				tick.Stop()
-				for e := range msg {
-					if e == timerStart {
-						break
-					}
-				}
-				tick.Reset(1 * time.Second)
-			}
-		case <-tick.C:
-			tv.SetText(FormatSecond(t))
-			t++
-		}
-	}
-}
-
-// countdown counts down for duration seconds, and runs pingFile when
-// countdown ends.
-//
-// Progress is written to tv.
-func countdown(duration int, msg <-chan TimerState, tv *tview.TextView) {
-	tick := time.NewTicker(1 * time.Second)
-	// NOTE(ps): will tick be gc-ed when countdown ends?
-	// defer tick.Stop()
-
-	tv.SetText(FormatSecond(duration))
-	for t := duration; t > 0; {
-		select {
-		case m := <-msg:
-			switch m {
-			case timerReset:
-				t = duration
-				tick.Reset(1 * time.Second)
-				tv.SetText(FormatSecond(duration))
-			case timerPause:
-				tick.Stop()
-				for e := range msg {
-					if e == timerStart {
-						break
-					}
-				}
-				tick.Reset(1 * time.Second)
-			}
-		case <-tick.C:
-			t--
-			tv.SetText(FormatSecond(t))
-		}
-	}
-	go tv.SetText(fmt.Sprintf("Your %s's up!\n", FormatSecond(duration)))
-
-	// if err := Ping(bytes.NewReader(pingFile)); err != nil {
-	//	 return err
-	// }
-	Ping(bytes.NewReader(pingFile))
 }

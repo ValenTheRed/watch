@@ -11,14 +11,12 @@ import (
 	"github.com/faiface/beep/flac"
 	"github.com/faiface/beep/speaker"
 	"github.com/gdamore/tcell/v2"
-	"github.com/rivo/tview"
 )
 
 //go:embed "ping.flac"
 var pingFile []byte
 
 type timer struct {
-	*tview.TextView
 	duration, timeLeft int
 	running            bool
 	stopMsg            chan struct{}
@@ -26,7 +24,6 @@ type timer struct {
 
 func NewTimer(duration int) *timer {
 	t := &timer{
-		TextView: tview.NewTextView(),
 		// Channel is buffered because: `Stop()` -- which sends on
 		// `stopMsg` -- will be called by the instance of `worker()`
 		// started by `Start()`, which has it's `quit` channel
@@ -35,8 +32,10 @@ func NewTimer(duration int) *timer {
 		duration: duration,
 		timeLeft: duration,
 	}
-	t.TextView.
-		SetTextAlign(tview.AlignCenter).
+	wtc.main.
+		SetChangedFunc(func() {
+			wtc.app.Draw()
+		}).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
 			case 'r':
@@ -48,16 +47,13 @@ func NewTimer(duration int) *timer {
 			}
 			return event
 		}).
-		SetTitle("Timer").
-		SetTitleAlign(tview.AlignLeft).
-		SetBorder(true).
-		SetBackgroundColor(tcell.ColorDefault)
+		SetTitle("Timer")
 
 	return t
 }
 
 func (t *timer) UpdateDisplay() {
-	t.SetText(FormatSecond(t.timeLeft))
+	wtc.main.SetText(FormatSecond(t.timeLeft))
 }
 
 func (t *timer) Start() {
@@ -71,7 +67,7 @@ func (t *timer) Start() {
 				t.Stop()
 				// exec-ed in their own goroutine so that `stopMsg` can
 				// get serviced before worker ticks.
-				go t.SetText(
+				go wtc.main.SetText(
 					fmt.Sprintf("Your %s's up!\n", FormatSecond(t.duration)),
 				)
 				go Ping(bytes.NewReader(pingFile))
