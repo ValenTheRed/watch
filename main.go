@@ -133,6 +133,10 @@ func countup(tv *tview.TextView, msg <-chan TimerState) {
 // Progress is written to tv.
 func countdown(duration int, msg <-chan TimerState, tv *tview.TextView) {
 	tick := time.NewTicker(1 * time.Second)
+	// NOTE(ps): will tick be gc-ed when countdown ends?
+	// defer tick.Stop()
+
+	tv.SetText(FormatSecond(duration))
 	for t := duration; t > 0; {
 		select {
 		case m := <-msg:
@@ -140,6 +144,7 @@ func countdown(duration int, msg <-chan TimerState, tv *tview.TextView) {
 			case timerReset:
 				t = duration
 				tick.Reset(1 * time.Second)
+				tv.SetText(FormatSecond(duration))
 			case timerPause:
 				tick.Stop()
 				for e := range msg {
@@ -150,8 +155,8 @@ func countdown(duration int, msg <-chan TimerState, tv *tview.TextView) {
 				tick.Reset(1 * time.Second)
 			}
 		case <-tick.C:
-			tv.SetText(FormatSecond(t))
 			t--
+			tv.SetText(FormatSecond(t))
 		}
 	}
 	go tv.SetText(fmt.Sprintf("Your %s's up!\n", FormatSecond(duration)))
