@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // checkField returns error if sec/min field are not less than 60.
@@ -68,4 +69,18 @@ func FormatSecond(s int) string {
 	min := (s / 60) % 60
 	sec := s % 60
 	return fmt.Sprintf("%02d:%02d:%02d", hrs, min, sec)
+}
+
+func worker(work func(), quit <-chan struct{}) {
+	t := time.NewTicker(1 * time.Second)
+	defer t.Stop()
+
+	for {
+		select {
+		case <-t.C:
+			work()
+		case <-quit:
+			return
+		}
+	}
 }
