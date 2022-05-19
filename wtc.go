@@ -26,7 +26,17 @@ func NewWtc(app *tview.Application) *Wtc {
 			SetTextAlign(tview.AlignCenter).
 			SetTitleAlign(tview.AlignLeft).
 			SetBorder(true).
-			SetBackgroundColor(tcell.ColorDefault)
+			SetBackgroundColor(tcell.ColorDefault).
+			SetFocusFunc(func() {
+				p.
+					SetTitleColor(tcell.ColorOrange).
+					SetBorderColor(tcell.ColorOrange)
+			})
+			p.SetBlurFunc(func() {
+				p.
+					SetTitleColor(tview.Styles.TitleColor).
+					SetBorderColor(tview.Styles.BorderColor)
+			})
 	}
 	w.help.
 		SetTitle("Help")
