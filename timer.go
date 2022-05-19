@@ -35,7 +35,24 @@ func NewTimer(duration int) *Timer {
 		duration: duration,
 		timeLeft: duration,
 	}
-	wtc.main.
+	t.
+		SetChangedFunc(func() {
+			wtc.app.Draw()
+		}).
+		SetTextAlign(tview.AlignCenter).
+		SetTitleAlign(tview.AlignLeft).
+		SetBorder(true).
+		SetBackgroundColor(tcell.ColorDefault).
+		SetFocusFunc(func() {
+			t.
+				SetTitleColor(tcell.ColorOrange).
+				SetBorderColor(tcell.ColorOrange)
+		}).
+		SetBlurFunc(func() {
+			t.
+				SetTitleColor(tview.Styles.TitleColor).
+				SetBorderColor(tview.Styles.BorderColor)
+		}).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
 			case 'r':
