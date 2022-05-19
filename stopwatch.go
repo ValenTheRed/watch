@@ -53,7 +53,7 @@ func NewStopwatch() *Stopwatch {
 }
 
 func (sw *Stopwatch) UpdateDisplay() {
-	wtc.main.SetText(FormatSecond(sw.elapsed))
+	sw.SetText(FormatSecond(sw.elapsed))
 }
 
 func (sw *Stopwatch) Start() {

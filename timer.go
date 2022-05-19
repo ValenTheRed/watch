@@ -75,7 +75,7 @@ func (t *Timer) IsTimeLeft() bool {
 }
 
 func (t *Timer) UpdateDisplay() {
-	wtc.main.SetText(FormatSecond(t.timeLeft))
+	t.SetText(FormatSecond(t.timeLeft))
 }
 
 func (t *Timer) Start() {
@@ -89,7 +89,7 @@ func (t *Timer) Start() {
 				t.Stop()
 				// exec-ed in their own goroutine so that `stopMsg` can
 				// get serviced before worker ticks.
-				go wtc.main.SetText(
+				go t.SetText(
 					fmt.Sprintf("Your %s's up!\n", FormatSecond(t.duration)),
 				)
 				go Ping(bytes.NewReader(pingFile))
