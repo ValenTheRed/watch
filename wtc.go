@@ -23,3 +23,7 @@ func NewWtc(app *tview.Application) *Wtc {
 		main: main,
 	}
 }
+
+func (w *Wtc) Run() error {
+	return w.app.SetRoot(w.main, true).Run()
+}

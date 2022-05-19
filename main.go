@@ -62,7 +62,7 @@ func main() {
 		return event
 	})
 
-	if err := wtc.app.SetRoot(wtc.main, true).Run(); err != nil {
+	if err := wtc.Run(); err != nil {
 		panic(err)
 	}
 }
