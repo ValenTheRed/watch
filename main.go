@@ -31,6 +31,13 @@ func init() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "%s\n", usage)
 	}
+
+	tview.Borders.HorizontalFocus  = tview.Borders.Horizontal
+	tview.Borders.VerticalFocus    = tview.Borders.Vertical
+	tview.Borders.TopLeftFocus     = tview.Borders.TopLeft
+	tview.Borders.TopRightFocus    = tview.Borders.TopRight
+	tview.Borders.BottomLeftFocus  = tview.Borders.BottomLeft
+	tview.Borders.BottomRightFocus = tview.Borders.BottomRight
 }
 
 func exitOnErr(err error) {
@@ -56,8 +63,16 @@ func main() {
 	}
 
 	wtc.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Rune() == 'q' {
-			wtc.app.Stop()
+		switch event.Key() {
+		case tcell.KeyRune:
+			switch event.Rune() {
+			case 'q':
+				wtc.app.Stop()
+			}
+		case tcell.KeyTab:
+			wtc.CycleFocusForward()
+		case tcell.KeyBacktab:
+			wtc.CycleFocusBackward()
 		}
 		return event
 	})
