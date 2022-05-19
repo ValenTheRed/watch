@@ -8,6 +8,7 @@ import (
 type Wtc struct {
 	app  *tview.Application
 	main *tview.TextView
+	help *tview.TextView
 }
 
 func NewWtc(app *tview.Application) *Wtc {
@@ -18,12 +19,27 @@ func NewWtc(app *tview.Application) *Wtc {
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault)
 
+	help := tview.NewTextView()
+	help.
+		SetTextAlign(tview.AlignCenter).
+		SetTitle("Help").
+		SetTitleAlign(tview.AlignLeft).
+		SetBorder(true).
+		SetBackgroundColor(tcell.ColorDefault)
+
 	return &Wtc{
 		app:  app,
 		main: main,
+		help: help,
 	}
 }
 
 func (w *Wtc) Run() error {
-	return w.app.SetRoot(w.main, true).Run()
+	return w.app.SetRoot(w.setLayout(), true).Run()
+}
+
+func (w *Wtc) setLayout() *tview.Flex {
+	return tview.NewFlex().SetDirection(tview.FlexRow).
+		AddItem(w.main, 0, 9, true).
+		AddItem(w.help, 0, 1, false)
 }
