@@ -13,27 +13,25 @@ type Wtc struct {
 }
 
 func NewWtc(app *tview.Application) *Wtc {
-	main := tview.NewTextView()
-	main.
-		SetTextAlign(tview.AlignCenter).
-		SetTitleAlign(tview.AlignLeft).
-		SetBorder(true).
-		SetBackgroundColor(tcell.ColorDefault)
-
-	help := tview.NewTextView()
-	help.
-		SetTextAlign(tview.AlignCenter).
-		SetTitle("Help").
-		SetTitleAlign(tview.AlignLeft).
-		SetBorder(true).
-		SetBackgroundColor(tcell.ColorDefault)
-
-	return &Wtc{
+	w := &Wtc{
 		app:  app,
-		main: main,
-		help: help,
-		panels: []*tview.TextView{ main, help },
+		main: tview.NewTextView(),
+		help: tview.NewTextView(),
 	}
+	w.panels = []*tview.TextView{ w.main, w.help }
+
+	for _, p := range w.panels {
+		p := p
+		p.
+			SetTextAlign(tview.AlignCenter).
+			SetTitleAlign(tview.AlignLeft).
+			SetBorder(true).
+			SetBackgroundColor(tcell.ColorDefault)
+	}
+	w.help.
+		SetTitle("Help")
+
+	return w
 }
 
 func (w *Wtc) Run() error {
