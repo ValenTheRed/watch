@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -61,21 +60,6 @@ func main() {
 		t := NewTimer(duration)
 		t.Start()
 	}
-
-	wtc.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Key() {
-		case tcell.KeyRune:
-			switch event.Rune() {
-			case 'q':
-				wtc.app.Stop()
-			}
-		case tcell.KeyTab:
-			wtc.CycleFocusForward()
-		case tcell.KeyBacktab:
-			wtc.CycleFocusBackward()
-		}
-		return event
-	})
 
 	if err := wtc.Run(); err != nil {
 		panic(err)

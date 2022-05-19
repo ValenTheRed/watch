@@ -41,6 +41,21 @@ func NewWtc(app *tview.Application) *Wtc {
 	w.help.
 		SetTitle("Help")
 
+	w.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyRune:
+			switch event.Rune() {
+			case 'q':
+				wtc.app.Stop()
+			}
+		case tcell.KeyTab:
+			wtc.CycleFocusForward()
+		case tcell.KeyBacktab:
+			wtc.CycleFocusBackward()
+		}
+		return event
+	})
+
 	return w
 }
 
