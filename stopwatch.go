@@ -15,9 +15,6 @@ func NewStopwatch() *stopwatch {
 		stopMsg: make(chan struct{}),
 	}
 	wtc.main.
-		SetChangedFunc(func() {
-			wtc.app.Draw()
-		}).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
 			case 'r':

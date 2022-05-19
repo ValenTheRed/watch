@@ -23,6 +23,9 @@ func NewWtc(app *tview.Application) *Wtc {
 	for _, p := range w.panels {
 		p := p
 		p.
+			SetChangedFunc(func() {
+				wtc.app.Draw()
+			}).
 			SetTextAlign(tview.AlignCenter).
 			SetTitleAlign(tview.AlignLeft).
 			SetBorder(true).

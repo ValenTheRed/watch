@@ -33,9 +33,6 @@ func NewTimer(duration int) *timer {
 		timeLeft: duration,
 	}
 	wtc.main.
-		SetChangedFunc(func() {
-			wtc.app.Draw()
-		}).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
 			case 'r':
