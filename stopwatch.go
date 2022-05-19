@@ -2,9 +2,11 @@ package main
 
 import (
 	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
 )
 
 type Stopwatch struct {
+	*tview.TextView
 	elapsed int
 	running bool
 	stopMsg chan struct{}
@@ -12,6 +14,7 @@ type Stopwatch struct {
 
 func NewStopwatch() *Stopwatch {
 	sw := &Stopwatch{
+		TextView: tview.NewTextView(),
 		stopMsg: make(chan struct{}),
 	}
 	wtc.main.

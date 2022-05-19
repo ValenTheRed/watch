@@ -11,12 +11,14 @@ import (
 	"github.com/faiface/beep/flac"
 	"github.com/faiface/beep/speaker"
 	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
 )
 
 //go:embed "ping.flac"
 var pingFile []byte
 
 type Timer struct {
+	*tview.TextView
 	duration, timeLeft int
 	running            bool
 	stopMsg            chan struct{}
@@ -24,6 +26,7 @@ type Timer struct {
 
 func NewTimer(duration int) *Timer {
 	t := &Timer{
+		TextView: tview.NewTextView(),
 		// Channel is buffered because: `Stop()` -- which sends on
 		// `stopMsg` -- will be called by the instance of `worker()`
 		// started by `Start()`, which has it's `quit` channel
