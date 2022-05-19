@@ -5,43 +5,29 @@ import (
 	"github.com/rivo/tview"
 )
 
-type Wtc struct {
-	app  *tview.Application
-	main *tview.TextView
-	help *tview.TextView
-	panels []*tview.TextView
+type Panel interface {
+	HasFocus() bool
 }
 
-func NewWtc(app *tview.Application) *Wtc {
+type Wtc struct {
+	app  *tview.Application
+
+	stopwatch *Stopwatch
+	timer *Timer
+	help *tview.TextView
+
+	// panels is the list of widgets currently being displayed
+	panels []Panel
+}
+
+func NewWtc(app *tview.Application, duration int) *Wtc {
 	w := &Wtc{
 		app:  app,
-		main: tview.NewTextView(),
 		help: tview.NewTextView(),
 	}
-	w.panels = []*tview.TextView{ w.main, w.help }
 
-	for _, p := range w.panels {
-		p := p
-		p.
-			SetChangedFunc(func() {
-				wtc.app.Draw()
-			}).
-			SetTextAlign(tview.AlignCenter).
-			SetTitleAlign(tview.AlignLeft).
-			SetBorder(true).
-			SetBackgroundColor(tcell.ColorDefault).
-			SetFocusFunc(func() {
-				p.
-					SetTitleColor(tcell.ColorOrange).
-					SetBorderColor(tcell.ColorOrange)
-			})
-			p.SetBlurFunc(func() {
-				p.
-					SetTitleColor(tview.Styles.TitleColor).
-					SetBorderColor(tview.Styles.BorderColor)
-			})
-	}
 	w.help.
+		SetBorder(true).
 		SetTitle("Help")
 
 	w.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -59,16 +45,41 @@ func NewWtc(app *tview.Application) *Wtc {
 		return event
 	})
 
+	w.InitMain(duration)
+
 	return w
 }
 
+func (w *Wtc) InitMain(duration int) {
+	var p Panel
+	if duration == 0 {
+		w.stopwatch = NewStopwatch()
+		p = w.stopwatch
+	} else {
+		w.timer = NewTimer(duration)
+		p = w.timer
+	}
+	w.panels = append(w.panels, p, w.help)
+}
+
 func (w *Wtc) Run() error {
+	if w.timer != nil {
+		w.timer.Start()
+	} else {
+		w.stopwatch.Start()
+	}
 	return w.app.SetRoot(w.setLayout(), true).Run()
 }
 
 func (w *Wtc) setLayout() *tview.Flex {
+	var prim tview.Primitive
+	if w.timer != nil {
+		prim = w.timer
+	} else {
+		prim = w.stopwatch
+	}
 	return tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(w.main, 0, 9, true).
+		AddItem(prim, 0, 9, true).
 		AddItem(w.help, 0, 1, false)
 }
 
@@ -90,7 +101,7 @@ func (w *Wtc) cycleFocus(offset int) {
 		}
 	}
 
-	w.app.SetFocus(w.panels[next])
+	w.app.SetFocus(w.panels[next].(tview.Primitive))
 }
 
 func abs(a int) int {

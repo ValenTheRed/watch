@@ -51,15 +51,7 @@ func main() {
 	duration, err := ParseDuration(flag.Arg(0))
 	exitOnErr(err)
 
-	wtc = NewWtc(tview.NewApplication())
-
-	if duration == 0 {
-		sw := NewStopwatch()
-		sw.Start()
-	} else {
-		t := NewTimer(duration)
-		t.Start()
-	}
+	wtc = NewWtc(tview.NewApplication(), duration)
 
 	if err := wtc.Run(); err != nil {
 		panic(err)
