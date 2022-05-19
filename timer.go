@@ -16,14 +16,14 @@ import (
 //go:embed "ping.flac"
 var pingFile []byte
 
-type timer struct {
+type Timer struct {
 	duration, timeLeft int
 	running            bool
 	stopMsg            chan struct{}
 }
 
-func NewTimer(duration int) *timer {
-	t := &timer{
+func NewTimer(duration int) *Timer {
+	t := &Timer{
 		// Channel is buffered because: `Stop()` -- which sends on
 		// `stopMsg` -- will be called by the instance of `worker()`
 		// started by `Start()`, which has it's `quit` channel
@@ -50,15 +50,15 @@ func NewTimer(duration int) *timer {
 	return t
 }
 
-func (t *timer) IsTimeLeft() bool {
+func (t *Timer) IsTimeLeft() bool {
 	return t.timeLeft > 0
 }
 
-func (t *timer) UpdateDisplay() {
+func (t *Timer) UpdateDisplay() {
 	wtc.main.SetText(FormatSecond(t.timeLeft))
 }
 
-func (t *timer) Start() {
+func (t *Timer) Start() {
 	if !t.running && t.IsTimeLeft() {
 		t.running = true
 		go worker(func() {
@@ -78,14 +78,14 @@ func (t *timer) Start() {
 	}
 }
 
-func (t *timer) Stop() {
+func (t *Timer) Stop() {
 	if t.running {
 		t.running = false
 		t.stopMsg <- struct{}{}
 	}
 }
 
-func (t *timer) Reset() {
+func (t *Timer) Reset() {
 	t.Stop()
 	t.timeLeft = t.duration
 	t.UpdateDisplay()

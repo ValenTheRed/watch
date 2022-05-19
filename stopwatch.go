@@ -4,14 +4,14 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-type stopwatch struct {
+type Stopwatch struct {
 	elapsed int
 	running bool
 	stopMsg chan struct{}
 }
 
-func NewStopwatch() *stopwatch {
-	sw := &stopwatch{
+func NewStopwatch() *Stopwatch {
+	sw := &Stopwatch{
 		stopMsg: make(chan struct{}),
 	}
 	wtc.main.
@@ -32,11 +32,11 @@ func NewStopwatch() *stopwatch {
 	return sw
 }
 
-func (sw *stopwatch) UpdateDisplay() {
+func (sw *Stopwatch) UpdateDisplay() {
 	wtc.main.SetText(FormatSecond(sw.elapsed))
 }
 
-func (sw *stopwatch) Start() {
+func (sw *Stopwatch) Start() {
 	if !sw.running {
 		sw.running = true
 		go worker(func() {
@@ -46,14 +46,14 @@ func (sw *stopwatch) Start() {
 	}
 }
 
-func (sw *stopwatch) Stop() {
+func (sw *Stopwatch) Stop() {
 	if sw.running {
 		sw.running = false
 		sw.stopMsg <- struct{}{}
 	}
 }
 
-func (sw *stopwatch) Reset() {
+func (sw *Stopwatch) Reset() {
 	sw.Stop()
 	sw.elapsed = 0
 	sw.UpdateDisplay()
