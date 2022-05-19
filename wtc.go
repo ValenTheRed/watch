@@ -56,6 +56,14 @@ func (w *Wtc) setLayout() *tview.Flex {
 		AddItem(w.help, 0, 1, false)
 }
 
+func (w *Wtc) CycleFocusForward() {
+	w.cycleFocus(1)
+}
+
+func (w *Wtc) CycleFocusBackward() {
+	w.cycleFocus(-1)
+}
+
 func (w *Wtc) cycleFocus(offset int) {
 	var next int
 	for i, panel := range w.panels {

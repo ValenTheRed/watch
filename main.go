@@ -56,8 +56,16 @@ func main() {
 	}
 
 	wtc.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Rune() == 'q' {
-			wtc.app.Stop()
+		switch event.Key() {
+		case tcell.KeyRune:
+			switch event.Rune() {
+			case 'q':
+				wtc.app.Stop()
+			}
+		case tcell.KeyTab:
+			wtc.CycleFocusForward()
+		case tcell.KeyBacktab:
+			wtc.CycleFocusBackward()
 		}
 		return event
 	})
