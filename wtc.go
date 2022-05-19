@@ -1,25 +1,15 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
-
-type Panel interface {
-	// SetFocusFunc gets called after SetFocus has been set to the
-	// panel.
-	SetFocusFunc(callback func()) *tview.Box
-
-	HasFocus() bool
-}
 
 type Wtc struct {
 	app  *tview.Application
 	main *tview.TextView
 	help *tview.TextView
-	panels []Panel
+	panels []*tview.TextView
 }
 
 func NewWtc(app *tview.Application) *Wtc {
@@ -42,7 +32,7 @@ func NewWtc(app *tview.Application) *Wtc {
 		app:  app,
 		main: main,
 		help: help,
-		panels: []Panel{ main, help },
+		panels: []*tview.TextView{ main, help },
 	}
 }
 
@@ -74,16 +64,7 @@ func (w *Wtc) cycleFocus(offset int) {
 		}
 	}
 
-	// Type switch used to clearly demonstrate underlying assumption
-	switch p := w.panels[next].(type) {
-	case tview.Primitive:
-		w.app.SetFocus(p)
-	default:
-		// Cannot happen
-		panic(
-			fmt.Sprintf("cycleFocus: p %t does not satisfy tview.Primitive", p),
-		)
-	}
+	w.app.SetFocus(w.panels[next])
 }
 
 func abs(a int) int {
