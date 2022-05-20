@@ -6,6 +6,7 @@ import (
 )
 
 type Paneler interface {
+	tview.Primitive
 	HasFocus() bool
 }
 
@@ -101,7 +102,7 @@ func (w *Wtc) cycleFocus(offset int) {
 		}
 	}
 
-	w.app.SetFocus(next.(tview.Primitive))
+	w.app.SetFocus(next)
 }
 
 func abs(a int) int {
