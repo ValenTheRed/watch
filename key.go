@@ -29,6 +29,7 @@ func NewBinding(opts ...BindingOpt) *Binding {
 func WithRune(char rune) BindingOpt {
 	return func(b *Binding) {
 		b.char = char
+		b.key = tcell.KeyRune
 	}
 }
 
