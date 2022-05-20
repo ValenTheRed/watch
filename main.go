@@ -31,11 +31,11 @@ func init() {
 		fmt.Fprintf(os.Stderr, "%s\n", usage)
 	}
 
-	tview.Borders.HorizontalFocus  = tview.Borders.Horizontal
-	tview.Borders.VerticalFocus    = tview.Borders.Vertical
-	tview.Borders.TopLeftFocus     = tview.Borders.TopLeft
-	tview.Borders.TopRightFocus    = tview.Borders.TopRight
-	tview.Borders.BottomLeftFocus  = tview.Borders.BottomLeft
+	tview.Borders.HorizontalFocus = tview.Borders.Horizontal
+	tview.Borders.VerticalFocus = tview.Borders.Vertical
+	tview.Borders.TopLeftFocus = tview.Borders.TopLeft
+	tview.Borders.TopRightFocus = tview.Borders.TopRight
+	tview.Borders.BottomLeftFocus = tview.Borders.BottomLeft
 	tview.Borders.BottomRightFocus = tview.Borders.BottomRight
 }
 
@@ -51,15 +51,7 @@ func main() {
 	duration, err := ParseDuration(flag.Arg(0))
 	exitOnErr(err)
 
-	wtc = NewWtc(tview.NewApplication())
-
-	if duration == 0 {
-		sw := NewStopwatch()
-		sw.Start()
-	} else {
-		t := NewTimer(duration)
-		t.Start()
-	}
+	wtc = NewWtc(tview.NewApplication(), duration)
 
 	if err := wtc.Run(); err != nil {
 		panic(err)
