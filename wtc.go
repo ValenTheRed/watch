@@ -5,7 +5,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-type Panel interface {
+type Paneler interface {
 	HasFocus() bool
 }
 
@@ -17,7 +17,7 @@ type Wtc struct {
 	help      *tview.TextView
 
 	// panels is the list of widgets currently being displayed
-	panels []Panel
+	panels []Paneler
 }
 
 func NewWtc(app *tview.Application, duration int) *Wtc {
@@ -51,7 +51,7 @@ func NewWtc(app *tview.Application, duration int) *Wtc {
 }
 
 func (w *Wtc) InitMain(duration int) {
-	var p Panel
+	var p Paneler
 	if duration == 0 {
 		w.stopwatch = NewStopwatch()
 		p = w.stopwatch
