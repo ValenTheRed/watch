@@ -92,16 +92,16 @@ func (w *Wtc) CycleFocusBackward() {
 }
 
 func (w *Wtc) cycleFocus(offset int) {
-	var next int
+	var next Paneler
 	for i, panel := range w.panels {
 		// NOTE: one (and only one) panel will always have a focus
 		if panel.HasFocus() {
-			next = abs(i + offset) % len(w.panels)
+			next = w.panels[abs(i + offset) % len(w.panels)]
 			break
 		}
 	}
 
-	w.app.SetFocus(w.panels[next].(tview.Primitive))
+	w.app.SetFocus(next.(tview.Primitive))
 }
 
 func abs(a int) int {
