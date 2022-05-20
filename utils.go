@@ -89,7 +89,7 @@ func worker(work func(), quit <-chan struct{}) {
 }
 
 type Focuser interface {
-	GetTitle() string
+	Title() string
 	SetTitle(string) *tview.Box
 
 	SetBorderColor(tcell.Color) *tview.Box
@@ -99,7 +99,7 @@ type Focuser interface {
 func focusFunc(widget Focuser) func() {
 	return func() {
 		widget.
-			SetTitle("[" + widget.GetTitle() + "]").
+			SetTitle("[" + widget.Title() + "]").
 			SetTitleColor(tcell.ColorOrange).
 			SetBorderColor(tcell.ColorOrange)
 	}
@@ -108,7 +108,7 @@ func focusFunc(widget Focuser) func() {
 func blurFunc(widget Focuser) func() {
 	return func() {
 		widget.
-			SetTitle(widget.GetTitle()).
+			SetTitle(widget.Title()).
 			SetTitleColor(tview.Styles.TitleColor).
 			SetBorderColor(tview.Styles.BorderColor)
 	}

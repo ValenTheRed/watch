@@ -46,7 +46,7 @@ func NewStopwatch() *Stopwatch {
 	return sw
 }
 
-func (sw *Stopwatch) GetTitle() string {
+func (sw *Stopwatch) Title() string {
 	return sw.title
 }
 
