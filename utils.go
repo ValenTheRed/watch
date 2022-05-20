@@ -96,12 +96,14 @@ type Focuser interface {
 	SetTitleColor(tcell.Color) *tview.Box
 }
 
-func focusFunc(widget Focuser) func() {
+func focusFunc(widget Focuser, km KeyMaper) func() {
 	return func() {
 		widget.
 			SetTitle("[" + widget.Title() + "]").
 			SetTitleColor(tcell.ColorOrange).
 			SetBorderColor(tcell.ColorOrange)
+		wtc.help.SetLocals(km)
+		wtc.help.UpdateDisplay()
 	}
 }
 
@@ -111,5 +113,7 @@ func blurFunc(widget Focuser) func() {
 			SetTitle(widget.Title()).
 			SetTitleColor(tview.Styles.TitleColor).
 			SetBorderColor(tview.Styles.BorderColor)
+		wtc.help.UnsetLocals()
+		wtc.help.UpdateDisplay()
 	}
 }
