@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strings"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -33,4 +35,30 @@ func NewHelpView() *HelpView {
 
 func (hv *HelpView) Title() string {
 	return hv.title
+}
+
+func (hv *HelpView) UpdateDisplay() {
+	sep := " • "
+
+	view := strings.Builder{}
+	for _, bindings := range [][]*Binding{
+		hv.locals,
+		hv.globals,
+	} {
+		for _, b := range bindings {
+			if !b.IsEnabled() {
+				continue
+			}
+			var key string
+			if b.Key() == tcell.KeyRune {
+				key = string(b.Rune())
+			} else {
+				key = tcell.KeyNames[b.Key()]
+			}
+			view.WriteString(key + sep + b.Help())
+		}
+	}
+
+	hv.SetText(view.String())
+	view.Reset()
 }
