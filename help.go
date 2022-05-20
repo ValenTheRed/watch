@@ -7,7 +7,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-type KeyMap interface {
+type KeyMaper interface {
 	// Keys will return the key Binding in the order that the widgets
 	// want them to be displayed.
 	Keys() []*Binding
@@ -69,7 +69,7 @@ func (hv *HelpView) UpdateDisplay() {
 	view.Reset()
 }
 
-func (hv *HelpView) SetGlobals(km KeyMap) {
+func (hv *HelpView) SetGlobals(km KeyMaper) {
 	hv.setBindings(&hv.globals, km)
 }
 
@@ -77,7 +77,7 @@ func (hv *HelpView) UnsetGlobals() {
 	hv.unsetBindings(&hv.globals)
 }
 
-func (hv *HelpView) SetLocals(km KeyMap) {
+func (hv *HelpView) SetLocals(km KeyMaper) {
 	hv.setBindings(&hv.locals, km)
 }
 
@@ -85,7 +85,7 @@ func (hv *HelpView) UnsetLocals() {
 	hv.unsetBindings(&hv.locals)
 }
 
-func (hv *HelpView) setBindings(bindings *[]*Binding, km KeyMap) {
+func (hv *HelpView) setBindings(bindings *[]*Binding, km KeyMaper) {
 	*bindings = km.Keys()
 	for _, binding := range *bindings {
 		binding.SetDisableFunc(hv.UpdateDisplay)
