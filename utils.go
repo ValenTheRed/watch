@@ -6,6 +6,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
 )
 
 // checkField returns error if sec/min field are not less than 60.
@@ -82,5 +85,31 @@ func worker(work func(), quit <-chan struct{}) {
 		case <-quit:
 			return
 		}
+	}
+}
+
+type Focuser interface {
+	GetTitle() string
+	SetTitle(string) *tview.Box
+
+	SetBorderColor(tcell.Color) *tview.Box
+	SetTitleColor(tcell.Color) *tview.Box
+}
+
+func focusFunc(widget Focuser) func() {
+	return func() {
+		widget.
+			SetTitle("[" + widget.GetTitle() + "]").
+			SetTitleColor(tcell.ColorOrange).
+			SetBorderColor(tcell.ColorOrange)
+	}
+}
+
+func blurFunc(widget Focuser) func() {
+	return func() {
+		widget.
+			SetTitle(widget.GetTitle()).
+			SetTitleColor(tview.Styles.TitleColor).
+			SetBorderColor(tview.Styles.BorderColor)
 	}
 }
