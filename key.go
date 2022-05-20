@@ -10,6 +10,9 @@ type Binding struct {
 	char    rune
 	disable bool
 	help    string
+
+	// Optional function that is called whenever disable is changed.
+	handler func()
 }
 
 type BindingOpt func(*Binding)
@@ -59,4 +62,19 @@ func (b Binding) IsEnabled() bool {
 
 func (b *Binding) SetDisable(opt bool) {
 	b.disable = opt
+	if b.handler != nil {
+		b.handler()
+	}
+}
+
+// SetDisableFunc sets handler as the function that is invoked whenever
+// disable is changed.
+func (b *Binding) SetDisableFunc(handler func()) {
+	b.handler = handler
+}
+
+// DisableFunc returns the handler set with SetDisableFunc(), nil
+// otherwise.
+func (b *Binding) DisableFunc() func() {
+	return b.handler
 }
