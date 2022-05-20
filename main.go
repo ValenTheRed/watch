@@ -31,11 +31,11 @@ func init() {
 		fmt.Fprintf(os.Stderr, "%s\n", usage)
 	}
 
-	tview.Borders.HorizontalFocus  = tview.Borders.Horizontal
-	tview.Borders.VerticalFocus    = tview.Borders.Vertical
-	tview.Borders.TopLeftFocus     = tview.Borders.TopLeft
-	tview.Borders.TopRightFocus    = tview.Borders.TopRight
-	tview.Borders.BottomLeftFocus  = tview.Borders.BottomLeft
+	tview.Borders.HorizontalFocus = tview.Borders.Horizontal
+	tview.Borders.VerticalFocus = tview.Borders.Vertical
+	tview.Borders.TopLeftFocus = tview.Borders.TopLeft
+	tview.Borders.TopRightFocus = tview.Borders.TopRight
+	tview.Borders.BottomLeftFocus = tview.Borders.BottomLeft
 	tview.Borders.BottomRightFocus = tview.Borders.BottomRight
 }
 

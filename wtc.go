@@ -10,11 +10,11 @@ type Panel interface {
 }
 
 type Wtc struct {
-	app  *tview.Application
+	app *tview.Application
 
 	stopwatch *Stopwatch
-	timer *Timer
-	help *tview.TextView
+	timer     *Timer
+	help      *tview.TextView
 
 	// panels is the list of widgets currently being displayed
 	panels []Panel
