@@ -30,3 +30,7 @@ func NewHelpView() *HelpView {
 
 	return hv
 }
+
+func (hv *HelpView) Title() string {
+	return hv.title
+}
