@@ -1,0 +1,62 @@
+package main
+
+import "github.com/gdamore/tcell/v2"
+
+// Design inspired from github.com/charmbracelet/bubbles/key
+
+// Binding only supports ASCII printable characters as keybinds.
+type Binding struct {
+	key     tcell.Key
+	char    rune
+	disable bool
+	help    string
+}
+
+type BindingOpt func(*Binding)
+
+// NewBinding returns a new Binding from a set of BindingOpt options.
+func NewBinding(opts ...BindingOpt) *Binding {
+	b := &Binding{}
+	for _, opt := range opts {
+		opt(b)
+	}
+	return b
+}
+
+func WithRune(char rune) BindingOpt {
+	return func(b *Binding) {
+		b.char = char
+	}
+}
+
+func WithKey(key tcell.Key) BindingOpt {
+	return func(b *Binding) {
+		b.key = key
+	}
+}
+
+func WithHelp(help string) BindingOpt {
+	return func(b *Binding) {
+		b.help = help
+	}
+}
+
+func (b Binding) Rune() rune {
+	return b.char
+}
+
+func (b Binding) Key() tcell.Key {
+	return b.key
+}
+
+func (b Binding) Help() string {
+	return b.help
+}
+
+func (b Binding) IsEnabled() bool {
+	return !b.disable
+}
+
+func (b *Binding) SetDisable(opt bool) {
+	b.disable = opt
+}
