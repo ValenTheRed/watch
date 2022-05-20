@@ -64,7 +64,7 @@ func NewTimer(duration int) *Timer {
 	return t
 }
 
-func (t *Timer) GetTitle() string {
+func (t *Timer) Title() string {
 	return t.title
 }
 
