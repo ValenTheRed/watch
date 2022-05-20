@@ -22,6 +22,7 @@ type Timer struct {
 	duration, timeLeft int
 	running            bool
 	stopMsg            chan struct{}
+	title              string
 }
 
 func NewTimer(duration int) *Timer {
@@ -34,6 +35,7 @@ func NewTimer(duration int) *Timer {
 		stopMsg:  make(chan struct{}, 1),
 		duration: duration,
 		timeLeft: duration,
+		title:    " Timer ",
 	}
 	t.
 		SetChangedFunc(func() {
@@ -64,10 +66,14 @@ func NewTimer(duration int) *Timer {
 			}
 			return event
 		}).
-		SetTitle("Timer")
+		SetTitle(t.title)
 
 	t.UpdateDisplay()
 	return t
+}
+
+func (t *Timer) GetTitle() string {
+	return t.title
 }
 
 func (t *Timer) IsTimeLeft() bool {

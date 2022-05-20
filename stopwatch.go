@@ -10,12 +10,14 @@ type Stopwatch struct {
 	elapsed int
 	running bool
 	stopMsg chan struct{}
+	title   string
 }
 
 func NewStopwatch() *Stopwatch {
 	sw := &Stopwatch{
 		TextView: tview.NewTextView(),
-		stopMsg: make(chan struct{}),
+		stopMsg:  make(chan struct{}),
+		title:    " Stopwatch ",
 	}
 	sw.
 		SetChangedFunc(func() {
@@ -46,10 +48,14 @@ func NewStopwatch() *Stopwatch {
 			}
 			return event
 		}).
-		SetTitle("Stopwatch")
+		SetTitle(sw.title)
 
 	sw.UpdateDisplay()
 	return sw
+}
+
+func (sw *Stopwatch) GetTitle() string {
+	return sw.title
 }
 
 func (sw *Stopwatch) UpdateDisplay() {
