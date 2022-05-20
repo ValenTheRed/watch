@@ -45,16 +45,8 @@ func NewTimer(duration int) *Timer {
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
-		SetFocusFunc(func() {
-			t.
-				SetTitleColor(tcell.ColorOrange).
-				SetBorderColor(tcell.ColorOrange)
-		}).
-		SetBlurFunc(func() {
-			t.
-				SetTitleColor(tview.Styles.TitleColor).
-				SetBorderColor(tview.Styles.BorderColor)
-		}).
+		SetFocusFunc(focusFunc(t)).
+		SetBlurFunc(blurFunc(t)).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
 			case 'r':

@@ -27,16 +27,8 @@ func NewStopwatch() *Stopwatch {
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
-		SetFocusFunc(func() {
-			sw.
-				SetTitleColor(tcell.ColorOrange).
-				SetBorderColor(tcell.ColorOrange)
-		}).
-		SetBlurFunc(func() {
-			sw.
-				SetTitleColor(tview.Styles.TitleColor).
-				SetBorderColor(tview.Styles.BorderColor)
-		}).
+		SetFocusFunc(focusFunc(sw)).
+		SetBlurFunc(blurFunc(sw)).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
 			case 'r':
