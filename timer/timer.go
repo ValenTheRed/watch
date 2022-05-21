@@ -60,15 +60,10 @@ func New(duration int) *Timer {
 	}
 
 	t.
-		SetChangedFunc(func() {
-			wtc.app.Draw()
-		}).
 		SetTextAlign(tview.AlignCenter).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
-		SetFocusFunc(focusFunc(t, t.km)).
-		SetBlurFunc(blurFunc(t)).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
 			case t.km.Reset.Rune():

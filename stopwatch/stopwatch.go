@@ -42,15 +42,10 @@ func New() *Stopwatch {
 	}
 
 	sw.
-		SetChangedFunc(func() {
-			wtc.app.Draw()
-		}).
 		SetTextAlign(tview.AlignCenter).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
-		SetFocusFunc(focusFunc(sw, sw.km)).
-		SetBlurFunc(blurFunc(sw)).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
 			case sw.km.Reset.Rune():

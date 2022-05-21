@@ -50,6 +50,11 @@ func NewWtc(app *tview.Application, duration int) *Wtc {
 		},
 	}
 
+	w.help.
+		SetChangedFunc(func() {
+			w.app.Draw()
+		})
+
 	w.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyRune:
@@ -82,9 +87,22 @@ func (w *Wtc) InitMain(duration int) {
 	if duration == 0 {
 		w.stopwatch = stopwatch.New()
 		p = w.stopwatch
+		w.stopwatch.
+			SetChangedFunc(func() {
+				w.app.Draw()
+			}).
+			SetFocusFunc(focusFunc(w.stopwatch, w.stopwatch)).
+			SetBlurFunc(blurFunc(w.stopwatch))
+
 	} else {
 		w.timer = timer.New(duration)
 		p = w.timer
+		w.timer.
+			SetChangedFunc(func() {
+				w.app.Draw()
+			}).
+			SetFocusFunc(focusFunc(w.timer, w.timer)).
+			SetBlurFunc(blurFunc(w.timer))
 	}
 	// w.help widget will not be a focus target.
 	// See: [FIXME](utils.go: focusFunc())

@@ -29,15 +29,10 @@ func NewHelpView() *HelpView {
 		km:       keyMap{},
 	}
 	hv.
-		SetChangedFunc(func() {
-			wtc.app.Draw()
-		}).
 		SetTextAlign(tview.AlignCenter).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
-		SetFocusFunc(focusFunc(hv, hv.km)).
-		SetBlurFunc(blurFunc(hv)).
 		SetTitle(hv.title)
 
 	return hv
