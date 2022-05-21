@@ -12,7 +12,9 @@ func FormatSecond(s int) string {
 	return fmt.Sprintf("%02d:%02d:%02d", hrs, min, sec)
 }
 
-func worker(work func(), quit <-chan struct{}) {
+// Worker executes work after every second. If a message is sent to
+// quit, Worker returns.
+func Worker(work func(), quit <-chan struct{}) {
 	t := time.NewTicker(1 * time.Second)
 	defer t.Stop()
 
