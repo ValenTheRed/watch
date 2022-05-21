@@ -40,7 +40,7 @@ func NewHelpView() *HelpView {
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
-		SetFocusFunc(focusFunc(hv)).
+		SetFocusFunc(focusFunc(hv, hv.keyMap)).
 		SetBlurFunc(blurFunc(hv)).
 		SetTitle(hv.title)
 
