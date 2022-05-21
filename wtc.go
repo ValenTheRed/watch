@@ -5,6 +5,16 @@ import (
 	"github.com/rivo/tview"
 )
 
+type keyMapWtc struct {
+	Quit, CycleFocusForward, CycleFocusBackward *Binding
+}
+
+func (km *keyMapWtc) Keys() []*Binding {
+	return []*Binding{
+		km.Quit, km.CycleFocusForward, km.CycleFocusBackward,
+	}
+}
+
 type Paneler interface {
 	tview.Primitive
 	HasFocus() bool
@@ -15,7 +25,9 @@ type Wtc struct {
 
 	stopwatch *Stopwatch
 	timer     *Timer
-	help      *tview.TextView
+	help      *HelpView
+
+	keyMap *keyMapWtc
 
 	// panels is the list of widgets currently being displayed
 	panels []Paneler
@@ -24,29 +36,37 @@ type Wtc struct {
 func NewWtc(app *tview.Application, duration int) *Wtc {
 	w := &Wtc{
 		app:  app,
-		help: tview.NewTextView(),
+		help: NewHelpView(),
+		keyMap: &keyMapWtc{
+			Quit: NewBinding(
+				WithRune('q'), WithHelp("Quit"),
+			),
+			CycleFocusForward: NewBinding(
+				WithKey(tcell.KeyTab), WithHelp("Cycle focus forward"),
+			),
+			CycleFocusBackward: NewBinding(
+				WithKey(tcell.KeyBacktab), WithHelp("Cycle focus backward"),
+			),
+		},
 	}
-
-	w.help.
-		SetBorder(true).
-		SetTitle("Help")
 
 	w.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyRune:
 			switch event.Rune() {
-			case 'q':
+			case w.keyMap.Quit.Rune():
 				wtc.app.Stop()
 			}
-		case tcell.KeyTab:
+		case w.keyMap.CycleFocusForward.Key():
 			wtc.CycleFocusForward()
-		case tcell.KeyBacktab:
+		case w.keyMap.CycleFocusBackward.Key():
 			wtc.CycleFocusBackward()
 		}
 		return event
 	})
 
 	w.InitMain(duration)
+	w.help.SetGlobals(w.keyMap)
 
 	return w
 }
@@ -60,7 +80,9 @@ func (w *Wtc) InitMain(duration int) {
 		w.timer = NewTimer(duration)
 		p = w.timer
 	}
-	w.panels = append(w.panels, p, w.help)
+	// w.help widget will not be a focus target.
+	// See: [FIXME](utils.go: focusFunc())
+	w.panels = append(w.panels, p)
 }
 
 func (w *Wtc) Run() error {

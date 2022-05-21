@@ -5,12 +5,21 @@ import (
 	"github.com/rivo/tview"
 )
 
+type keyMapStopwatch struct {
+	Reset, Stop, Start *Binding
+}
+
+func (km keyMapStopwatch) Keys() []*Binding {
+	return []*Binding{km.Reset, km.Start, km.Stop}
+}
+
 type Stopwatch struct {
 	*tview.TextView
 	elapsed int
 	running bool
 	stopMsg chan struct{}
 	title   string
+	keyMap  keyMapStopwatch
 }
 
 func NewStopwatch() *Stopwatch {
@@ -18,7 +27,20 @@ func NewStopwatch() *Stopwatch {
 		TextView: tview.NewTextView(),
 		stopMsg:  make(chan struct{}),
 		title:    " Stopwatch ",
+		keyMap: keyMapStopwatch{
+			Reset: NewBinding(
+				WithRune('r'), WithHelp("Reset"),
+			),
+			Stop: NewBinding(
+				WithRune('p'), WithHelp("Pause"),
+			),
+			Start: NewBinding(
+				WithRune('s'), WithHelp("Start"),
+			),
+		},
 	}
+	sw.keyMap.Start.SetDisable(true)
+
 	sw.
 		SetChangedFunc(func() {
 			wtc.app.Draw()
@@ -27,16 +49,26 @@ func NewStopwatch() *Stopwatch {
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
-		SetFocusFunc(focusFunc(sw)).
+		SetFocusFunc(focusFunc(sw, sw.keyMap)).
 		SetBlurFunc(blurFunc(sw)).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
-			case 'r':
+			case sw.keyMap.Reset.Rune():
 				sw.Reset()
-			case 'p':
-				sw.Stop()
-			case 's':
-				sw.Start()
+				sw.keyMap.Start.SetDisable(true)
+				sw.keyMap.Stop.SetDisable(false)
+			case sw.keyMap.Stop.Rune():
+				if sw.keyMap.Stop.IsEnabled() {
+					sw.Stop()
+					sw.keyMap.Stop.SetDisable(true)
+					sw.keyMap.Start.SetDisable(false)
+				}
+			case sw.keyMap.Start.Rune():
+				if sw.keyMap.Start.IsEnabled() {
+					sw.Start()
+					sw.keyMap.Start.SetDisable(true)
+					sw.keyMap.Stop.SetDisable(false)
+				}
 			}
 			return event
 		}).

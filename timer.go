@@ -17,12 +17,21 @@ import (
 //go:embed "ping.flac"
 var pingFile []byte
 
+type keyMapTimer struct {
+	Reset, Stop, Start *Binding
+}
+
+func (km keyMapTimer) Keys() []*Binding {
+	return []*Binding{km.Reset, km.Start, km.Stop}
+}
+
 type Timer struct {
 	*tview.TextView
 	duration, timeLeft int
 	running            bool
 	stopMsg            chan struct{}
 	title              string
+	keyMap             keyMapTimer
 }
 
 func NewTimer(duration int) *Timer {
@@ -36,7 +45,20 @@ func NewTimer(duration int) *Timer {
 		duration: duration,
 		timeLeft: duration,
 		title:    " Timer ",
+		keyMap: keyMapTimer{
+			Reset: NewBinding(
+				WithRune('r'), WithHelp("Reset"),
+			),
+			Stop: NewBinding(
+				WithRune('p'), WithHelp("Pause"),
+			),
+			Start: NewBinding(
+				WithRune('s'), WithHelp("Start"),
+			),
+		},
 	}
+	t.keyMap.Start.SetDisable(true)
+
 	t.
 		SetChangedFunc(func() {
 			wtc.app.Draw()
@@ -45,16 +67,26 @@ func NewTimer(duration int) *Timer {
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
-		SetFocusFunc(focusFunc(t)).
+		SetFocusFunc(focusFunc(t, t.keyMap)).
 		SetBlurFunc(blurFunc(t)).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
-			case 'r':
+			case t.keyMap.Reset.Rune():
 				t.Reset()
-			case 'p':
-				t.Stop()
-			case 's':
-				t.Start()
+				t.keyMap.Start.SetDisable(true)
+				t.keyMap.Stop.SetDisable(false)
+			case t.keyMap.Stop.Rune():
+				if t.keyMap.Stop.IsEnabled() {
+					t.Stop()
+					t.keyMap.Stop.SetDisable(true)
+					t.keyMap.Start.SetDisable(false)
+				}
+			case t.keyMap.Start.Rune():
+				if t.keyMap.Start.IsEnabled() {
+					t.Start()
+					t.keyMap.Start.SetDisable(true)
+					t.keyMap.Stop.SetDisable(false)
+				}
 			}
 			return event
 		}).
