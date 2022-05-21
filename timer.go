@@ -31,6 +31,7 @@ type Timer struct {
 	running            bool
 	stopMsg            chan struct{}
 	title              string
+	keyMap             keyMapTimer
 }
 
 func NewTimer(duration int) *Timer {
@@ -44,6 +45,17 @@ func NewTimer(duration int) *Timer {
 		duration: duration,
 		timeLeft: duration,
 		title:    " Timer ",
+		keyMap: keyMapTimer{
+			Reset: NewBinding(
+				WithRune('r'), WithHelp("Reset"),
+			),
+			Stop: NewBinding(
+				WithRune('p'), WithHelp("Pause"),
+			),
+			Start: NewBinding(
+				WithRune('s'), WithHelp("Start"),
+			),
+		},
 	}
 	t.
 		SetChangedFunc(func() {

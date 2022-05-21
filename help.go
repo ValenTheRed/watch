@@ -23,12 +23,14 @@ type HelpView struct {
 	*tview.TextView
 	globals, locals []*Binding
 	title           string
+	keyMap          keyMapHelpView
 }
 
 func NewHelpView() *HelpView {
 	hv := &HelpView{
 		TextView: tview.NewTextView(),
 		title:    " Help ",
+		keyMap:   keyMapHelpView{},
 	}
 	hv.
 		SetChangedFunc(func() {

@@ -19,6 +19,7 @@ type Stopwatch struct {
 	running bool
 	stopMsg chan struct{}
 	title   string
+	keyMap  keyMapStopwatch
 }
 
 func NewStopwatch() *Stopwatch {
@@ -26,6 +27,17 @@ func NewStopwatch() *Stopwatch {
 		TextView: tview.NewTextView(),
 		stopMsg:  make(chan struct{}),
 		title:    " Stopwatch ",
+		keyMap: keyMapStopwatch{
+			Reset: NewBinding(
+				WithRune('r'), WithHelp("Reset"),
+			),
+			Stop: NewBinding(
+				WithRune('p'), WithHelp("Pause"),
+			),
+			Start: NewBinding(
+				WithRune('s'), WithHelp("Start"),
+			),
+		},
 	}
 	sw.
 		SetChangedFunc(func() {

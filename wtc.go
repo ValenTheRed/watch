@@ -27,6 +27,8 @@ type Wtc struct {
 	timer     *Timer
 	help      *HelpView
 
+	keyMap *keyMapWtc
+
 	// panels is the list of widgets currently being displayed
 	panels []Paneler
 }
@@ -35,6 +37,17 @@ func NewWtc(app *tview.Application, duration int) *Wtc {
 	w := &Wtc{
 		app:  app,
 		help: NewHelpView(),
+		keyMap: &keyMapWtc{
+			Quit: NewBinding(
+				WithRune('q'), WithHelp("Quit"),
+			),
+			CycleFocusForward: NewBinding(
+				WithKey(tcell.KeyTab), WithHelp("Cycle focus forward"),
+			),
+			CycleFocusBackward: NewBinding(
+				WithKey(tcell.KeyBacktab), WithHelp("Cycle focus backward"),
+			),
+		},
 	}
 
 	w.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
