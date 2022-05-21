@@ -3,14 +3,18 @@ package main
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+
+	"github.com/ValenTheRed/watch/help"
+	"github.com/ValenTheRed/watch/stopwatch"
+	"github.com/ValenTheRed/watch/timer"
 )
 
 type keyMapWtc struct {
-	Quit, CycleFocusForward, CycleFocusBackward *Binding
+	Quit, CycleFocusForward, CycleFocusBackward *help.Binding
 }
 
-func (km *keyMapWtc) Keys() []*Binding {
-	return []*Binding{
+func (km *keyMapWtc) Keys() []*help.Binding {
+	return []*help.Binding{
 		km.Quit, km.CycleFocusForward, km.CycleFocusBackward,
 	}
 }
@@ -23,9 +27,9 @@ type Paneler interface {
 type Wtc struct {
 	app *tview.Application
 
-	stopwatch *Stopwatch
-	timer     *Timer
-	help      *HelpView
+	stopwatch *stopwatch.Stopwatch
+	timer     *timer.Timer
+	help      *help.HelpView
 
 	keyMap *keyMapWtc
 
@@ -36,16 +40,18 @@ type Wtc struct {
 func NewWtc(app *tview.Application, duration int) *Wtc {
 	w := &Wtc{
 		app:  app,
-		help: NewHelpView(),
+		help: help.NewHelpView(),
 		keyMap: &keyMapWtc{
-			Quit: NewBinding(
-				WithRune('q'), WithHelp("Quit"),
+			Quit: help.NewBinding(
+				help.WithRune('q'), help.WithHelp("Quit"),
 			),
-			CycleFocusForward: NewBinding(
-				WithKey(tcell.KeyTab), WithHelp("Cycle focus forward"),
+			CycleFocusForward: help.NewBinding(
+				help.WithKey(tcell.KeyTab),
+				help.WithHelp("Cycle focus forward"),
 			),
-			CycleFocusBackward: NewBinding(
-				WithKey(tcell.KeyBacktab), WithHelp("Cycle focus backward"),
+			CycleFocusBackward: help.NewBinding(
+				help.WithKey(tcell.KeyBacktab),
+				help.WithHelp("Cycle focus backward"),
 			),
 		},
 	}
@@ -74,10 +80,10 @@ func NewWtc(app *tview.Application, duration int) *Wtc {
 func (w *Wtc) InitMain(duration int) {
 	var p Paneler
 	if duration == 0 {
-		w.stopwatch = NewStopwatch()
+		w.stopwatch = stopwatch.NewStopwatch()
 		p = w.stopwatch
 	} else {
-		w.timer = NewTimer(duration)
+		w.timer = timer.NewTimer(duration)
 		p = w.timer
 	}
 	// w.help widget will not be a focus target.

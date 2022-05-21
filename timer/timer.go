@@ -12,17 +12,20 @@ import (
 	"github.com/faiface/beep/speaker"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+
+	"github.com/ValenTheRed/watch/help"
+	"github.com/ValenTheRed/watch/utils"
 )
 
 //go:embed "ping.flac"
 var pingFile []byte
 
 type keyMapTimer struct {
-	Reset, Stop, Start *Binding
+	Reset, Stop, Start *help.Binding
 }
 
-func (km keyMapTimer) Keys() []*Binding {
-	return []*Binding{km.Reset, km.Start, km.Stop}
+func (km keyMapTimer) Keys() []*help.Binding {
+	return []*help.Binding{km.Reset, km.Start, km.Stop}
 }
 
 type Timer struct {
@@ -46,14 +49,14 @@ func NewTimer(duration int) *Timer {
 		timeLeft: duration,
 		title:    " Timer ",
 		keyMap: keyMapTimer{
-			Reset: NewBinding(
-				WithRune('r'), WithHelp("Reset"),
+			Reset: help.NewBinding(
+				help.WithRune('r'), help.WithHelp("Reset"),
 			),
-			Stop: NewBinding(
-				WithRune('p'), WithHelp("Pause"),
+			Stop: help.NewBinding(
+				help.WithRune('p'), help.WithHelp("Pause"),
 			),
-			Start: NewBinding(
-				WithRune('s'), WithHelp("Start"),
+			Start: help.NewBinding(
+				help.WithRune('s'), help.WithHelp("Start"),
 			),
 		},
 	}
@@ -105,13 +108,13 @@ func (t *Timer) IsTimeLeft() bool {
 }
 
 func (t *Timer) UpdateDisplay() {
-	t.SetText(FormatSecond(t.timeLeft))
+	t.SetText(utils.FormatSecond(t.timeLeft))
 }
 
 func (t *Timer) Start() {
 	if !t.running && t.IsTimeLeft() {
 		t.running = true
-		go worker(func() {
+		go utils.Worker(func() {
 			if t.IsTimeLeft() {
 				t.timeLeft--
 				t.UpdateDisplay()
@@ -120,7 +123,10 @@ func (t *Timer) Start() {
 				// exec-ed in their own goroutine so that `stopMsg` can
 				// get serviced before worker ticks.
 				go t.SetText(
-					fmt.Sprintf("Your %s's up!\n", FormatSecond(t.duration)),
+					fmt.Sprintf(
+						"Your %s's up!\n",
+						utils.FormatSecond(t.duration),
+					),
 				)
 				go Ping(bytes.NewReader(pingFile))
 			}

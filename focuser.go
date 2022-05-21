@@ -1,8 +1,10 @@
 package main
 
 import (
-	"github.com/gdamore/tcell"
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+
+	"github.com/ValenTheRed/watch/help"
 )
 
 type Focuser interface {
@@ -13,7 +15,7 @@ type Focuser interface {
 	SetTitleColor(tcell.Color) *tview.Box
 }
 
-func focusFunc(widget Focuser, km KeyMaper) func() {
+func focusFunc(widget Focuser, km help.KeyMaper) func() {
 	return func() {
 		widget.
 			SetTitle("[" + widget.Title() + "]").

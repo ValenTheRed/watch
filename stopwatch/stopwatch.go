@@ -3,14 +3,17 @@ package stopwatch
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+
+	"github.com/ValenTheRed/watch/help"
+	"github.com/ValenTheRed/watch/utils"
 )
 
 type keyMapStopwatch struct {
-	Reset, Stop, Start *Binding
+	Reset, Stop, Start *help.Binding
 }
 
-func (km keyMapStopwatch) Keys() []*Binding {
-	return []*Binding{km.Reset, km.Start, km.Stop}
+func (km keyMapStopwatch) Keys() []*help.Binding {
+	return []*help.Binding{km.Reset, km.Start, km.Stop}
 }
 
 type Stopwatch struct {
@@ -28,14 +31,14 @@ func NewStopwatch() *Stopwatch {
 		stopMsg:  make(chan struct{}),
 		title:    " Stopwatch ",
 		keyMap: keyMapStopwatch{
-			Reset: NewBinding(
-				WithRune('r'), WithHelp("Reset"),
+			Reset: help.NewBinding(
+				help.WithRune('r'), help.WithHelp("Reset"),
 			),
-			Stop: NewBinding(
-				WithRune('p'), WithHelp("Pause"),
+			Stop: help.NewBinding(
+				help.WithRune('p'), help.WithHelp("Pause"),
 			),
-			Start: NewBinding(
-				WithRune('s'), WithHelp("Start"),
+			Start: help.NewBinding(
+				help.WithRune('s'), help.WithHelp("Start"),
 			),
 		},
 	}
@@ -83,13 +86,13 @@ func (sw *Stopwatch) Title() string {
 }
 
 func (sw *Stopwatch) UpdateDisplay() {
-	sw.SetText(FormatSecond(sw.elapsed))
+	sw.SetText(utils.FormatSecond(sw.elapsed))
 }
 
 func (sw *Stopwatch) Start() {
 	if !sw.running {
 		sw.running = true
-		go worker(func() {
+		go utils.Worker(func() {
 			sw.elapsed++
 			sw.UpdateDisplay()
 		}, sw.stopMsg)
