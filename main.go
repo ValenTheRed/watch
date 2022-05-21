@@ -4,7 +4,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
+	"time"
 
 	"github.com/rivo/tview"
 )
@@ -20,13 +22,18 @@ Specify duration to start a timer.
 
 optional arguments:
 duration	supported formats - [[hh:]mm:]ss
+-log        log to a file
 -help	    display this help message and exit`
 
 	// Global controller for the whole application.
 	wtc *Wtc
+
+	logArg bool
+	debug *log.Logger
 )
 
 func init() {
+	flag.BoolVar(&logArg, "log", false, "log to a file")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "%s\n", usage)
 	}
@@ -41,13 +48,32 @@ func init() {
 
 func exitOnErr(err error) {
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s: %v\n", binaryName, err)
-		os.Exit(1)
+		debug.Fatalln(err)
 	}
 }
 
 func main() {
 	flag.Parse()
+
+	var logFilename string
+	if logArg {
+		t := time.Now()
+		logFilename = fmt.Sprintf(
+			"wtc_log_%d%02d%02d_%02d%02d%02d.log",
+			t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(),
+		)
+	} else {
+		logFilename = os.DevNull
+	}
+
+	file, err := os.OpenFile(logFilename, os.O_WRONLY | os.O_CREATE, 0755)
+	if err != nil {
+		log.Fatalf("%s: %v\n", binaryName, err)
+	}
+	defer file.Close()
+
+	debug = log.New(file, "", log.LstdFlags | log.Lshortfile)
+
 	duration, err := ParseDuration(flag.Arg(0))
 	exitOnErr(err)
 
