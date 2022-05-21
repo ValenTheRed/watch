@@ -47,8 +47,7 @@ func init() {
 
 func exitOnErr(err error) {
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s: %v\n", binaryName, err)
-		os.Exit(1)
+		debug.Fatalln(err)
 	}
 }
 
