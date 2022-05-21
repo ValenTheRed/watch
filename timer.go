@@ -17,6 +17,14 @@ import (
 //go:embed "ping.flac"
 var pingFile []byte
 
+type keyMapTimer struct {
+	Reset, Stop, Start *Binding
+}
+
+func (km keyMapTimer) Keys() []*Binding {
+	return []*Binding{km.Reset, km.Start, km.Stop}
+}
+
 type Timer struct {
 	*tview.TextView
 	duration, timeLeft int

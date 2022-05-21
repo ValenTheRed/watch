@@ -5,6 +5,16 @@ import (
 	"github.com/rivo/tview"
 )
 
+type keyMapWtc struct {
+	Quit, CycleFocusForward, CycleFocusBackward *Binding
+}
+
+func (km *keyMapWtc) Keys() []*Binding {
+	return []*Binding{
+		km.Quit, km.CycleFocusForward, km.CycleFocusBackward,
+	}
+}
+
 type Paneler interface {
 	tview.Primitive
 	HasFocus() bool

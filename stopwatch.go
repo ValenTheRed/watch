@@ -5,6 +5,14 @@ import (
 	"github.com/rivo/tview"
 )
 
+type keyMapStopwatch struct {
+	Reset, Stop, Start *Binding
+}
+
+func (km keyMapStopwatch) Keys() []*Binding {
+	return []*Binding{km.Reset, km.Start, km.Stop}
+}
+
 type Stopwatch struct {
 	*tview.TextView
 	elapsed int

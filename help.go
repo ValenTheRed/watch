@@ -13,6 +13,12 @@ type KeyMaper interface {
 	Keys() []*Binding
 }
 
+type keyMapHelpView struct{}
+
+func (km keyMapHelpView) Keys() []*Binding {
+	return []*Binding{}
+}
+
 type HelpView struct {
 	*tview.TextView
 	globals, locals []*Binding
