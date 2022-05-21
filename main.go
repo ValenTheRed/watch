@@ -4,6 +4,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/rivo/tview"
@@ -20,13 +21,18 @@ Specify duration to start a timer.
 
 optional arguments:
 duration	supported formats - [[hh:]mm:]ss
+-log        log to a file
 -help	    display this help message and exit`
 
 	// Global controller for the whole application.
 	wtc *Wtc
+
+	logArg bool
+	debug *log.Logger
 )
 
 func init() {
+	flag.BoolVar(&logArg, "log", false, "log to a file")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "%s\n", usage)
 	}
