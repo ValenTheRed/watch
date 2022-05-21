@@ -97,7 +97,7 @@ func (w *Wtc) cycleFocus(offset int) {
 	for i, panel := range w.panels {
 		// NOTE: one (and only one) panel will always have a focus
 		if panel.HasFocus() {
-			next = w.panels[abs(i + offset) % len(w.panels)]
+			next = w.panels[abs(i+offset)%len(w.panels)]
 			break
 		}
 	}

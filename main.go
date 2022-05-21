@@ -29,7 +29,7 @@ duration	supported formats - [[hh:]mm:]ss
 	wtc *Wtc
 
 	logArg bool
-	debug *log.Logger
+	debug  *log.Logger
 )
 
 func init() {
@@ -66,13 +66,13 @@ func main() {
 		logFilename = os.DevNull
 	}
 
-	file, err := os.OpenFile(logFilename, os.O_WRONLY | os.O_CREATE, 0755)
+	file, err := os.OpenFile(logFilename, os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
 		log.Fatalf("%s: %v\n", binaryName, err)
 	}
 	defer file.Close()
 
-	debug = log.New(file, "", log.LstdFlags | log.Lshortfile)
+	debug = log.New(file, "", log.LstdFlags|log.Lshortfile)
 
 	duration, err := ParseDuration(flag.Arg(0))
 	exitOnErr(err)
