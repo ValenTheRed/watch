@@ -8,12 +8,8 @@ import (
 	"github.com/ValenTheRed/watch/utils"
 )
 
-type keyMapStopwatch struct {
+type keyMap struct {
 	Reset, Stop, Start *help.Binding
-}
-
-func (km keyMapStopwatch) Keys() []*help.Binding {
-	return []*help.Binding{km.Reset, km.Start, km.Stop}
 }
 
 type Stopwatch struct {
@@ -22,7 +18,7 @@ type Stopwatch struct {
 	running bool
 	stopMsg chan struct{}
 	title   string
-	keyMap  keyMapStopwatch
+	km      keyMap
 }
 
 func NewStopwatch() *Stopwatch {
@@ -30,7 +26,7 @@ func NewStopwatch() *Stopwatch {
 		TextView: tview.NewTextView(),
 		stopMsg:  make(chan struct{}),
 		title:    " Stopwatch ",
-		keyMap: keyMapStopwatch{
+		km: keyMap{
 			Reset: help.NewBinding(
 				help.WithRune('r'), help.WithHelp("Reset"),
 			),
@@ -53,25 +49,25 @@ func NewStopwatch() *Stopwatch {
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
-		SetFocusFunc(focusFunc(sw, sw.keyMap)).
+		SetFocusFunc(focusFunc(sw, sw.km)).
 		SetBlurFunc(blurFunc(sw)).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
-			case sw.keyMap.Reset.Rune():
+			case sw.km.Reset.Rune():
 				sw.Reset()
-				sw.keyMap.Start.SetDisable(true)
-				sw.keyMap.Stop.SetDisable(false)
-			case sw.keyMap.Stop.Rune():
-				if sw.keyMap.Stop.IsEnabled() {
+				sw.km.Start.SetDisable(true)
+				sw.km.Stop.SetDisable(false)
+			case sw.km.Stop.Rune():
+				if sw.km.Stop.IsEnabled() {
 					sw.Stop()
-					sw.keyMap.Stop.SetDisable(true)
-					sw.keyMap.Start.SetDisable(false)
+					sw.km.Stop.SetDisable(true)
+					sw.km.Start.SetDisable(false)
 				}
-			case sw.keyMap.Start.Rune():
-				if sw.keyMap.Start.IsEnabled() {
+			case sw.km.Start.Rune():
+				if sw.km.Start.IsEnabled() {
 					sw.Start()
-					sw.keyMap.Start.SetDisable(true)
-					sw.keyMap.Stop.SetDisable(false)
+					sw.km.Start.SetDisable(true)
+					sw.km.Stop.SetDisable(false)
 				}
 			}
 			return event
@@ -84,6 +80,10 @@ func NewStopwatch() *Stopwatch {
 
 func (sw *Stopwatch) Title() string {
 	return sw.title
+}
+
+func (sw *Stopwatch) Keys() []*help.Binding {
+	return []*help.Binding{sw.km.Reset, sw.km.Start, sw.km.Stop}
 }
 
 func (sw *Stopwatch) UpdateDisplay() {

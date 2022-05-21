@@ -20,12 +20,8 @@ import (
 //go:embed "ping.flac"
 var pingFile []byte
 
-type keyMapTimer struct {
+type keyMap struct {
 	Reset, Stop, Start *help.Binding
-}
-
-func (km keyMapTimer) Keys() []*help.Binding {
-	return []*help.Binding{km.Reset, km.Start, km.Stop}
 }
 
 type Timer struct {
@@ -34,7 +30,7 @@ type Timer struct {
 	running            bool
 	stopMsg            chan struct{}
 	title              string
-	keyMap             keyMapTimer
+	km                 keyMap
 }
 
 func NewTimer(duration int) *Timer {
@@ -48,7 +44,7 @@ func NewTimer(duration int) *Timer {
 		duration: duration,
 		timeLeft: duration,
 		title:    " Timer ",
-		keyMap: keyMapTimer{
+		km: keyMap{
 			Reset: help.NewBinding(
 				help.WithRune('r'), help.WithHelp("Reset"),
 			),
@@ -71,25 +67,25 @@ func NewTimer(duration int) *Timer {
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
-		SetFocusFunc(focusFunc(t, t.keyMap)).
+		SetFocusFunc(focusFunc(t, t.km)).
 		SetBlurFunc(blurFunc(t)).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
-			case t.keyMap.Reset.Rune():
+			case t.km.Reset.Rune():
 				t.Reset()
-				t.keyMap.Start.SetDisable(true)
-				t.keyMap.Stop.SetDisable(false)
-			case t.keyMap.Stop.Rune():
-				if t.keyMap.Stop.IsEnabled() {
+				t.km.Start.SetDisable(true)
+				t.km.Stop.SetDisable(false)
+			case t.km.Stop.Rune():
+				if t.km.Stop.IsEnabled() {
 					t.Stop()
-					t.keyMap.Stop.SetDisable(true)
-					t.keyMap.Start.SetDisable(false)
+					t.km.Stop.SetDisable(true)
+					t.km.Start.SetDisable(false)
 				}
-			case t.keyMap.Start.Rune():
-				if t.keyMap.Start.IsEnabled() {
+			case t.km.Start.Rune():
+				if t.km.Start.IsEnabled() {
 					t.Start()
-					t.keyMap.Start.SetDisable(true)
-					t.keyMap.Stop.SetDisable(false)
+					t.km.Start.SetDisable(true)
+					t.km.Stop.SetDisable(false)
 				}
 			}
 			return event
@@ -102,6 +98,10 @@ func NewTimer(duration int) *Timer {
 
 func (t *Timer) Title() string {
 	return t.title
+}
+
+func (t *Timer) Keys() []*help.Binding {
+	return []*help.Binding{t.km.Reset, t.km.Start, t.km.Stop}
 }
 
 func (t *Timer) IsTimeLeft() bool {

@@ -9,14 +9,8 @@ import (
 	"github.com/ValenTheRed/watch/timer"
 )
 
-type keyMapWtc struct {
+type keyMap struct {
 	Quit, CycleFocusForward, CycleFocusBackward *help.Binding
-}
-
-func (km *keyMapWtc) Keys() []*help.Binding {
-	return []*help.Binding{
-		km.Quit, km.CycleFocusForward, km.CycleFocusBackward,
-	}
 }
 
 type Paneler interface {
@@ -31,7 +25,7 @@ type Wtc struct {
 	timer     *timer.Timer
 	help      *help.HelpView
 
-	keyMap *keyMapWtc
+	km keyMap
 
 	// panels is the list of widgets currently being displayed
 	panels []Paneler
@@ -41,7 +35,7 @@ func NewWtc(app *tview.Application, duration int) *Wtc {
 	w := &Wtc{
 		app:  app,
 		help: help.NewHelpView(),
-		keyMap: &keyMapWtc{
+		km: keyMap{
 			Quit: help.NewBinding(
 				help.WithRune('q'), help.WithHelp("Quit"),
 			),
@@ -60,21 +54,27 @@ func NewWtc(app *tview.Application, duration int) *Wtc {
 		switch event.Key() {
 		case tcell.KeyRune:
 			switch event.Rune() {
-			case w.keyMap.Quit.Rune():
+			case w.km.Quit.Rune():
 				wtc.app.Stop()
 			}
-		case w.keyMap.CycleFocusForward.Key():
+		case w.km.CycleFocusForward.Key():
 			wtc.CycleFocusForward()
-		case w.keyMap.CycleFocusBackward.Key():
+		case w.km.CycleFocusBackward.Key():
 			wtc.CycleFocusBackward()
 		}
 		return event
 	})
 
 	w.InitMain(duration)
-	w.help.SetGlobals(w.keyMap)
+	w.help.SetGlobals(w)
 
 	return w
+}
+
+func (w *Wtc) Keys() []*help.Binding {
+	return []*help.Binding{
+		w.km.Quit, w.km.CycleFocusForward, w.km.CycleFocusBackward,
+	}
 }
 
 func (w *Wtc) InitMain(duration int) {

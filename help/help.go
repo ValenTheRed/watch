@@ -13,24 +13,20 @@ type KeyMaper interface {
 	Keys() []*Binding
 }
 
-type keyMapHelpView struct{}
-
-func (km keyMapHelpView) Keys() []*Binding {
-	return []*Binding{}
-}
+type keyMap struct{}
 
 type HelpView struct {
 	*tview.TextView
 	globals, locals []*Binding
 	title           string
-	keyMap          keyMapHelpView
+	km              keyMap
 }
 
 func NewHelpView() *HelpView {
 	hv := &HelpView{
 		TextView: tview.NewTextView(),
 		title:    " Help ",
-		keyMap:   keyMapHelpView{},
+		km:       keyMap{},
 	}
 	hv.
 		SetChangedFunc(func() {
@@ -40,7 +36,7 @@ func NewHelpView() *HelpView {
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
-		SetFocusFunc(focusFunc(hv, hv.keyMap)).
+		SetFocusFunc(focusFunc(hv, hv.km)).
 		SetBlurFunc(blurFunc(hv)).
 		SetTitle(hv.title)
 
@@ -49,6 +45,10 @@ func NewHelpView() *HelpView {
 
 func (hv *HelpView) Title() string {
 	return hv.title
+}
+
+func (hv *HelpView) Keys() []*Binding {
+	return []*Binding{}
 }
 
 func (hv *HelpView) UpdateDisplay() {
@@ -69,7 +69,7 @@ func (hv *HelpView) UpdateDisplay() {
 			} else {
 				key = tcell.KeyNames[b.Key()]
 			}
-			view = append(view, key + sep + b.Help())
+			view = append(view, key+sep+b.Help())
 		}
 	}
 
