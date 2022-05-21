@@ -45,6 +45,12 @@ func WithHelp(help string) BindingOpt {
 	}
 }
 
+func WithDisable(disable bool) BindingOpt {
+	return func(b *Binding) {
+		b.disable = disable
+	}
+}
+
 func (b Binding) Rune() rune {
 	return b.char
 }
