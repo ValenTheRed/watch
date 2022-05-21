@@ -80,7 +80,9 @@ func (w *Wtc) InitMain(duration int) {
 		w.timer = NewTimer(duration)
 		p = w.timer
 	}
-	w.panels = append(w.panels, p, w.help)
+	// w.help widget will not be a focus target.
+	// See: [FIXME](utils.go: focusFunc())
+	w.panels = append(w.panels, p)
 }
 
 func (w *Wtc) Run() error {
