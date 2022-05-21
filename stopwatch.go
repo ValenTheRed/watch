@@ -39,6 +39,8 @@ func NewStopwatch() *Stopwatch {
 			),
 		},
 	}
+	sw.keyMap.Start.SetDisable(true)
+
 	sw.
 		SetChangedFunc(func() {
 			wtc.app.Draw()
@@ -51,12 +53,22 @@ func NewStopwatch() *Stopwatch {
 		SetBlurFunc(blurFunc(sw)).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
-			case 'r':
+			case sw.keyMap.Reset.Rune():
 				sw.Reset()
-			case 'p':
-				sw.Stop()
-			case 's':
-				sw.Start()
+				sw.keyMap.Start.SetDisable(true)
+				sw.keyMap.Stop.SetDisable(false)
+			case sw.keyMap.Stop.Rune():
+				if sw.keyMap.Stop.IsEnabled() {
+					sw.Stop()
+					sw.keyMap.Stop.SetDisable(true)
+					sw.keyMap.Start.SetDisable(false)
+				}
+			case sw.keyMap.Start.Rune():
+				if sw.keyMap.Start.IsEnabled() {
+					sw.Start()
+					sw.keyMap.Start.SetDisable(true)
+					sw.keyMap.Stop.SetDisable(false)
+				}
 			}
 			return event
 		}).

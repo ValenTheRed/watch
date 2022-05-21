@@ -57,6 +57,8 @@ func NewTimer(duration int) *Timer {
 			),
 		},
 	}
+	t.keyMap.Start.SetDisable(true)
+
 	t.
 		SetChangedFunc(func() {
 			wtc.app.Draw()
@@ -69,12 +71,22 @@ func NewTimer(duration int) *Timer {
 		SetBlurFunc(blurFunc(t)).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
-			case 'r':
+			case t.keyMap.Reset.Rune():
 				t.Reset()
-			case 'p':
-				t.Stop()
-			case 's':
-				t.Start()
+				t.keyMap.Start.SetDisable(true)
+				t.keyMap.Stop.SetDisable(false)
+			case t.keyMap.Stop.Rune():
+				if t.keyMap.Stop.IsEnabled() {
+					t.Stop()
+					t.keyMap.Stop.SetDisable(true)
+					t.keyMap.Start.SetDisable(false)
+				}
+			case t.keyMap.Start.Rune():
+				if t.keyMap.Start.IsEnabled() {
+					t.Start()
+					t.keyMap.Start.SetDisable(true)
+					t.keyMap.Stop.SetDisable(false)
+				}
 			}
 			return event
 		}).

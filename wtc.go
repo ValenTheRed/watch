@@ -54,12 +54,12 @@ func NewWtc(app *tview.Application, duration int) *Wtc {
 		switch event.Key() {
 		case tcell.KeyRune:
 			switch event.Rune() {
-			case 'q':
+			case w.keyMap.Quit.Rune():
 				wtc.app.Stop()
 			}
-		case tcell.KeyTab:
+		case w.keyMap.CycleFocusForward.Key():
 			wtc.CycleFocusForward()
-		case tcell.KeyBacktab:
+		case w.keyMap.CycleFocusBackward.Key():
 			wtc.CycleFocusBackward()
 		}
 		return event
