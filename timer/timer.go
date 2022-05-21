@@ -33,7 +33,7 @@ type Timer struct {
 	km                 keyMap
 }
 
-func NewTimer(duration int) *Timer {
+func New(duration int) *Timer {
 	t := &Timer{
 		TextView: tview.NewTextView(),
 		// Channel is buffered because: `Stop()` -- which sends on

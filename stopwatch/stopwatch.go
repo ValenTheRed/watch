@@ -21,7 +21,7 @@ type Stopwatch struct {
 	km      keyMap
 }
 
-func NewStopwatch() *Stopwatch {
+func New() *Stopwatch {
 	sw := &Stopwatch{
 		TextView: tview.NewTextView(),
 		stopMsg:  make(chan struct{}),

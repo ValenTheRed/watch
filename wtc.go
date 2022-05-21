@@ -80,10 +80,10 @@ func (w *Wtc) Keys() []*help.Binding {
 func (w *Wtc) InitMain(duration int) {
 	var p Paneler
 	if duration == 0 {
-		w.stopwatch = stopwatch.NewStopwatch()
+		w.stopwatch = stopwatch.New()
 		p = w.stopwatch
 	} else {
-		w.timer = timer.NewTimer(duration)
+		w.timer = timer.New(duration)
 		p = w.timer
 	}
 	// w.help widget will not be a focus target.
