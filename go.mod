@@ -1,4 +1,4 @@
-module wtc-go
+module github.com/ValenTheRed/watch
 
 go 1.16
 
