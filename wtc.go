@@ -66,6 +66,7 @@ func NewWtc(app *tview.Application, duration int) *Wtc {
 	})
 
 	w.InitMain(duration)
+	w.help.SetGlobals(w.keyMap)
 
 	return w
 }
