@@ -1,4 +1,4 @@
-package main
+package stopwatch
 
 import (
 	"github.com/gdamore/tcell/v2"

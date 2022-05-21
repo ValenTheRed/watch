@@ -1,4 +1,4 @@
-package main
+package help
 
 import "github.com/gdamore/tcell/v2"
 
