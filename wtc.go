@@ -15,7 +15,7 @@ type Wtc struct {
 
 	stopwatch *Stopwatch
 	timer     *Timer
-	help      *tview.TextView
+	help      *HelpView
 
 	// panels is the list of widgets currently being displayed
 	panels []Paneler
@@ -24,12 +24,8 @@ type Wtc struct {
 func NewWtc(app *tview.Application, duration int) *Wtc {
 	w := &Wtc{
 		app:  app,
-		help: tview.NewTextView(),
+		help: NewHelpView(),
 	}
-
-	w.help.
-		SetBorder(true).
-		SetTitle("Help")
 
 	w.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
