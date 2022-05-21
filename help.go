@@ -54,7 +54,7 @@ func (hv *HelpView) Title() string {
 func (hv *HelpView) UpdateDisplay() {
 	sep := " • "
 
-	view := strings.Builder{}
+	var view []string
 	for _, bindings := range [][]*Binding{
 		hv.locals,
 		hv.globals,
@@ -69,12 +69,11 @@ func (hv *HelpView) UpdateDisplay() {
 			} else {
 				key = tcell.KeyNames[b.Key()]
 			}
-			view.WriteString(key + sep + b.Help())
+			view = append(view, key + sep + b.Help())
 		}
 	}
 
-	hv.SetText(view.String())
-	view.Reset()
+	hv.SetText(strings.Join(view, "\t"))
 }
 
 func (hv *HelpView) SetGlobals(km KeyMaper) {
