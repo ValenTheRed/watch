@@ -56,11 +56,12 @@ func NewTimer(duration int) *Timer {
 				help.WithRune('p'), help.WithHelp("Pause"),
 			),
 			Start: help.NewBinding(
-				help.WithRune('s'), help.WithHelp("Start"),
+				help.WithRune('s'),
+				help.WithHelp("Start"),
+				help.WithDisable(true),
 			),
 		},
 	}
-	t.keyMap.Start.SetDisable(true)
 
 	t.
 		SetChangedFunc(func() {

@@ -38,11 +38,12 @@ func NewStopwatch() *Stopwatch {
 				help.WithRune('p'), help.WithHelp("Pause"),
 			),
 			Start: help.NewBinding(
-				help.WithRune('s'), help.WithHelp("Start"),
+				help.WithRune('s'),
+				help.WithHelp("Start"),
+				help.WithDisable(true),
 			),
 		},
 	}
-	sw.keyMap.Start.SetDisable(true)
 
 	sw.
 		SetChangedFunc(func() {
