@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/rivo/tview"
 )
@@ -53,6 +54,26 @@ func exitOnErr(err error) {
 
 func main() {
 	flag.Parse()
+
+	var logFilename string
+	if logArg {
+		t := time.Now()
+		logFilename = fmt.Sprintf(
+			"wtc_log_%d%02d%02d_%02d%02d%02d.log",
+			t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(),
+		)
+	} else {
+		logFilename = os.DevNull
+	}
+
+	file, err := os.OpenFile(logFilename, os.O_WRONLY | os.O_CREATE, 0755)
+	if err != nil {
+		log.Fatalf("%s: %v\n", binaryName, err)
+	}
+	defer file.Close()
+
+	debug = log.New(file, "", log.LstdFlags | log.Lshortfile)
+
 	duration, err := ParseDuration(flag.Arg(0))
 	exitOnErr(err)
 
