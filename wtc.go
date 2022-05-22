@@ -51,9 +51,8 @@ func NewWtc(app *tview.Application, duration int) *Wtc {
 	}
 
 	w.help.
-		SetChangedFunc(func() {
-			w.app.Draw()
-		})
+		SetFocusFunc(focusFunc(w.help, w.help)).
+		SetBlurFunc(blurFunc(w.help))
 
 	w.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
@@ -88,19 +87,12 @@ func (w *Wtc) InitMain(duration int) {
 		w.stopwatch = stopwatch.New()
 		p = w.stopwatch
 		w.stopwatch.
-			SetChangedFunc(func() {
-				w.app.Draw()
-			}).
 			SetFocusFunc(focusFunc(w.stopwatch, w.stopwatch)).
 			SetBlurFunc(blurFunc(w.stopwatch))
-
 	} else {
 		w.timer = timer.New(duration)
 		p = w.timer
 		w.timer.
-			SetChangedFunc(func() {
-				w.app.Draw()
-			}).
 			SetFocusFunc(focusFunc(w.timer, w.timer)).
 			SetBlurFunc(blurFunc(w.timer))
 	}
