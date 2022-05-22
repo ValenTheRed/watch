@@ -25,7 +25,7 @@ type keyMap struct {
 
 type Timer struct {
 	*tview.TextView
-	duration, timeLeft int
+	duration, elapsed int
 	running            bool
 	stopMsg            chan struct{}
 	title              string
@@ -44,7 +44,7 @@ func New(duration int, app *tview.Application) *Timer {
 		// set to `stopMsg`; `Stop()` will block an unbuffered `stopMsg`.
 		stopMsg:  make(chan struct{}, 1),
 		duration: duration,
-		timeLeft: duration,
+		elapsed: 0,
 		title:    " Timer ",
 		km: keyMap{
 			Reset: help.NewBinding(
@@ -102,12 +102,16 @@ func (t *Timer) Keys() []*help.Binding {
 }
 
 func (t *Timer) IsTimeLeft() bool {
-	return t.timeLeft > 0
+	return t.elapsed < t.duration
 }
 
 func (t *Timer) UpdateDisplay() {
 	go t.app.QueueUpdateDraw(func() {
-		t.SetText(utils.FormatSecond(t.timeLeft))
+		t.SetText(
+			utils.FormatSecond(t.elapsed) +
+			" / " +
+			utils.FormatSecond(t.duration),
+		)
 	})
 }
 
@@ -116,18 +120,11 @@ func (t *Timer) Start() {
 		t.running = true
 		go utils.Worker(func() {
 			if t.IsTimeLeft() {
-				t.timeLeft--
+				t.elapsed++
 				t.UpdateDisplay()
 			} else {
 				t.Stop()
-				// exec-ed in their own goroutine so that `stopMsg` can
-				// get serviced before worker ticks.
-				// go t.SetText(
-				// 	fmt.Sprintf(
-				// 		"Your %s's up!\n",
-				// 		utils.FormatSecond(t.duration),
-				// 	),
-				// )
+				t.UpdateDisplay()
 				go Ping(bytes.NewReader(pingFile))
 			}
 		}, t.stopMsg)
@@ -143,7 +140,7 @@ func (t *Timer) Stop() {
 
 func (t *Timer) Reset() {
 	t.Stop()
-	t.timeLeft = t.duration
+	t.elapsed = 0
 	t.UpdateDisplay()
 	t.Start()
 }
