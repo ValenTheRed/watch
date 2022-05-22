@@ -3,7 +3,9 @@ package timer
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/faiface/beep"
@@ -26,10 +28,10 @@ type keyMap struct {
 type Timer struct {
 	*tview.TextView
 	duration, elapsed int
-	running            bool
-	stopMsg            chan struct{}
-	title              string
-	km                 keyMap
+	running           bool
+	stopMsg           chan struct{}
+	title             string
+	km                keyMap
 
 	app *tview.Application
 }
@@ -44,7 +46,7 @@ func New(duration int, app *tview.Application) *Timer {
 		// set to `stopMsg`; `Stop()` will block an unbuffered `stopMsg`.
 		stopMsg:  make(chan struct{}, 1),
 		duration: duration,
-		elapsed: 0,
+		elapsed:  0,
 		title:    " Timer ",
 		km: keyMap{
 			Reset: help.NewBinding(
@@ -105,13 +107,37 @@ func (t *Timer) IsTimeLeft() bool {
 	return t.elapsed < t.duration
 }
 
+func (t *Timer) String() string {
+	const (
+		boundary = "┃"
+		fill     = "#"
+	)
+
+	elapsed := utils.FormatSecond(t.elapsed)
+	dur := utils.FormatSecond(t.duration)
+
+	_, _, width, _ := t.GetInnerRect()
+	// +2 is for the boundary chars at the either end of the progress
+	// bar.
+	width -= len(elapsed) + 2*tview.TabSize + 2 + 2*tview.TabSize + len(dur)
+	percent := t.elapsed * 100 / t.duration
+	fillLen := width * percent / 100
+
+	return fmt.Sprintf(
+		"\t%s\t%s\t%s\t", elapsed,
+		strings.Join([]string{
+			boundary,
+			strings.Repeat(fill, fillLen),
+			strings.Repeat(" ", width-fillLen),
+			boundary,
+		}, ""),
+		dur,
+	)
+}
+
 func (t *Timer) UpdateDisplay() {
 	go t.app.QueueUpdateDraw(func() {
-		t.SetText(
-			utils.FormatSecond(t.elapsed) +
-			" / " +
-			utils.FormatSecond(t.duration),
-		)
+		t.SetText(t.String())
 	})
 }
 
