@@ -107,7 +107,7 @@ func (w *Wtc) Run() error {
 	} else {
 		w.stopwatch.Start()
 	}
-	return w.app.SetRoot(w.setLayout(), true).Run()
+	return w.app.SetRoot(w.setLayout(), true).EnableMouse(true).Run()
 }
 
 func (w *Wtc) setLayout() *tview.Flex {
@@ -131,13 +131,22 @@ func (w *Wtc) CycleFocusBackward() {
 }
 
 func (w *Wtc) cycleFocus(offset int) {
+	if len(w.panels) == 1 && w.panels[0].HasFocus() {
+		return
+	}
+
 	var next Paneler
 	for i, panel := range w.panels {
-		// NOTE: one (and only one) panel will always have a focus
 		if panel.HasFocus() {
 			next = w.panels[abs(i+offset)%len(w.panels)]
 			break
 		}
+	}
+	// Since `w.help` isn't included in the focusable group, with mouse
+	// enabled, `w.help` can be brought to focus. In this case, `next`
+	// will be nil.
+	if next == nil {
+		next = w.panels[0]
 	}
 
 	w.app.SetFocus(next)
