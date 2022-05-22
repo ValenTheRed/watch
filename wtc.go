@@ -34,7 +34,7 @@ type Wtc struct {
 func NewWtc(app *tview.Application, duration int) *Wtc {
 	w := &Wtc{
 		app:  app,
-		help: help.NewHelpView(),
+		help: help.NewHelpView(app),
 		km: keyMap{
 			Quit: help.NewBinding(
 				help.WithRune('q'), help.WithHelp("Quit"),
@@ -84,13 +84,13 @@ func (w *Wtc) Keys() []*help.Binding {
 func (w *Wtc) InitMain(duration int) {
 	var p Paneler
 	if duration == 0 {
-		w.stopwatch = stopwatch.New()
+		w.stopwatch = stopwatch.New(w.app)
 		p = w.stopwatch
 		w.stopwatch.
 			SetFocusFunc(focusFunc(w.stopwatch, w.stopwatch)).
 			SetBlurFunc(blurFunc(w.stopwatch))
 	} else {
-		w.timer = timer.New(duration)
+		w.timer = timer.New(duration, w.app)
 		p = w.timer
 		w.timer.
 			SetFocusFunc(focusFunc(w.timer, w.timer)).

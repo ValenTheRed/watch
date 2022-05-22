@@ -20,10 +20,13 @@ type HelpView struct {
 	globals, locals []*Binding
 	title           string
 	km              keyMap
+
+	app *tview.Application
 }
 
-func NewHelpView() *HelpView {
+func NewHelpView(app *tview.Application) *HelpView {
 	hv := &HelpView{
+		app: app,
 		TextView: tview.NewTextView(),
 		title:    " Help ",
 		km:       keyMap{},

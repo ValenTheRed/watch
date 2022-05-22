@@ -31,10 +31,13 @@ type Timer struct {
 	stopMsg            chan struct{}
 	title              string
 	km                 keyMap
+
+	app *tview.Application
 }
 
-func New(duration int) *Timer {
+func New(duration int, app *tview.Application) *Timer {
 	t := &Timer{
+		app: app,
 		TextView: tview.NewTextView(),
 		// Channel is buffered because: `Stop()` -- which sends on
 		// `stopMsg` -- will be called by the instance of `worker()`

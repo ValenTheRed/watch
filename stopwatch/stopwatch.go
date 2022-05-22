@@ -19,10 +19,13 @@ type Stopwatch struct {
 	stopMsg chan struct{}
 	title   string
 	km      keyMap
+
+	app *tview.Application
 }
 
-func New() *Stopwatch {
+func New(app *tview.Application) *Stopwatch {
 	sw := &Stopwatch{
+		app: app,
 		TextView: tview.NewTextView(),
 		stopMsg:  make(chan struct{}),
 		title:    " Stopwatch ",
