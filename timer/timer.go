@@ -3,7 +3,6 @@ package timer
 import (
 	"bytes"
 	_ "embed"
-	"fmt"
 	"io"
 	"time"
 
