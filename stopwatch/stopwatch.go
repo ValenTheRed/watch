@@ -25,7 +25,7 @@ type Stopwatch struct {
 
 func New(app *tview.Application) *Stopwatch {
 	sw := &Stopwatch{
-		app: app,
+		app:      app,
 		TextView: tview.NewTextView(),
 		stopMsg:  make(chan struct{}),
 		title:    " Stopwatch ",

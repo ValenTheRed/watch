@@ -26,7 +26,7 @@ type HelpView struct {
 
 func NewHelpView(app *tview.Application) *HelpView {
 	hv := &HelpView{
-		app: app,
+		app:      app,
 		TextView: tview.NewTextView(),
 		title:    " Help ",
 		km:       keyMap{},
