@@ -107,7 +107,9 @@ func (t *Timer) IsTimeLeft() bool {
 }
 
 func (t *Timer) UpdateDisplay() {
-	t.SetText(utils.FormatSecond(t.timeLeft))
+	go t.app.QueueUpdateDraw(func() {
+		t.SetText(utils.FormatSecond(t.timeLeft))
+	})
 }
 
 func (t *Timer) Start() {
@@ -121,12 +123,12 @@ func (t *Timer) Start() {
 				t.Stop()
 				// exec-ed in their own goroutine so that `stopMsg` can
 				// get serviced before worker ticks.
-				go t.SetText(
-					fmt.Sprintf(
-						"Your %s's up!\n",
-						utils.FormatSecond(t.duration),
-					),
-				)
+				// go t.SetText(
+				// 	fmt.Sprintf(
+				// 		"Your %s's up!\n",
+				// 		utils.FormatSecond(t.duration),
+				// 	),
+				// )
 				go Ping(bytes.NewReader(pingFile))
 			}
 		}, t.stopMsg)

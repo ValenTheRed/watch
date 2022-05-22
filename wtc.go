@@ -71,6 +71,7 @@ func NewWtc(app *tview.Application, duration int) *Wtc {
 
 	w.InitMain(duration)
 	w.help.SetGlobals(w)
+	w.help.UpdateDisplay()
 
 	return w
 }
@@ -97,7 +98,6 @@ func (w *Wtc) InitMain(duration int) {
 			SetBlurFunc(blurFunc(w.timer))
 	}
 	// w.help widget will not be a focus target.
-	// See: [FIXME](utils.go: focusFunc())
 	w.panels = append(w.panels, p)
 }
 

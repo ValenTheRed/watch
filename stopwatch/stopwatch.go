@@ -85,7 +85,9 @@ func (sw *Stopwatch) Keys() []*help.Binding {
 }
 
 func (sw *Stopwatch) UpdateDisplay() {
-	sw.SetText(utils.FormatSecond(sw.elapsed))
+	go sw.app.QueueUpdateDraw(func() {
+		sw.SetText(utils.FormatSecond(sw.elapsed))
+	})
 }
 
 func (sw *Stopwatch) Start() {

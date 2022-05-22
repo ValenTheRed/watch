@@ -71,7 +71,9 @@ func (hv *HelpView) UpdateDisplay() {
 		}
 	}
 
-	hv.SetText(strings.Join(view, "\t"))
+	go hv.app.QueueUpdateDraw(func() {
+		hv.SetText(strings.Join(view, "\t"))
+	})
 }
 
 func (hv *HelpView) SetGlobals(km KeyMaper) {
