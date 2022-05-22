@@ -1,4 +1,4 @@
-package main
+package help
 
 import (
 	"strings"
@@ -13,35 +13,29 @@ type KeyMaper interface {
 	Keys() []*Binding
 }
 
-type keyMapHelpView struct{}
-
-func (km keyMapHelpView) Keys() []*Binding {
-	return []*Binding{}
-}
+type keyMap struct{}
 
 type HelpView struct {
 	*tview.TextView
 	globals, locals []*Binding
 	title           string
-	keyMap          keyMapHelpView
+	km              keyMap
+
+	app *tview.Application
 }
 
-func NewHelpView() *HelpView {
+func NewHelpView(app *tview.Application) *HelpView {
 	hv := &HelpView{
+		app: app,
 		TextView: tview.NewTextView(),
 		title:    " Help ",
-		keyMap:   keyMapHelpView{},
+		km:       keyMap{},
 	}
 	hv.
-		SetChangedFunc(func() {
-			wtc.app.Draw()
-		}).
 		SetTextAlign(tview.AlignCenter).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
-		SetFocusFunc(focusFunc(hv, hv.keyMap)).
-		SetBlurFunc(blurFunc(hv)).
 		SetTitle(hv.title)
 
 	return hv
@@ -49,6 +43,10 @@ func NewHelpView() *HelpView {
 
 func (hv *HelpView) Title() string {
 	return hv.title
+}
+
+func (hv *HelpView) Keys() []*Binding {
+	return []*Binding{}
 }
 
 func (hv *HelpView) UpdateDisplay() {
@@ -69,11 +67,13 @@ func (hv *HelpView) UpdateDisplay() {
 			} else {
 				key = tcell.KeyNames[b.Key()]
 			}
-			view = append(view, key + sep + b.Help())
+			view = append(view, key+sep+b.Help())
 		}
 	}
 
-	hv.SetText(strings.Join(view, "\t"))
+	go hv.app.QueueUpdateDraw(func() {
+		hv.SetText(strings.Join(view, "\t"))
+	})
 }
 
 func (hv *HelpView) SetGlobals(km KeyMaper) {

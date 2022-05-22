@@ -3,16 +3,14 @@ package main
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+
+	"github.com/ValenTheRed/watch/help"
+	"github.com/ValenTheRed/watch/stopwatch"
+	"github.com/ValenTheRed/watch/timer"
 )
 
-type keyMapWtc struct {
-	Quit, CycleFocusForward, CycleFocusBackward *Binding
-}
-
-func (km *keyMapWtc) Keys() []*Binding {
-	return []*Binding{
-		km.Quit, km.CycleFocusForward, km.CycleFocusBackward,
-	}
+type keyMap struct {
+	Quit, CycleFocusForward, CycleFocusBackward *help.Binding
 }
 
 type Paneler interface {
@@ -23,11 +21,11 @@ type Paneler interface {
 type Wtc struct {
 	app *tview.Application
 
-	stopwatch *Stopwatch
-	timer     *Timer
-	help      *HelpView
+	stopwatch *stopwatch.Stopwatch
+	timer     *timer.Timer
+	help      *help.HelpView
 
-	keyMap *keyMapWtc
+	km keyMap
 
 	// panels is the list of widgets currently being displayed
 	panels []Paneler
@@ -36,52 +34,70 @@ type Wtc struct {
 func NewWtc(app *tview.Application, duration int) *Wtc {
 	w := &Wtc{
 		app:  app,
-		help: NewHelpView(),
-		keyMap: &keyMapWtc{
-			Quit: NewBinding(
-				WithRune('q'), WithHelp("Quit"),
+		help: help.NewHelpView(app),
+		km: keyMap{
+			Quit: help.NewBinding(
+				help.WithRune('q'), help.WithHelp("Quit"),
 			),
-			CycleFocusForward: NewBinding(
-				WithKey(tcell.KeyTab), WithHelp("Cycle focus forward"),
+			CycleFocusForward: help.NewBinding(
+				help.WithKey(tcell.KeyTab),
+				help.WithHelp("Cycle focus forward"),
 			),
-			CycleFocusBackward: NewBinding(
-				WithKey(tcell.KeyBacktab), WithHelp("Cycle focus backward"),
+			CycleFocusBackward: help.NewBinding(
+				help.WithKey(tcell.KeyBacktab),
+				help.WithHelp("Cycle focus backward"),
 			),
 		},
 	}
+
+	w.help.
+		SetFocusFunc(focusFunc(w.help, w.help)).
+		SetBlurFunc(blurFunc(w.help))
 
 	w.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyRune:
 			switch event.Rune() {
-			case w.keyMap.Quit.Rune():
+			case w.km.Quit.Rune():
 				wtc.app.Stop()
 			}
-		case w.keyMap.CycleFocusForward.Key():
+		case w.km.CycleFocusForward.Key():
 			wtc.CycleFocusForward()
-		case w.keyMap.CycleFocusBackward.Key():
+		case w.km.CycleFocusBackward.Key():
 			wtc.CycleFocusBackward()
 		}
 		return event
 	})
 
 	w.InitMain(duration)
-	w.help.SetGlobals(w.keyMap)
+	w.help.SetGlobals(w)
+	w.help.UpdateDisplay()
 
 	return w
+}
+
+func (w *Wtc) Keys() []*help.Binding {
+	return []*help.Binding{
+		w.km.Quit, w.km.CycleFocusForward, w.km.CycleFocusBackward,
+	}
 }
 
 func (w *Wtc) InitMain(duration int) {
 	var p Paneler
 	if duration == 0 {
-		w.stopwatch = NewStopwatch()
+		w.stopwatch = stopwatch.New(w.app)
 		p = w.stopwatch
+		w.stopwatch.
+			SetFocusFunc(focusFunc(w.stopwatch, w.stopwatch)).
+			SetBlurFunc(blurFunc(w.stopwatch))
 	} else {
-		w.timer = NewTimer(duration)
+		w.timer = timer.New(duration, w.app)
 		p = w.timer
+		w.timer.
+			SetFocusFunc(focusFunc(w.timer, w.timer)).
+			SetBlurFunc(blurFunc(w.timer))
 	}
 	// w.help widget will not be a focus target.
-	// See: [FIXME](utils.go: focusFunc())
 	w.panels = append(w.panels, p)
 }
 

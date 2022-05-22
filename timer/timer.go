@@ -1,4 +1,4 @@
-package main
+package timer
 
 import (
 	"bytes"
@@ -12,17 +12,16 @@ import (
 	"github.com/faiface/beep/speaker"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+
+	"github.com/ValenTheRed/watch/help"
+	"github.com/ValenTheRed/watch/utils"
 )
 
 //go:embed "ping.flac"
 var pingFile []byte
 
-type keyMapTimer struct {
-	Reset, Stop, Start *Binding
-}
-
-func (km keyMapTimer) Keys() []*Binding {
-	return []*Binding{km.Reset, km.Start, km.Stop}
+type keyMap struct {
+	Reset, Stop, Start *help.Binding
 }
 
 type Timer struct {
@@ -31,11 +30,14 @@ type Timer struct {
 	running            bool
 	stopMsg            chan struct{}
 	title              string
-	keyMap             keyMapTimer
+	km                 keyMap
+
+	app *tview.Application
 }
 
-func NewTimer(duration int) *Timer {
+func New(duration int, app *tview.Application) *Timer {
 	t := &Timer{
+		app: app,
 		TextView: tview.NewTextView(),
 		// Channel is buffered because: `Stop()` -- which sends on
 		// `stopMsg` -- will be called by the instance of `worker()`
@@ -45,47 +47,43 @@ func NewTimer(duration int) *Timer {
 		duration: duration,
 		timeLeft: duration,
 		title:    " Timer ",
-		keyMap: keyMapTimer{
-			Reset: NewBinding(
-				WithRune('r'), WithHelp("Reset"),
+		km: keyMap{
+			Reset: help.NewBinding(
+				help.WithRune('r'), help.WithHelp("Reset"),
 			),
-			Stop: NewBinding(
-				WithRune('p'), WithHelp("Pause"),
+			Stop: help.NewBinding(
+				help.WithRune('p'), help.WithHelp("Pause"),
 			),
-			Start: NewBinding(
-				WithRune('s'), WithHelp("Start"),
+			Start: help.NewBinding(
+				help.WithRune('s'),
+				help.WithHelp("Start"),
+				help.WithDisable(true),
 			),
 		},
 	}
-	t.keyMap.Start.SetDisable(true)
 
 	t.
-		SetChangedFunc(func() {
-			wtc.app.Draw()
-		}).
 		SetTextAlign(tview.AlignCenter).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
-		SetFocusFunc(focusFunc(t, t.keyMap)).
-		SetBlurFunc(blurFunc(t)).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
-			case t.keyMap.Reset.Rune():
+			case t.km.Reset.Rune():
 				t.Reset()
-				t.keyMap.Start.SetDisable(true)
-				t.keyMap.Stop.SetDisable(false)
-			case t.keyMap.Stop.Rune():
-				if t.keyMap.Stop.IsEnabled() {
+				t.km.Start.SetDisable(true)
+				t.km.Stop.SetDisable(false)
+			case t.km.Stop.Rune():
+				if t.km.Stop.IsEnabled() {
 					t.Stop()
-					t.keyMap.Stop.SetDisable(true)
-					t.keyMap.Start.SetDisable(false)
+					t.km.Stop.SetDisable(true)
+					t.km.Start.SetDisable(false)
 				}
-			case t.keyMap.Start.Rune():
-				if t.keyMap.Start.IsEnabled() {
+			case t.km.Start.Rune():
+				if t.km.Start.IsEnabled() {
 					t.Start()
-					t.keyMap.Start.SetDisable(true)
-					t.keyMap.Stop.SetDisable(false)
+					t.km.Start.SetDisable(true)
+					t.km.Stop.SetDisable(false)
 				}
 			}
 			return event
@@ -100,18 +98,24 @@ func (t *Timer) Title() string {
 	return t.title
 }
 
+func (t *Timer) Keys() []*help.Binding {
+	return []*help.Binding{t.km.Reset, t.km.Start, t.km.Stop}
+}
+
 func (t *Timer) IsTimeLeft() bool {
 	return t.timeLeft > 0
 }
 
 func (t *Timer) UpdateDisplay() {
-	t.SetText(FormatSecond(t.timeLeft))
+	go t.app.QueueUpdateDraw(func() {
+		t.SetText(utils.FormatSecond(t.timeLeft))
+	})
 }
 
 func (t *Timer) Start() {
 	if !t.running && t.IsTimeLeft() {
 		t.running = true
-		go worker(func() {
+		go utils.Worker(func() {
 			if t.IsTimeLeft() {
 				t.timeLeft--
 				t.UpdateDisplay()
@@ -119,9 +123,12 @@ func (t *Timer) Start() {
 				t.Stop()
 				// exec-ed in their own goroutine so that `stopMsg` can
 				// get serviced before worker ticks.
-				go t.SetText(
-					fmt.Sprintf("Your %s's up!\n", FormatSecond(t.duration)),
-				)
+				// go t.SetText(
+				// 	fmt.Sprintf(
+				// 		"Your %s's up!\n",
+				// 		utils.FormatSecond(t.duration),
+				// 	),
+				// )
 				go Ping(bytes.NewReader(pingFile))
 			}
 		}, t.stopMsg)

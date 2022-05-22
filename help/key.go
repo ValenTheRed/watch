@@ -1,4 +1,4 @@
-package main
+package help
 
 import "github.com/gdamore/tcell/v2"
 
@@ -42,6 +42,12 @@ func WithKey(key tcell.Key) BindingOpt {
 func WithHelp(help string) BindingOpt {
 	return func(b *Binding) {
 		b.help = help
+	}
+}
+
+func WithDisable(disable bool) BindingOpt {
+	return func(b *Binding) {
+		b.disable = disable
 	}
 }
 
