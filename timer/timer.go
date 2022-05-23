@@ -150,8 +150,9 @@ func (t *Timer) Start() {
 				t.UpdateDisplay()
 			} else {
 				t.Stop()
-				t.UpdateDisplay()
 				go Ping(bytes.NewReader(pingFile))
+				t.km.Stop.SetDisable(true)
+				t.UpdateDisplay()
 			}
 		}, t.stopMsg)
 	}
