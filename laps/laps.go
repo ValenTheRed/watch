@@ -1,11 +1,14 @@
 package laps
 
 import (
+	"fmt"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 
 	"github.com/ValenTheRed/watch/help"
 	"github.com/ValenTheRed/watch/stopwatch"
+	"github.com/ValenTheRed/watch/utils"
 )
 
 type keyMap struct {
@@ -78,4 +81,33 @@ func (l *Laps) Title() string {
 
 func (l *Laps) Keys() []*help.Binding {
 	return []*help.Binding{l.km.Lap, l.km.Copy}
+}
+
+// Lap inserts new row in l. The row is inserted below the topmost i.e.
+// header row.
+func (l *Laps) Lap() {
+	const row = 1
+
+	var (
+		overall    = l.sw.Elapsed()
+		i, lapTime int
+	)
+
+	if l.GetRowCount() == row {
+		i, lapTime = 1, overall
+	} else {
+		i = l.GetCell(row, 0).Reference.(int) + 1
+		lapTime = overall - l.GetCell(row, 2).Reference.(int)
+	}
+
+	l.InsertRow(row)
+	l.SetCell(row, 0,
+		tview.NewTableCell(fmt.Sprintf("%2d", i)).SetReference(i),
+	)
+	l.SetCell(row, 1,
+		tview.NewTableCell(utils.FormatSecond(lapTime)).SetReference(lapTime),
+	)
+	l.SetCell(row, 2,
+		tview.NewTableCell(utils.FormatSecond(overall)).SetReference(overall),
+	)
 }
