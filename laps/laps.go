@@ -72,9 +72,19 @@ func (l *Laps) initFirstRow() *Laps {
 		return l
 	}
 	l.InsertRow(0)
-	l.SetCell(0, 0, newLapCell("Lap", nil))
-	l.SetCell(0, 1, newLapCell("Lap time", nil))
-	l.SetCell(0, 2, newLapCell("Overall time", nil))
+	// SetExpansion applies on the whole column.
+	l.SetCell(0, 0,
+		newLapCell("Lap", nil).
+			SetExpansion(1),
+	)
+	l.SetCell(0, 1,
+		newLapCell("Lap time", nil).
+			SetExpansion(2),
+	)
+	l.SetCell(0, 2,
+		newLapCell("Overall time", nil).
+			SetExpansion(2),
+	)
 	return l
 }
 
