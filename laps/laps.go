@@ -1,10 +1,12 @@
 package laps
 
 import (
+	"bytes"
 	"fmt"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+	"golang.design/x/clipboard"
 
 	"github.com/ValenTheRed/watch/help"
 	"github.com/ValenTheRed/watch/stopwatch"
@@ -25,6 +27,13 @@ type Laps struct {
 }
 
 func New(sw *stopwatch.Stopwatch, app *tview.Application) *Laps {
+	err := clipboard.Init()
+	if err != nil {
+		// panicing since subsequent calls to clipboard functions are
+		// going to panic anyway.
+		panic(err)
+	}
+
 	l := &Laps{
 		title: " Lap ",
 		Table: tview.NewTable(),
@@ -56,7 +65,7 @@ func New(sw *stopwatch.Stopwatch, app *tview.Application) *Laps {
 				// as application's main loop will do that for us.
 				l.Lap()
 			case l.km.Copy.Rune():
-				// TODO: Copy to system clipboard
+				l.Copy()
 			}
 			return event
 		}).
@@ -127,4 +136,18 @@ func newLapCell(text string, ref interface{}) *tview.TableCell {
 	return tview.NewTableCell(text).
 		SetReference(ref).
 		SetAlign(tview.AlignCenter)
+}
+
+// Copy copies all of the rows into the system clipboard, except for the
+// first row.
+func (l *Laps) Copy() {
+	lines := make([][]byte, 0, l.GetRowCount()-1)
+	for row := 1; row < l.GetRowCount(); row++ {
+		line := make([][]byte, 3, 3)
+		for col := 0; col < 3; col++ {
+			line[col] = []byte(l.GetCell(row, col).Text)
+		}
+		lines = append(lines, bytes.Join(line, []byte{byte(' ')}))
+	}
+	clipboard.Write(clipboard.FmtText, bytes.Join(lines, []byte{byte('\n')}))
 }
