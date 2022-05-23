@@ -14,7 +14,7 @@ import (
 )
 
 type keyMap struct {
-	Lap, Copy *help.Binding
+	Lap, Yank, Copy *help.Binding
 }
 
 type Laps struct {
@@ -47,6 +47,9 @@ func New(sw *stopwatch.Stopwatch, app *tview.Application) *Laps {
 			Copy: help.NewBinding(
 				help.WithRune('c'), help.WithHelp("Copy all"),
 			),
+			Yank: help.NewBinding(
+				help.WithRune('y'), help.WithHelp("Copy row"),
+			),
 		},
 	}
 
@@ -66,6 +69,8 @@ func New(sw *stopwatch.Stopwatch, app *tview.Application) *Laps {
 				l.Lap()
 			case l.km.Copy.Rune():
 				l.Copy()
+			case l.km.Yank.Rune():
+				l.Yank()
 			}
 			return event
 		}).
@@ -105,7 +110,7 @@ func (l *Laps) Title() string {
 }
 
 func (l *Laps) Keys() []*help.Binding {
-	return []*help.Binding{l.km.Lap, l.km.Copy}
+	return []*help.Binding{l.km.Lap, l.km.Copy, l.km.Yank}
 }
 
 // Lap inserts new row in l. The row is inserted below the topmost i.e.
@@ -150,4 +155,18 @@ func (l *Laps) Copy() {
 		lines = append(lines, bytes.Join(line, []byte{byte(' ')}))
 	}
 	clipboard.Write(clipboard.FmtText, bytes.Join(lines, []byte{byte('\n')}))
+}
+
+// Yank() copies currently selected row, except if it is the first row.
+func (l *Laps) Yank() {
+	row, _ := l.GetSelection()
+	// Return if header row
+	if row == 0 {
+		return
+	}
+	line := make([][]byte, 3, 3)
+	for col := 0; col < 3; col++ {
+		line[col] = []byte(l.GetCell(row, col).Text)
+	}
+	clipboard.Write(clipboard.FmtText, bytes.Join(line, []byte{byte(' ')}))
 }
