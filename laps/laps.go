@@ -51,7 +51,10 @@ func New(sw *stopwatch.Stopwatch, app *tview.Application) *Laps {
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
 			case l.km.Lap.Rune():
-				// TODO: Add new row with lap info
+				// [Concurrency in tview](https://github.com/rivo/tview/wiki/Concurrency#event-handlers)
+				// mentions not needing to call any redrawing functions
+				// as application's main loop will do that for us.
+				l.Lap()
 			case l.km.Copy.Rune():
 				// TODO: Copy to system clipboard
 			}
