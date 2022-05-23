@@ -57,3 +57,11 @@ func New(sw *stopwatch.Stopwatch, app *tview.Application) *Laps {
 
 	return l
 }
+
+func (l *Laps) Title() string {
+	return l.title
+}
+
+func (l *Laps) Keys() []*help.Binding {
+	return []*help.Binding{l.km.Lap, l.km.Copy}
+}
