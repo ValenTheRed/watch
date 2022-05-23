@@ -147,15 +147,13 @@ func (t *Timer) Start() {
 	}
 	t.running = true
 	go utils.Worker(func() {
-		if t.IsTimeLeft() {
-			t.elapsed++
-			t.UpdateDisplay()
-		} else {
+		t.elapsed++
+		if !t.IsTimeLeft() {
 			t.Stop()
 			go Ping(bytes.NewReader(pingFile))
 			t.km.Stop.SetDisable(true)
-			t.UpdateDisplay()
 		}
+		t.UpdateDisplay()
 	}, t.stopMsg)
 }
 
