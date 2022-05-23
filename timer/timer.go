@@ -3,7 +3,9 @@ package timer
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/faiface/beep"
@@ -25,11 +27,11 @@ type keyMap struct {
 
 type Timer struct {
 	*tview.TextView
-	duration, timeLeft int
-	running            bool
-	stopMsg            chan struct{}
-	title              string
-	km                 keyMap
+	duration, elapsed int
+	running           bool
+	stopMsg           chan struct{}
+	title             string
+	km                keyMap
 
 	app *tview.Application
 }
@@ -44,7 +46,7 @@ func New(duration int, app *tview.Application) *Timer {
 		// set to `stopMsg`; `Stop()` will block an unbuffered `stopMsg`.
 		stopMsg:  make(chan struct{}, 1),
 		duration: duration,
-		timeLeft: duration,
+		elapsed:  0,
 		title:    " Timer ",
 		km: keyMap{
 			Reset: help.NewBinding(
@@ -102,36 +104,57 @@ func (t *Timer) Keys() []*help.Binding {
 }
 
 func (t *Timer) IsTimeLeft() bool {
-	return t.timeLeft > 0
+	return t.elapsed < t.duration
+}
+
+func (t *Timer) String() string {
+	const (
+		boundary = "┃"
+		fill     = "#"
+	)
+
+	elapsed := utils.FormatSecond(t.elapsed)
+	dur := utils.FormatSecond(t.duration)
+
+	_, _, width, _ := t.GetInnerRect()
+	// +2 is for the boundary chars at the either end of the progress
+	// bar.
+	width -= len(elapsed) + 2*tview.TabSize + 2 + 2*tview.TabSize + len(dur)
+	percent := t.elapsed * 100 / t.duration
+	fillLen := width * percent / 100
+
+	return fmt.Sprintf(
+		"\t%s\t%s\t%s\t", elapsed,
+		strings.Join([]string{
+			boundary,
+			strings.Repeat(fill, fillLen),
+			strings.Repeat(" ", width-fillLen),
+			boundary,
+		}, ""),
+		dur,
+	)
 }
 
 func (t *Timer) UpdateDisplay() {
 	go t.app.QueueUpdateDraw(func() {
-		t.SetText(utils.FormatSecond(t.timeLeft))
+		t.SetText(t.String())
 	})
 }
 
 func (t *Timer) Start() {
-	if !t.running && t.IsTimeLeft() {
-		t.running = true
-		go utils.Worker(func() {
-			if t.IsTimeLeft() {
-				t.timeLeft--
-				t.UpdateDisplay()
-			} else {
-				t.Stop()
-				// exec-ed in their own goroutine so that `stopMsg` can
-				// get serviced before worker ticks.
-				// go t.SetText(
-				// 	fmt.Sprintf(
-				// 		"Your %s's up!\n",
-				// 		utils.FormatSecond(t.duration),
-				// 	),
-				// )
-				go Ping(bytes.NewReader(pingFile))
-			}
-		}, t.stopMsg)
+	if t.running || !t.IsTimeLeft() {
+		return
 	}
+	t.running = true
+	go utils.Worker(func() {
+		t.elapsed++
+		if !t.IsTimeLeft() {
+			t.Stop()
+			go Ping(bytes.NewReader(pingFile))
+			t.km.Stop.SetDisable(true)
+		}
+		t.UpdateDisplay()
+	}, t.stopMsg)
 }
 
 func (t *Timer) Stop() {
@@ -143,7 +166,7 @@ func (t *Timer) Stop() {
 
 func (t *Timer) Reset() {
 	t.Stop()
-	t.timeLeft = t.duration
+	t.elapsed = 0
 	t.UpdateDisplay()
 	t.Start()
 }
