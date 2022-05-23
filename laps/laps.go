@@ -39,6 +39,7 @@ func New(sw *stopwatch.Stopwatch, app *tview.Application) *Laps {
 	}
 
 	l.
+		initFirstRow().
 		SetFixed(1, 0).
 		SetSelectable(true, false).
 		SetTitleAlign(tview.AlignLeft).
@@ -55,6 +56,19 @@ func New(sw *stopwatch.Stopwatch, app *tview.Application) *Laps {
 		}).
 		SetTitle(l.title)
 
+	return l
+}
+
+// initFirstRow inserts the first row of table with headings indicating:
+// lap number, lap time and overall time elapsed when lapped.
+func (l *Laps) initFirstRow() *Laps {
+	if l.GetRowCount() > 0 {
+		return l
+	}
+	l.InsertRow(0)
+	l.SetCell(0, 0, tview.NewTableCell("Lap"))
+	l.SetCell(0, 1, tview.NewTableCell("Lap time"))
+	l.SetCell(0, 2, tview.NewTableCell("Overall time"))
 	return l
 }
 
