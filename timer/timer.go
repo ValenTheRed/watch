@@ -142,20 +142,21 @@ func (t *Timer) UpdateDisplay() {
 }
 
 func (t *Timer) Start() {
-	if !t.running && t.IsTimeLeft() {
-		t.running = true
-		go utils.Worker(func() {
-			if t.IsTimeLeft() {
-				t.elapsed++
-				t.UpdateDisplay()
-			} else {
-				t.Stop()
-				go Ping(bytes.NewReader(pingFile))
-				t.km.Stop.SetDisable(true)
-				t.UpdateDisplay()
-			}
-		}, t.stopMsg)
+	if t.running || !t.IsTimeLeft() {
+		return
 	}
+	t.running = true
+	go utils.Worker(func() {
+		if t.IsTimeLeft() {
+			t.elapsed++
+			t.UpdateDisplay()
+		} else {
+			t.Stop()
+			go Ping(bytes.NewReader(pingFile))
+			t.km.Stop.SetDisable(true)
+			t.UpdateDisplay()
+		}
+	}, t.stopMsg)
 }
 
 func (t *Timer) Stop() {
