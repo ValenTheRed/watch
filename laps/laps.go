@@ -117,7 +117,7 @@ func (l *Laps) Lap() {
 	}
 
 	l.InsertRow(row)
-	l.SetCell(row, 0, newLapCell(fmt.Sprintf("%2d", i), i))
+	l.SetCell(row, 0, newLapCell(fmt.Sprintf("%02d", i), i))
 	l.SetCell(row, 1, newLapCell(utils.FormatSecond(lapTime), lapTime))
 	l.SetCell(row, 2, newLapCell(utils.FormatSecond(overall), overall))
 }
