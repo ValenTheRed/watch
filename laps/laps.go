@@ -72,9 +72,9 @@ func (l *Laps) initFirstRow() *Laps {
 		return l
 	}
 	l.InsertRow(0)
-	l.SetCell(0, 0, tview.NewTableCell("Lap"))
-	l.SetCell(0, 1, tview.NewTableCell("Lap time"))
-	l.SetCell(0, 2, tview.NewTableCell("Overall time"))
+	l.SetCell(0, 0, newLapCell("Lap", nil))
+	l.SetCell(0, 1, newLapCell("Lap time", nil))
+	l.SetCell(0, 2, newLapCell("Overall time", nil))
 	return l
 }
 
@@ -104,13 +104,14 @@ func (l *Laps) Lap() {
 	}
 
 	l.InsertRow(row)
-	l.SetCell(row, 0,
-		tview.NewTableCell(fmt.Sprintf("%2d", i)).SetReference(i),
-	)
-	l.SetCell(row, 1,
-		tview.NewTableCell(utils.FormatSecond(lapTime)).SetReference(lapTime),
-	)
-	l.SetCell(row, 2,
-		tview.NewTableCell(utils.FormatSecond(overall)).SetReference(overall),
-	)
+	l.SetCell(row, 0, newLapCell(fmt.Sprintf("%2d", i), i))
+	l.SetCell(row, 1, newLapCell(utils.FormatSecond(lapTime), lapTime))
+	l.SetCell(row, 2, newLapCell(utils.FormatSecond(overall), overall))
+}
+
+// newLapCell returns a Lap cell with common style applied.
+func newLapCell(text string, ref interface{}) *tview.TableCell {
+	return tview.NewTableCell(text).
+		SetReference(ref).
+		SetAlign(tview.AlignCenter)
 }
