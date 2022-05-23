@@ -75,14 +75,17 @@ func (l *Laps) initFirstRow() *Laps {
 	// SetExpansion applies on the whole column.
 	l.SetCell(0, 0,
 		newLapCell("Lap", nil).
+			SetAttributes(tcell.AttrBold).
 			SetExpansion(1),
 	)
 	l.SetCell(0, 1,
 		newLapCell("Lap time", nil).
+			SetAttributes(tcell.AttrBold).
 			SetExpansion(2),
 	)
 	l.SetCell(0, 2,
 		newLapCell("Overall time", nil).
+			SetAttributes(tcell.AttrBold).
 			SetExpansion(2),
 	)
 	return l
