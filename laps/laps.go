@@ -42,6 +42,7 @@ func New(sw *stopwatch.Stopwatch, app *tview.Application) *Laps {
 		SetFixed(1, 0).
 		SetSelectable(true, false).
 		SetTitleAlign(tview.AlignLeft).
+		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
