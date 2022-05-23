@@ -1,4 +1,4 @@
-package lap
+package laps
 
 import (
 	"github.com/gdamore/tcell/v2"
@@ -12,7 +12,7 @@ type keyMap struct {
 	Lap, Copy *help.Binding
 }
 
-type Lap struct {
+type Laps struct {
 	*tview.Table
 	km    keyMap
 	title string
@@ -21,8 +21,8 @@ type Lap struct {
 	app *tview.Application
 }
 
-func New(sw *stopwatch.Stopwatch, app *tview.Application) *Lap {
-	l := &Lap{
+func New(sw *stopwatch.Stopwatch, app *tview.Application) *Laps {
+	l := &Laps{
 		title: " Lap ",
 		Table: tview.NewTable(),
 
