@@ -14,7 +14,7 @@ import (
 )
 
 type keyMap struct {
-	Lap, Yank, Copy *help.Binding
+	Lap, Yank, Copy, Reset *help.Binding
 }
 
 type Laps struct {
@@ -50,6 +50,9 @@ func New(sw *stopwatch.Stopwatch, app *tview.Application) *Laps {
 			Yank: help.NewBinding(
 				help.WithRune('y'), help.WithHelp("Copy row"),
 			),
+			Reset: help.NewBinding(
+				help.WithRune('r'), help.WithHelp("Reset"),
+			),
 		},
 	}
 
@@ -71,6 +74,9 @@ func New(sw *stopwatch.Stopwatch, app *tview.Application) *Laps {
 				l.Copy()
 			case l.km.Yank.Rune():
 				l.Yank()
+			case l.km.Reset.Rune():
+				l.Clear()
+				l.initFirstRow()
 			}
 			return event
 		}).
@@ -110,7 +116,7 @@ func (l *Laps) Title() string {
 }
 
 func (l *Laps) Keys() []*help.Binding {
-	return []*help.Binding{l.km.Lap, l.km.Copy, l.km.Yank}
+	return []*help.Binding{l.km.Lap, l.km.Copy, l.km.Yank, l.km.Reset}
 }
 
 // Lap inserts new row in l. The row is inserted below the topmost i.e.
