@@ -80,6 +80,10 @@ func (sw *Stopwatch) Title() string {
 	return sw.title
 }
 
+func (sw *Stopwatch) Elapsed() int {
+	return sw.elapsed
+}
+
 func (sw *Stopwatch) Keys() []*help.Binding {
 	return []*help.Binding{sw.km.Reset, sw.km.Start, sw.km.Stop}
 }
