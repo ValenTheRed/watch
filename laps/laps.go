@@ -77,6 +77,14 @@ func New(sw *stopwatch.Stopwatch, app *tview.Application) *Laps {
 			case l.km.Reset.Rune():
 				l.Clear()
 				l.initFirstRow()
+				// The selection stays at the row after a clear. So, the
+				// first row is unselected after a clear. Row selection
+				// appears back again only when:
+				// - more rows have been added, the previous row is
+				// selected, or
+				// - standard Table movement keys are used
+				// So, we reselect the first row.
+				l.Select(0, 0)
 			}
 			return event
 		}).
