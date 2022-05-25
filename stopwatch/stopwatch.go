@@ -149,30 +149,30 @@ func (sw *Stopwatch) Init() *Stopwatch {
 
 func (sw *Stopwatch) UpdateDisplay() {
 	go sw.app.QueueUpdateDraw(func() {
-		sw.SetText(utils.FormatSecond(sw.elapsed))
+		sw.swtc.SetText(utils.FormatSecond(sw.swtc.elapsed))
 	})
 }
 
 func (sw *Stopwatch) Start() {
-	if !sw.running {
-		sw.running = true
+	if !sw.swtc.running {
+		sw.swtc.running = true
 		go utils.Worker(func() {
-			sw.elapsed++
+			sw.swtc.elapsed++
 			sw.UpdateDisplay()
-		}, sw.stopMsg)
+		}, sw.swtc.stopMsg)
 	}
 }
 
 func (sw *Stopwatch) Stop() {
-	if sw.running {
-		sw.running = false
-		sw.stopMsg <- struct{}{}
+	if sw.swtc.running {
+		sw.swtc.running = false
+		sw.swtc.stopMsg <- struct{}{}
 	}
 }
 
 func (sw *Stopwatch) Reset() {
 	sw.Stop()
-	sw.elapsed = 0
+	sw.swtc.elapsed = 0
 	sw.UpdateDisplay()
 	sw.Start()
 }
