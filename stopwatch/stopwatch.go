@@ -37,6 +37,20 @@ func newLaps() *laps {
 	}
 }
 
+// init returns an initialised l. Should be run immediately after
+// newLaps.
+func (l *laps) init() *laps {
+	l.
+		initFirstRow().
+		SetFixed(1, 0).
+		SetSelectable(true, false).
+		SetTitleAlign(tview.AlignLeft).
+		SetBorder(true).
+		SetBackgroundColor(tcell.ColorDefault).
+		SetTitle(l.title)
+	return l
+}
+
 // Title returns the title of l.
 func (l *laps) Title() string {
 	return l.title
@@ -112,6 +126,18 @@ func newStopwatch() *stopwatch {
 			),
 		},
 	}
+}
+
+// init returns an initialised s. Should be run immediately after
+// newStopwatch.
+func (s *stopwatch) init() *stopwatch {
+	s.
+		SetTextAlign(tview.AlignCenter).
+		SetTitleAlign(tview.AlignLeft).
+		SetBorder(true).
+		SetBackgroundColor(tcell.ColorDefault).
+		SetTitle(s.title)
+	return s
 }
 
 // Title returns the title of s.
