@@ -37,6 +37,11 @@ func newLaps() *laps {
 	}
 }
 
+// Title returns the title of l.
+func (l *laps) Title() string {
+	return l.title
+}
+
 // Keys returns the list of key bindings attached to l.
 func (l *laps) Keys() []*help.Binding {
 	return []*help.Binding{
@@ -107,6 +112,11 @@ func newStopwatch() *stopwatch {
 			),
 		},
 	}
+}
+
+// Title returns the title of s.
+func (s *stopwatch) Title() string {
+	return s.title
 }
 
 // Keys returns the list of key bindings attached to s.
