@@ -147,18 +147,6 @@ func (sw *Stopwatch) Init() *Stopwatch {
 	return sw
 }
 
-func (sw *Stopwatch) Title() string {
-	return sw.title
-}
-
-func (sw *Stopwatch) Elapsed() int {
-	return sw.elapsed
-}
-
-func (sw *Stopwatch) Keys() []*help.Binding {
-	return []*help.Binding{sw.km.Reset, sw.km.Start, sw.km.Stop}
-}
-
 func (sw *Stopwatch) UpdateDisplay() {
 	go sw.app.QueueUpdateDraw(func() {
 		sw.SetText(utils.FormatSecond(sw.elapsed))
