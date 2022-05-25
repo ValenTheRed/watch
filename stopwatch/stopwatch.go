@@ -69,8 +69,8 @@ type Stopwatch struct {
 	*tview.Flex
 	app *tview.Application
 
-	swtc *stopwatch
-	laps *laps
+	Swtc *stopwatch
+	Laps *laps
 }
 
 // New returns a new Stopwatch.
@@ -78,63 +78,61 @@ func New(app *tview.Application) *Stopwatch {
 	return &Stopwatch{
 		app:  app,
 		Flex: tview.NewFlex(),
-		swtc: newStopwatch(),
-		laps: newLaps(),
+		Swtc: newStopwatch(),
+		Laps: newLaps(),
 	}
 }
 
 // Init initialises Stopwatch and it's components. Should be run
 // immediately after New().
 func (sw *Stopwatch) Init() *Stopwatch {
-	sw.swtc.init()
-	sw.laps.init()
+	sw.Swtc.init()
+	sw.Laps.init()
 
-	sw.swtc.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+	sw.Swtc.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
-		case sw.swtc.km["Reset"].Rune():
+		case sw.Swtc.km["Reset"].Rune():
 			sw.ResetStopwatch()
-			sw.swtc.km["Start"].SetDisable(true)
-			sw.swtc.km["Stop"].SetDisable(false)
-		case sw.swtc.km["Stop"].Rune():
-			if sw.swtc.km["Stop"].IsEnabled() {
+			sw.Swtc.km["Start"].SetDisable(true)
+			sw.Swtc.km["Stop"].SetDisable(false)
+		case sw.Swtc.km["Stop"].Rune():
+			if sw.Swtc.km["Stop"].IsEnabled() {
 				sw.Stop()
-				sw.swtc.km["Stop"].SetDisable(true)
-				sw.swtc.km["Start"].SetDisable(false)
+				sw.Swtc.km["Stop"].SetDisable(true)
+				sw.Swtc.km["Start"].SetDisable(false)
 			}
-		case sw.swtc.km["Start"].Rune():
-			if sw.swtc.km["Start"].IsEnabled() {
+		case sw.Swtc.km["Start"].Rune():
+			if sw.Swtc.km["Start"].IsEnabled() {
 				sw.Start()
-				sw.swtc.km["Start"].SetDisable(true)
-				sw.swtc.km["Stop"].SetDisable(false)
+				sw.Swtc.km["Start"].SetDisable(true)
+				sw.Swtc.km["Stop"].SetDisable(false)
 			}
 		}
 		return event
 	})
 
-	sw.laps.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+	sw.Laps.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
-		case sw.laps.km["Lap"].Rune():
+		case sw.Laps.km["Lap"].Rune():
 			// [Concurrency in tview](https://github.com/rivo/tview/wiki/Concurrency#event-handlers)
 			// mentions not needing to call any redrawing functions
 			// as application's main loop will do that for us.
 			sw.Lap()
-		case sw.laps.km["Copy"].Rune():
-			sw.laps.copy()
-		case sw.laps.km["Yank"].Rune():
-			sw.laps.yank()
-		case sw.laps.km["Reset"].Rune():
-			sw.laps.reset()
+		case sw.Laps.km["Copy"].Rune():
+			sw.Laps.copy()
+		case sw.Laps.km["Yank"].Rune():
+			sw.Laps.yank()
+		case sw.Laps.km["Reset"].Rune():
+			sw.Laps.reset()
 		}
 		return event
 	})
 
-	// TODO: focus capture
-
 	sw.SetDirection(tview.FlexRow).
 		// Fix size
-		AddItem(sw.swtc, 3, 0, true).
+		AddItem(sw.Swtc, 3, 0, true).
 		// Flexible size
-		AddItem(sw.laps, 0, 1, false)
+		AddItem(sw.Laps, 0, 1, false)
 
 	sw.QueueStopwatchDraw()
 	return sw
@@ -143,24 +141,24 @@ func (sw *Stopwatch) Init() *Stopwatch {
 // QueueStopwatchDraw queues sw's stopwatch component for redraw.
 func (sw *Stopwatch) QueueStopwatchDraw() {
 	go sw.app.QueueUpdateDraw(func() {
-		sw.swtc.SetText(utils.FormatSecond(sw.swtc.elapsed))
+		sw.Swtc.SetText(utils.FormatSecond(sw.Swtc.elapsed))
 	})
 }
 
 func (sw *Stopwatch) Start() {
-	if !sw.swtc.running {
-		sw.swtc.running = true
+	if !sw.Swtc.running {
+		sw.Swtc.running = true
 		go utils.Worker(func() {
-			sw.swtc.elapsed++
+			sw.Swtc.elapsed++
 			sw.QueueStopwatchDraw()
-		}, sw.swtc.stopMsg)
+		}, sw.Swtc.stopMsg)
 	}
 }
 
 func (sw *Stopwatch) Stop() {
-	if sw.swtc.running {
-		sw.swtc.running = false
-		sw.swtc.stopMsg <- struct{}{}
+	if sw.Swtc.running {
+		sw.Swtc.running = false
+		sw.Swtc.stopMsg <- struct{}{}
 	}
 }
 
@@ -168,7 +166,7 @@ func (sw *Stopwatch) Stop() {
 // stopwatch starts running even if it was paused prior to invocation.
 func (sw *Stopwatch) ResetStopwatch() {
 	sw.Stop()
-	sw.swtc.elapsed = 0
+	sw.Swtc.elapsed = 0
 	sw.QueueStopwatchDraw()
 	sw.Start()
 }
@@ -178,19 +176,19 @@ func (sw *Stopwatch) Lap() {
 	const row = 1
 
 	var (
-		overall    = sw.swtc.elapsed
+		overall    = sw.Swtc.elapsed
 		i, lapTime int
 	)
 
-	if sw.laps.GetRowCount() == row {
+	if sw.Laps.GetRowCount() == row {
 		i, lapTime = 1, overall
 	} else {
-		i = sw.laps.GetCell(row, 0).Reference.(int) + 1
-		lapTime = overall - sw.laps.GetCell(row, 2).Reference.(int)
+		i = sw.Laps.GetCell(row, 0).Reference.(int) + 1
+		lapTime = overall - sw.Laps.GetCell(row, 2).Reference.(int)
 	}
 
-	sw.laps.InsertRow(row)
-	sw.laps.SetCell(row, 0, newLapCell(fmt.Sprintf("%02d", i), i))
-	sw.laps.SetCell(row, 1, newLapCell(utils.FormatSecond(lapTime), lapTime))
-	sw.laps.SetCell(row, 2, newLapCell(utils.FormatSecond(overall), overall))
+	sw.Laps.InsertRow(row)
+	sw.Laps.SetCell(row, 0, newLapCell(fmt.Sprintf("%02d", i), i))
+	sw.Laps.SetCell(row, 1, newLapCell(utils.FormatSecond(lapTime), lapTime))
+	sw.Laps.SetCell(row, 2, newLapCell(utils.FormatSecond(overall), overall))
 }
