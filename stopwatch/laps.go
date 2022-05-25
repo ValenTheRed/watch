@@ -69,7 +69,7 @@ func (l *laps) Title() string {
 // Keys returns the list of key bindings attached to l.
 func (l *laps) Keys() []*help.Binding {
 	return []*help.Binding{
-		l.km["Lap"], l.km["Copy"], l.km["yank"], l.km["Reset"],
+		l.km["Lap"], l.km["Copy"], l.km["Yank"], l.km["Reset"],
 	}
 }
 
