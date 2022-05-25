@@ -83,22 +83,25 @@ func (w *Wtc) Keys() []*help.Binding {
 }
 
 func (w *Wtc) InitMain(duration int) {
-	var p Paneler
 	if duration == 0 {
 		w.stopwatch = stopwatch.New(w.app)
-		p = w.stopwatch
-		w.stopwatch.
-			SetFocusFunc(focusFunc(w.stopwatch, w.stopwatch)).
-			SetBlurFunc(blurFunc(w.stopwatch))
+		w.stopwatch.Init()
+
+		w.stopwatch.Swtc.
+			SetFocusFunc(focusFunc(w.stopwatch.Swtc, w.stopwatch)).
+			SetBlurFunc(blurFunc(w.stopwatch.Swtc))
+		w.stopwatch.Laps.
+			SetFocusFunc(focusFunc(w.stopwatch.Laps, w.stopwatch.Laps)).
+			SetBlurFunc(blurFunc(w.stopwatch.Laps))
+		w.panels = []Paneler{w.stopwatch.Swtc, w.stopwatch.Laps}
 	} else {
 		w.timer = timer.New(duration, w.app)
-		p = w.timer
 		w.timer.
 			SetFocusFunc(focusFunc(w.timer, w.timer)).
 			SetBlurFunc(blurFunc(w.timer))
+		// w.help widget will not be a focus target.
+		w.panels = append(w.panels, w.timer)
 	}
-	// w.help widget will not be a focus target.
-	w.panels = append(w.panels, p)
 }
 
 func (w *Wtc) Run() error {
