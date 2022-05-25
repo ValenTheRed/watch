@@ -127,6 +127,20 @@ func (l *laps) yank() {
 	clipboard.Write(clipboard.FmtText, bytes.Join(line, []byte{byte(' ')}))
 }
 
+// reset clears l of all entries.
+func (l *laps) reset() {
+	l.Clear()
+	l.initFirstRow()
+	// The selection stays at the row after a clear. So, the
+	// first row is unselected after a clear. Row selection
+	// appears back again only when:
+	// - more rows have been added, the previous row is
+	// selected, or
+	// - standard Table movement keys are used
+	// So, we reselect the first row.
+	l.Select(0, 0)
+}
+
 // newLapCell returns a Table cell with a default style for a laps cell
 // applied.
 func newLapCell(text string, ref interface{}) *tview.TableCell {

@@ -121,16 +121,7 @@ func (sw *Stopwatch) Init() *Stopwatch {
 		case sw.laps.km["Yank"].Rune():
 			sw.laps.yank()
 		case sw.laps.km["Reset"].Rune():
-			sw.laps.Clear()
-			sw.laps.initFirstRow()
-			// The selection stays at the row after a clear. So, the
-			// first row is unselected after a clear. Row selection
-			// appears back again only when:
-			// - more rows have been added, the previous row is
-			// selected, or
-			// - standard Table movement keys are used
-			// So, we reselect the first row.
-			sw.laps.Select(0, 0)
+			sw.laps.reset()
 		}
 		return event
 	})
