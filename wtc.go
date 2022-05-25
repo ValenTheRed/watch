@@ -138,18 +138,15 @@ func (w *Wtc) cycleFocus(offset int) {
 		return
 	}
 
-	var next Paneler
+	// Since `w.help` isn't included in the focusable group, with mouse
+	// enabled, `w.help` can be brought to focus. In this case, `next`
+	// will be nil.
+	next := w.panels[0]
 	for i, panel := range w.panels {
 		if panel.HasFocus() {
 			next = w.panels[abs(i+offset)%len(w.panels)]
 			break
 		}
-	}
-	// Since `w.help` isn't included in the focusable group, with mouse
-	// enabled, `w.help` can be brought to focus. In this case, `next`
-	// will be nil.
-	if next == nil {
-		next = w.panels[0]
 	}
 
 	w.app.SetFocus(next)
