@@ -80,10 +80,6 @@ func New(app *tview.Application) *Stopwatch {
 	}
 
 	sw.
-		SetTextAlign(tview.AlignCenter).
-		SetTitleAlign(tview.AlignLeft).
-		SetBorder(true).
-		SetBackgroundColor(tcell.ColorDefault).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
 			case sw.km.Reset.Rune():
@@ -104,8 +100,7 @@ func New(app *tview.Application) *Stopwatch {
 				}
 			}
 			return event
-		}).
-		SetTitle(sw.title)
+		})
 
 	sw.UpdateDisplay()
 	return sw
