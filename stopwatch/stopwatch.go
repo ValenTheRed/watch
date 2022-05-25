@@ -44,6 +44,32 @@ func (l *laps) Keys() []*help.Binding {
 	}
 }
 
+// initFirstRow inserts and initialises the first row i.e. the row with
+// column headers.
+func (l *laps) initFirstRow() *laps {
+	if l.GetRowCount() > 0 {
+		return l
+	}
+	l.InsertRow(0)
+	// SetExpansion applies on the whole column.
+	l.SetCell(0, 0,
+		newLapCell("Lap", nil).
+			SetAttributes(tcell.AttrBold).
+			SetExpansion(1),
+	)
+	l.SetCell(0, 1,
+		newLapCell("Lap time", nil).
+			SetAttributes(tcell.AttrBold).
+			SetExpansion(2),
+	)
+	l.SetCell(0, 2,
+		newLapCell("Overall time", nil).
+			SetAttributes(tcell.AttrBold).
+			SetExpansion(2),
+	)
+	return l
+}
+
 // newLapCell returns a Table cell with a default style for a laps cell
 // applied.
 func newLapCell(text string, ref interface{}) *tview.TableCell {
