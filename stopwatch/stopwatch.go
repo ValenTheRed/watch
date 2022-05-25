@@ -37,6 +37,13 @@ func newLaps() *laps {
 	}
 }
 
+// Keys returns the list of key bindings attached to l.
+func (l *laps) Keys() []*help.Binding {
+	return []*help.Binding{
+		l.km["Lap"], l.km["Copy"], l.km["yank"], l.km["Reset"],
+	}
+}
+
 // Stopwatch widget component for Stopwatch.
 type stopwatch struct {
 	*tview.TextView
@@ -65,6 +72,13 @@ func newStopwatch() *stopwatch {
 				help.WithDisable(true),
 			),
 		},
+	}
+}
+
+// Keys returns the list of key bindings attached to s.
+func (s *stopwatch) Keys() []*help.Binding {
+	return []*help.Binding{
+		s.km["Pause"], s.km["Start"], s.km["Reset"],
 	}
 }
 
