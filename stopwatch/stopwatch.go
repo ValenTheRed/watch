@@ -8,6 +8,23 @@ import (
 	"github.com/ValenTheRed/watch/utils"
 )
 
+// Laps widget component for Stopwatch.
+type laps struct {
+	*tview.Table
+	km    map[string]*help.Binding
+	title string
+}
+
+// Stopwatch widget component for Stopwatch.
+type stopwatch struct {
+	*tview.TextView
+	km      map[string]*help.Binding
+	title   string
+	elapsed int
+	running bool
+	stopMsg chan struct{}
+}
+
 type keyMap struct {
 	Reset, Stop, Start *help.Binding
 }
