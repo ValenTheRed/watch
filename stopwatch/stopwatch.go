@@ -71,37 +71,39 @@ type Stopwatch struct {
 	laps *laps
 }
 
+// New returns a new Stopwatch.
 func New(app *tview.Application) *Stopwatch {
-	sw := &Stopwatch{
+	return &Stopwatch{
 		app:  app,
 		Flex: tview.NewFlex(),
 		swtc: newStopwatch(),
 		laps: newLaps(),
 	}
+}
 
+func (sw *Stopwatch) Init() *Stopwatch {
 	sw.
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
-			case sw.km.Reset.Rune():
+			case sw.swtc.km["Reset"].Rune():
 				sw.Reset()
-				sw.km.Start.SetDisable(true)
-				sw.km.Stop.SetDisable(false)
-			case sw.km.Stop.Rune():
-				if sw.km.Stop.IsEnabled() {
+				sw.swtc.km["Start"].SetDisable(true)
+				sw.swtc.km["Stop"].SetDisable(false)
+			case sw.swtc.km["Stop"].Rune():
+				if sw.swtc.km["Stop"].IsEnabled() {
 					sw.Stop()
-					sw.km.Stop.SetDisable(true)
-					sw.km.Start.SetDisable(false)
+					sw.swtc.km["Stop"].SetDisable(true)
+					sw.swtc.km["Start"].SetDisable(false)
 				}
-			case sw.km.Start.Rune():
-				if sw.km.Start.IsEnabled() {
+			case sw.swtc.km["Start"].Rune():
+				if sw.swtc.km["Start"].IsEnabled() {
 					sw.Start()
-					sw.km.Start.SetDisable(true)
-					sw.km.Stop.SetDisable(false)
+					sw.swtc.km["Start"].SetDisable(true)
+					sw.swtc.km["Stop"].SetDisable(false)
 				}
 			}
 			return event
 		})
-
 	sw.UpdateDisplay()
 	return sw
 }
