@@ -15,6 +15,28 @@ type laps struct {
 	title string
 }
 
+// newLaps returns a new laps.
+func newLaps() *laps {
+	return &laps{
+		Table: tview.NewTable(),
+		title: " Laps ",
+		km: map[string]*help.Binding{
+			"Lap": help.NewBinding(
+				help.WithRune('l'), help.WithHelp("Lap"),
+			),
+			"Copy": help.NewBinding(
+				help.WithRune('c'), help.WithHelp("Copy all"),
+			),
+			"Yank": help.NewBinding(
+				help.WithRune('y'), help.WithHelp("Copy row"),
+			),
+			"Reset": help.NewBinding(
+				help.WithRune('r'), help.WithHelp("Reset"),
+			),
+		},
+	}
+}
+
 // Stopwatch widget component for Stopwatch.
 type stopwatch struct {
 	*tview.TextView
@@ -23,6 +45,27 @@ type stopwatch struct {
 	elapsed int
 	running bool
 	stopMsg chan struct{}
+}
+
+// newStopwatch returns a new stopwatch.
+func newStopwatch() *stopwatch {
+	return &stopwatch{
+		TextView: tview.NewTextView(),
+		stopMsg:  make(chan struct{}),
+		title:    " Stopwatch ",
+		km: map[string]*help.Binding{
+			"Reset": help.NewBinding(
+				help.WithRune('r'), help.WithHelp("Reset"),
+			),
+			"Stop": help.NewBinding(
+				help.WithRune('p'), help.WithHelp("Pause"),
+			),
+			"Start": help.NewBinding(
+				help.WithRune('s'), help.WithHelp("Start"),
+				help.WithDisable(true),
+			),
+		},
+	}
 }
 
 type keyMap struct {
