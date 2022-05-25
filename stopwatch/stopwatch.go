@@ -30,7 +30,7 @@ func newStopwatch() *stopwatch {
 			"Reset": help.NewBinding(
 				help.WithRune('r'), help.WithHelp("Reset"),
 			),
-			"Stop": help.NewBinding(
+			"Pause": help.NewBinding(
 				help.WithRune('p'), help.WithHelp("Pause"),
 			),
 			"Start": help.NewBinding(
@@ -94,18 +94,18 @@ func (sw *Stopwatch) Init() *Stopwatch {
 		case sw.Swtc.km["Reset"].Rune():
 			sw.ResetStopwatch()
 			sw.Swtc.km["Start"].SetDisable(true)
-			sw.Swtc.km["Stop"].SetDisable(false)
-		case sw.Swtc.km["Stop"].Rune():
-			if sw.Swtc.km["Stop"].IsEnabled() {
+			sw.Swtc.km["Pause"].SetDisable(false)
+		case sw.Swtc.km["Pause"].Rune():
+			if sw.Swtc.km["Pause"].IsEnabled() {
 				sw.Stop()
-				sw.Swtc.km["Stop"].SetDisable(true)
+				sw.Swtc.km["Pause"].SetDisable(true)
 				sw.Swtc.km["Start"].SetDisable(false)
 			}
 		case sw.Swtc.km["Start"].Rune():
 			if sw.Swtc.km["Start"].IsEnabled() {
 				sw.Start()
 				sw.Swtc.km["Start"].SetDisable(true)
-				sw.Swtc.km["Stop"].SetDisable(false)
+				sw.Swtc.km["Pause"].SetDisable(false)
 			}
 		}
 		return event
