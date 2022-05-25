@@ -81,29 +81,68 @@ func New(app *tview.Application) *Stopwatch {
 	}
 }
 
+// Init initialises Stopwatch and it's components. Should be run
+// immediately after New().
 func (sw *Stopwatch) Init() *Stopwatch {
-	sw.
-		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-			switch event.Rune() {
-			case sw.swtc.km["Reset"].Rune():
-				sw.Reset()
+	sw.swtc.init()
+	sw.laps.init()
+
+	sw.swtc.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Rune() {
+		case sw.swtc.km["Reset"].Rune():
+			sw.Reset()
+			sw.swtc.km["Start"].SetDisable(true)
+			sw.swtc.km["Stop"].SetDisable(false)
+		case sw.swtc.km["Stop"].Rune():
+			if sw.swtc.km["Stop"].IsEnabled() {
+				sw.Stop()
+				sw.swtc.km["Stop"].SetDisable(true)
+				sw.swtc.km["Start"].SetDisable(false)
+			}
+		case sw.swtc.km["Start"].Rune():
+			if sw.swtc.km["Start"].IsEnabled() {
+				sw.Start()
 				sw.swtc.km["Start"].SetDisable(true)
 				sw.swtc.km["Stop"].SetDisable(false)
-			case sw.swtc.km["Stop"].Rune():
-				if sw.swtc.km["Stop"].IsEnabled() {
-					sw.Stop()
-					sw.swtc.km["Stop"].SetDisable(true)
-					sw.swtc.km["Start"].SetDisable(false)
-				}
-			case sw.swtc.km["Start"].Rune():
-				if sw.swtc.km["Start"].IsEnabled() {
-					sw.Start()
-					sw.swtc.km["Start"].SetDisable(true)
-					sw.swtc.km["Stop"].SetDisable(false)
-				}
 			}
-			return event
-		})
+		}
+		return event
+	})
+
+	sw.laps.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Rune() {
+		case sw.laps.km["Lap"].Rune():
+			// [Concurrency in tview](https://github.com/rivo/tview/wiki/Concurrency#event-handlers)
+			// mentions not needing to call any redrawing functions
+			// as application's main loop will do that for us.
+			// TODO: sw.Lap()
+		case sw.laps.km["Copy"].Rune():
+			sw.laps.copy()
+		case sw.laps.km["Yank"].Rune():
+			sw.laps.yank()
+		case sw.laps.km["Reset"].Rune():
+			sw.laps.Clear()
+			sw.laps.initFirstRow()
+			// The selection stays at the row after a clear. So, the
+			// first row is unselected after a clear. Row selection
+			// appears back again only when:
+			// - more rows have been added, the previous row is
+			// selected, or
+			// - standard Table movement keys are used
+			// So, we reselect the first row.
+			sw.laps.Select(0, 0)
+		}
+		return event
+	})
+
+	// TODO: focus capture
+
+	sw.SetDirection(tview.FlexRow).
+		// Fix size
+		AddItem(sw.swtc, 3, 0, true).
+		// Flexible size
+		AddItem(sw.laps, 0, 1, false)
+
 	sw.UpdateDisplay()
 	return sw
 }
