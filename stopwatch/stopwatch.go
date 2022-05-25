@@ -58,13 +58,6 @@ func (s *stopwatch) Title() string {
 	return s.title
 }
 
-// Keys returns the list of key bindings attached to s.
-func (s *stopwatch) Keys() []*help.Binding {
-	return []*help.Binding{
-		s.km["Pause"], s.km["Start"], s.km["Reset"],
-	}
-}
-
 type Stopwatch struct {
 	*tview.Flex
 	app *tview.Application
@@ -88,6 +81,17 @@ func New(app *tview.Application) *Stopwatch {
 func (sw *Stopwatch) Init() *Stopwatch {
 	sw.Swtc.init()
 	sw.Laps.init()
+
+	sw.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Rune() {
+		case sw.Laps.km["Lap"].Rune():
+			// [Concurrency in tview](https://github.com/rivo/tview/wiki/Concurrency#event-handlers)
+			// mentions not needing to call any redrawing functions
+			// as application's main loop will do that for us.
+			sw.Lap()
+		}
+		return event
+	})
 
 	sw.Swtc.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
@@ -113,11 +117,6 @@ func (sw *Stopwatch) Init() *Stopwatch {
 
 	sw.Laps.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
-		case sw.Laps.km["Lap"].Rune():
-			// [Concurrency in tview](https://github.com/rivo/tview/wiki/Concurrency#event-handlers)
-			// mentions not needing to call any redrawing functions
-			// as application's main loop will do that for us.
-			sw.Lap()
 		case sw.Laps.km["Copy"].Rune():
 			sw.Laps.copy()
 		case sw.Laps.km["Yank"].Rune():
@@ -136,6 +135,17 @@ func (sw *Stopwatch) Init() *Stopwatch {
 
 	sw.QueueStopwatchDraw()
 	return sw
+}
+
+// Keys returns the list of key bindings attached to sw when stopwatch
+// component is in-focus.
+func (sw *Stopwatch) Keys() []*help.Binding {
+	return []*help.Binding{
+		sw.Swtc.km["Pause"],
+		sw.Swtc.km["Start"],
+		sw.Laps.km["Lap"],
+		sw.Swtc.km["Reset"],
+	}
 }
 
 // QueueStopwatchDraw queues sw's stopwatch component for redraw.
