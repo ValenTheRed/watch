@@ -90,7 +90,7 @@ func (sw *Stopwatch) Init() *Stopwatch {
 	sw.swtc.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
 		case sw.swtc.km["Reset"].Rune():
-			sw.Reset()
+			sw.ResetStopwatch()
 			sw.swtc.km["Start"].SetDisable(true)
 			sw.swtc.km["Stop"].SetDisable(false)
 		case sw.swtc.km["Stop"].Rune():
@@ -171,7 +171,9 @@ func (sw *Stopwatch) Stop() {
 	}
 }
 
-func (sw *Stopwatch) Reset() {
+// ResetStopwatch reset the stopwatch back to 0 and starts it again. The
+// stopwatch starts running even if it was paused prior to invocation.
+func (sw *Stopwatch) ResetStopwatch() {
 	sw.Stop()
 	sw.swtc.elapsed = 0
 	sw.QueueStopwatchDraw()
