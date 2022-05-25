@@ -64,35 +64,19 @@ func (s *stopwatch) Keys() []*help.Binding {
 }
 
 type Stopwatch struct {
-	*tview.TextView
-	elapsed int
-	running bool
-	stopMsg chan struct{}
-	title   string
-	km      keyMap
-
+	*tview.Flex
 	app *tview.Application
+
+	swtc *stopwatch
+	laps *laps
 }
 
 func New(app *tview.Application) *Stopwatch {
 	sw := &Stopwatch{
-		app:      app,
-		TextView: tview.NewTextView(),
-		stopMsg:  make(chan struct{}),
-		title:    " Stopwatch ",
-		km: keyMap{
-			Reset: help.NewBinding(
-				help.WithRune('r'), help.WithHelp("Reset"),
-			),
-			Stop: help.NewBinding(
-				help.WithRune('p'), help.WithHelp("Pause"),
-			),
-			Start: help.NewBinding(
-				help.WithRune('s'),
-				help.WithHelp("Start"),
-				help.WithDisable(true),
-			),
-		},
+		app:  app,
+		Flex: tview.NewFlex(),
+		swtc: newStopwatch(),
+		laps: newLaps(),
 	}
 
 	sw.
