@@ -1,6 +1,8 @@
 package stopwatch
 
 import (
+	"fmt"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 
@@ -115,7 +117,7 @@ func (sw *Stopwatch) Init() *Stopwatch {
 			// [Concurrency in tview](https://github.com/rivo/tview/wiki/Concurrency#event-handlers)
 			// mentions not needing to call any redrawing functions
 			// as application's main loop will do that for us.
-			// TODO: sw.Lap()
+			sw.Lap()
 		case sw.laps.km["Copy"].Rune():
 			sw.laps.copy()
 		case sw.laps.km["Yank"].Rune():
@@ -169,4 +171,26 @@ func (sw *Stopwatch) ResetStopwatch() {
 	sw.swtc.elapsed = 0
 	sw.QueueStopwatchDraw()
 	sw.Start()
+}
+
+// Lap creates a new lap entry.
+func (sw *Stopwatch) Lap() {
+	const row = 1
+
+	var (
+		overall    = sw.swtc.elapsed
+		i, lapTime int
+	)
+
+	if sw.laps.GetRowCount() == row {
+		i, lapTime = 1, overall
+	} else {
+		i = sw.laps.GetCell(row, 0).Reference.(int) + 1
+		lapTime = overall - sw.laps.GetCell(row, 2).Reference.(int)
+	}
+
+	sw.laps.InsertRow(row)
+	sw.laps.SetCell(row, 0, newLapCell(fmt.Sprintf("%02d", i), i))
+	sw.laps.SetCell(row, 1, newLapCell(utils.FormatSecond(lapTime), lapTime))
+	sw.laps.SetCell(row, 2, newLapCell(utils.FormatSecond(overall), overall))
 }
