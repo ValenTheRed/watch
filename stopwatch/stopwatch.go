@@ -143,11 +143,12 @@ func (sw *Stopwatch) Init() *Stopwatch {
 		// Flexible size
 		AddItem(sw.laps, 0, 1, false)
 
-	sw.UpdateDisplay()
+	sw.QueueStopwatchDraw()
 	return sw
 }
 
-func (sw *Stopwatch) UpdateDisplay() {
+// QueueStopwatchDraw queues sw's stopwatch component for redraw.
+func (sw *Stopwatch) QueueStopwatchDraw() {
 	go sw.app.QueueUpdateDraw(func() {
 		sw.swtc.SetText(utils.FormatSecond(sw.swtc.elapsed))
 	})
@@ -158,7 +159,7 @@ func (sw *Stopwatch) Start() {
 		sw.swtc.running = true
 		go utils.Worker(func() {
 			sw.swtc.elapsed++
-			sw.UpdateDisplay()
+			sw.QueueStopwatchDraw()
 		}, sw.swtc.stopMsg)
 	}
 }
@@ -173,6 +174,6 @@ func (sw *Stopwatch) Stop() {
 func (sw *Stopwatch) Reset() {
 	sw.Stop()
 	sw.swtc.elapsed = 0
-	sw.UpdateDisplay()
+	sw.QueueStopwatchDraw()
 	sw.Start()
 }
