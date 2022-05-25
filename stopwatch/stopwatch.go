@@ -63,10 +63,6 @@ func (s *stopwatch) Keys() []*help.Binding {
 	}
 }
 
-type keyMap struct {
-	Reset, Stop, Start *help.Binding
-}
-
 type Stopwatch struct {
 	*tview.TextView
 	elapsed int
