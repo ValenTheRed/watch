@@ -1,6 +1,8 @@
 package stopwatch
 
 import (
+	"bytes"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"golang.design/x/clipboard"
@@ -104,6 +106,34 @@ func newLapCell(text string, ref interface{}) *tview.TableCell {
 	return tview.NewTableCell(text).
 		SetReference(ref).
 		SetAlign(tview.AlignCenter)
+}
+
+// Copy copies all of the rows into the system clipboard, except for the
+// first row.
+func (l *laps) copy() {
+	lines := make([][]byte, 0, l.GetRowCount()-1)
+	for row := 1; row < l.GetRowCount(); row++ {
+		line := make([][]byte, 3, 3)
+		for col := 0; col < 3; col++ {
+			line[col] = []byte(l.GetCell(row, col).Text)
+		}
+		lines = append(lines, bytes.Join(line, []byte{byte(' ')}))
+	}
+	clipboard.Write(clipboard.FmtText, bytes.Join(lines, []byte{byte('\n')}))
+}
+
+// Yank() copies currently selected row, except if it is the first row.
+func (l *laps) yank() {
+	row, _ := l.GetSelection()
+	// Return if header row
+	if row == 0 {
+		return
+	}
+	line := make([][]byte, 3, 3)
+	for col := 0; col < 3; col++ {
+		line[col] = []byte(l.GetCell(row, col).Text)
+	}
+	clipboard.Write(clipboard.FmtText, bytes.Join(line, []byte{byte(' ')}))
 }
 
 // Stopwatch widget component for Stopwatch.
