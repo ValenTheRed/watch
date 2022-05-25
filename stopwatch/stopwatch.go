@@ -3,6 +3,7 @@ package stopwatch
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+	"golang.design/x/clipboard"
 
 	"github.com/ValenTheRed/watch/help"
 	"github.com/ValenTheRed/watch/utils"
@@ -37,8 +38,8 @@ func newLaps() *laps {
 	}
 }
 
-// init returns an initialised l. Should be run immediately after
-// newLaps.
+// init returns an initialised l. Also initialises package clipboard.
+// Should be run immediately after newLaps.
 func (l *laps) init() *laps {
 	l.
 		initFirstRow().
@@ -48,6 +49,14 @@ func (l *laps) init() *laps {
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
 		SetTitle(l.title)
+
+	err := clipboard.Init()
+	if err != nil {
+		// panicing since subsequent calls to clipboard functions are
+		// going to panic anyway.
+		panic(err)
+	}
+
 	return l
 }
 
