@@ -35,6 +35,34 @@ type timer struct {
 	stopMsg           chan struct{}
 }
 
+// newTimer returns a new timer.
+func newTimer(duration int) *timer {
+	return &timer{
+		TextView: tview.NewTextView(),
+		title:    " Timer ",
+		// Channel is buffered because: `Stop()` -- which sends on
+		// `stopMsg` -- will be called by the instance of `worker()`
+		// started by `Start()`, which has it's `quit` channel
+		// set to `stopMsg`; `Stop()` will block an unbuffered `stopMsg`.
+		stopMsg:  make(chan struct{}, 1),
+		duration: duration,
+		elapsed:  0,
+		km: map[string]*help.Binding{
+			"Reset": help.NewBinding(
+				help.WithRune('r'), help.WithHelp("Reset"),
+			),
+			"Pause": help.NewBinding(
+				help.WithRune('p'), help.WithHelp("Pause"),
+			),
+			"Start": help.NewBinding(
+				help.WithRune('s'),
+				help.WithHelp("Start"),
+				help.WithDisable(true),
+			),
+		},
+	}
+}
+
 type Timer struct {
 	*tview.TextView
 	duration, elapsed int
