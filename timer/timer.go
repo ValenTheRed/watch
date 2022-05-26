@@ -112,20 +112,20 @@ type Timer struct {
 	*tview.Flex
 	app *tview.Application
 
-	Queue     *queue
-	Timer     *timer
+	Queue *queue
+	Timer *timer
 }
 
 // New returns a new Timer.
 func New(app *tview.Application) *Timer {
 	return &Timer{
-		Flex:      tview.NewFlex(),
-		app:       app,
+		Flex: tview.NewFlex(),
+		app:  app,
 		// Durations will be passed to Init().
-		Timer:     newTimer(1),
+		Timer: newTimer(1),
 		// Queue will be used as the storage for all of the durations
 		// information.
-		Queue:     newQueue(),
+		Queue: newQueue(),
 	}
 }
 
@@ -163,7 +163,8 @@ func (t *Timer) Init(durations []int) *Timer {
 	})
 
 	t.SetDirection(tview.FlexRow).
-		AddItem(t.Timer, 3, 0, true)
+		AddItem(t.Timer, 3, 0, true).
+		AddItem(t.Queue, 0, 1, false)
 
 	t.QueueTimerDraw()
 	return t
