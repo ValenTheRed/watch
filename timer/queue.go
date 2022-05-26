@@ -7,6 +7,7 @@ import (
 	"github.com/rivo/tview"
 
 	"github.com/ValenTheRed/watch/help"
+	"github.com/ValenTheRed/watch/utils"
 )
 
 type queue struct {
@@ -96,12 +97,12 @@ func (q *queue) Title() string {
 }
 
 // addItem adds a new entry to q.
-func (q *queue) addItem(text string) *queue {
+func (q *queue) addItem(duration int) *queue {
 	// Table automatically adds the required cells without having to
 	// insert a row first.
 	row := q.GetRowCount()
 	q.SetCell(row, 0, newQueueCell(fmt.Sprint(row), row))
-	q.SetCell(row, 1, newQueueCell(text, nil))
+	q.SetCell(row, 1, newQueueCell(utils.FormatSecond(duration), duration))
 	return q
 }
 
