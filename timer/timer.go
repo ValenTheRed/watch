@@ -137,18 +137,18 @@ func (t *Timer) Init() *Timer {
 		case t.Timer.km["Reset"].Rune():
 			t.Reset()
 			t.Timer.km["Start"].SetDisable(true)
-			t.Timer.km["Stop"].SetDisable(false)
-		case t.Timer.km["Stop"].Rune():
-			if t.Timer.km["Stop"].IsEnabled() {
+			t.Timer.km["Pause"].SetDisable(false)
+		case t.Timer.km["Pause"].Rune():
+			if t.Timer.km["Pause"].IsEnabled() {
 				t.Stop()
-				t.Timer.km["Stop"].SetDisable(true)
+				t.Timer.km["Pause"].SetDisable(true)
 				t.Timer.km["Start"].SetDisable(false)
 			}
 		case t.Timer.km["Start"].Rune():
 			if t.Timer.km["Start"].IsEnabled() {
 				t.Start()
 				t.Timer.km["Start"].SetDisable(true)
-				t.Timer.km["Stop"].SetDisable(false)
+				t.Timer.km["Pause"].SetDisable(false)
 			}
 		}
 		return event
@@ -165,7 +165,7 @@ func (t *Timer) Init() *Timer {
 func (t *Timer) Keys() []*help.Binding {
 	return []*help.Binding{
 		t.Timer.km["Start"],
-		t.Timer.km["Stop"],
+		t.Timer.km["Pause"],
 		t.Timer.km["Reset"],
 	}
 }
@@ -186,7 +186,7 @@ func (t *Timer) Start() {
 		if !t.Timer.IsTimeLeft() {
 			t.Stop()
 			go Ping(bytes.NewReader(pingFile))
-			t.Timer.km["Stop"].SetDisable(true)
+			t.Timer.km["Pause"].SetDisable(true)
 		}
 		t.UpdateDisplay()
 	}, t.Timer.stopMsg)
