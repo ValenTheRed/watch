@@ -63,6 +63,18 @@ func newTimer(duration int) *timer {
 	}
 }
 
+// init returns an initialised t. Should be run immediately after
+// newTimer().
+func (t *timer) init() *timer {
+	t.
+		SetTextAlign(tview.AlignCenter).
+		SetTitleAlign(tview.AlignLeft).
+		SetBorder(true).
+		SetBackgroundColor(tcell.ColorDefault).
+		SetTitle(t.title)
+	return t
+}
+
 type Timer struct {
 	*tview.TextView
 	duration, elapsed int
