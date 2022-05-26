@@ -157,7 +157,7 @@ func (t *Timer) Init() *Timer {
 	t.SetDirection(tview.FlexRow).
 		AddItem(t.Timer, 3, 0, true)
 
-	t.UpdateDisplay()
+	t.QueueTimerDraw()
 	return t
 }
 
@@ -170,7 +170,7 @@ func (t *Timer) Keys() []*help.Binding {
 	}
 }
 
-func (t *Timer) UpdateDisplay() {
+func (t *Timer) QueueTimerDraw() {
 	go t.app.QueueUpdateDraw(func() {
 		t.Timer.SetText(t.Timer.String())
 	})
@@ -188,7 +188,7 @@ func (t *Timer) Start() {
 			go Ping(bytes.NewReader(pingFile))
 			t.Timer.km["Pause"].SetDisable(true)
 		}
-		t.UpdateDisplay()
+		t.QueueTimerDraw()
 	}, t.Timer.stopMsg)
 }
 
@@ -202,7 +202,7 @@ func (t *Timer) Stop() {
 func (t *Timer) Reset() {
 	t.Stop()
 	t.Timer.elapsed = 0
-	t.UpdateDisplay()
+	t.QueueTimerDraw()
 	t.Start()
 }
 
