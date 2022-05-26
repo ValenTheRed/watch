@@ -25,6 +25,16 @@ type keyMap struct {
 	Reset, Stop, Start *help.Binding
 }
 
+// Timer component for Timer.
+type timer struct {
+	*tview.TextView
+	km                map[string]*help.Binding
+	title             string
+	duration, elapsed int
+	running           bool
+	stopMsg           chan struct{}
+}
+
 type Timer struct {
 	*tview.TextView
 	duration, elapsed int
