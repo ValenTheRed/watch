@@ -113,15 +113,17 @@ func (t *timer) IsTimeLeft() bool {
 }
 
 type Timer struct {
-	Timer *timer
-
+	*tview.Flex
 	app *tview.Application
+
+	Timer *timer
 }
 
 // New returns a new Timer.
 func New(duration int, app *tview.Application) *Timer {
 	return &Timer{
-		app:      app,
+		Flex:  tview.NewFlex(),
+		app:   app,
 		Timer: newTimer(duration),
 	}
 }
@@ -151,6 +153,9 @@ func (t *Timer) Init() *Timer {
 		}
 		return event
 	})
+
+	t.SetDirection(tview.FlexRow).
+		AddItem(t.Timer, 3, 0, true)
 
 	t.UpdateDisplay()
 	return t
