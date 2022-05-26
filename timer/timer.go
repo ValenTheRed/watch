@@ -119,8 +119,9 @@ type Timer struct {
 	app *tview.Application
 }
 
+// New returns a new Timer.
 func New(duration int, app *tview.Application) *Timer {
-	t := &Timer{
+	return &Timer{
 		app:      app,
 		TextView: tview.NewTextView(),
 		// Channel is buffered because: `Stop()` -- which sends on
@@ -145,7 +146,10 @@ func New(duration int, app *tview.Application) *Timer {
 			),
 		},
 	}
+}
 
+// Init must be run immediately after New().
+func (t *Timer) Init() *Timer {
 	t.
 		SetTextAlign(tview.AlignCenter).
 		SetTitleAlign(tview.AlignLeft).
