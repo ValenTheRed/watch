@@ -75,6 +75,11 @@ func (t *timer) init() *timer {
 	return t
 }
 
+// Title returns the default title of t.
+func (t *timer) Title() string {
+	return t.title
+}
+
 type Timer struct {
 	*tview.TextView
 	duration, elapsed int
