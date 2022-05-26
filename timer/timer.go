@@ -80,6 +80,34 @@ func (t *timer) Title() string {
 	return t.title
 }
 
+func (t *timer) String() string {
+	const (
+		boundary = "┃"
+		fill     = "#"
+	)
+
+	elapsed := utils.FormatSecond(t.elapsed)
+	dur := utils.FormatSecond(t.duration)
+
+	_, _, width, _ := t.GetInnerRect()
+	// +2 is for the boundary chars at the either end of the progress
+	// bar.
+	width -= len(elapsed) + 2*tview.TabSize + 2 + 2*tview.TabSize + len(dur)
+	percent := t.elapsed * 100 / t.duration
+	fillLen := width * percent / 100
+
+	return fmt.Sprintf(
+		"\t%s\t%s\t%s\t", elapsed,
+		strings.Join([]string{
+			boundary,
+			strings.Repeat(fill, fillLen),
+			strings.Repeat(" ", width-fillLen),
+			boundary,
+		}, ""),
+		dur,
+	)
+}
+
 type Timer struct {
 	*tview.TextView
 	duration, elapsed int
