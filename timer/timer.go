@@ -108,6 +108,10 @@ func (t *timer) String() string {
 	)
 }
 
+func (t *timer) IsTimeLeft() bool {
+	return t.elapsed < t.duration
+}
+
 type Timer struct {
 	Timer *timer
 
@@ -161,10 +165,6 @@ func (t *Timer) Keys() []*help.Binding {
 	}
 }
 
-func (t *Timer) IsTimeLeft() bool {
-	return t.Timer.elapsed < t.Timer.duration
-}
-
 func (t *Timer) UpdateDisplay() {
 	go t.app.QueueUpdateDraw(func() {
 		t.Timer.SetText(t.Timer.String())
@@ -172,13 +172,13 @@ func (t *Timer) UpdateDisplay() {
 }
 
 func (t *Timer) Start() {
-	if t.Timer.running || !t.IsTimeLeft() {
+	if t.Timer.running || !t.Timer.IsTimeLeft() {
 		return
 	}
 	t.Timer.running = true
 	go utils.Worker(func() {
 		t.Timer.elapsed++
-		if !t.IsTimeLeft() {
+		if !t.Timer.IsTimeLeft() {
 			t.Stop()
 			go Ping(bytes.NewReader(pingFile))
 			t.Timer.km["Stop"].SetDisable(true)
