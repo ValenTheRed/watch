@@ -21,10 +21,6 @@ import (
 //go:embed "ping.flac"
 var pingFile []byte
 
-type keyMap struct {
-	Reset, Stop, Start *help.Binding
-}
-
 // Timer component for Timer.
 type timer struct {
 	*tview.TextView
