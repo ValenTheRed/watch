@@ -152,8 +152,13 @@ func (t *Timer) Init() *Timer {
 	return t
 }
 
+// Keys returns the key bindings t uses for it's timer component.
 func (t *Timer) Keys() []*help.Binding {
-	return []*help.Binding{t.km.Reset, t.km.Start, t.km.Stop}
+	return []*help.Binding{
+		t.Timer.km["Start"],
+		t.Timer.km["Stop"],
+		t.Timer.km["Reset"],
+	}
 }
 
 func (t *Timer) IsTimeLeft() bool {
