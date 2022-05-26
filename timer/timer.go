@@ -152,10 +152,6 @@ func (t *Timer) Init() *Timer {
 	return t
 }
 
-func (t *Timer) Title() string {
-	return t.title
-}
-
 func (t *Timer) Keys() []*help.Binding {
 	return []*help.Binding{t.km.Reset, t.km.Start, t.km.Stop}
 }
