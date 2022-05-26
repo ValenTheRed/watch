@@ -112,7 +112,8 @@ type Timer struct {
 	*tview.Flex
 	app *tview.Application
 
-	Timer *timer
+	Queue     *queue
+	Timer     *timer
 }
 
 // New returns a new Timer.
@@ -121,6 +122,9 @@ func New(duration int, app *tview.Application) *Timer {
 		Flex:  tview.NewFlex(),
 		app:   app,
 		Timer: newTimer(duration),
+		// Queue will be used as the storage for all of the durations
+		// information.
+		Queue:     newQueue(),
 	}
 }
 
