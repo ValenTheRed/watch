@@ -1,6 +1,8 @@
 package timer
 
 import (
+	"fmt"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 
@@ -16,7 +18,7 @@ type queue struct {
 // newQueue returns a new queue.
 func newQueue() *queue {
 	return &queue{
-		Table:  tview.NewTable(),
+		Table: tview.NewTable(),
 		title: " Queue ",
 		km: map[string]*help.Binding{
 			"Select": help.NewBinding(
@@ -90,6 +92,16 @@ func (q *queue) Keys() []*help.Binding {
 // Title returns the title of q.
 func (q *queue) Title() string {
 	return q.title
+}
+
+// addItem adds a new entry to q.
+func (q *queue) addItem(text string) *queue {
+	// Table automatically adds the required cells without having to
+	// insert a row first.
+	row := q.GetRowCount()
+	q.SetCell(row, 0, newQueueCell(fmt.Sprint(row), row))
+	q.SetCell(row, 1, newQueueCell(text, nil))
+	return q
 }
 
 // newQueueCell returns a Table cell with a default style for a laps cell
