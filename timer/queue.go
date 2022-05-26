@@ -80,6 +80,18 @@ func (q *queue) initFirstRow() *queue {
 	return q
 }
 
+// Keys returns the key bound to q.
+func (q *queue) Keys() []*help.Binding {
+	return []*help.Binding{
+		q.km["Select"],
+	}
+}
+
+// Title returns the title of q.
+func (q *queue) Title() string {
+	return q.title
+}
+
 // newQueueCell returns a Table cell with a default style for a laps cell
 // applied.
 func newQueueCell(text string, ref interface{}) *tview.TableCell {
