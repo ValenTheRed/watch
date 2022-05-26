@@ -130,8 +130,15 @@ func New(app *tview.Application) *Timer {
 }
 
 // Init initialises components of Timer. Must be run immediately after New().
-func (t *Timer) Init() *Timer {
+func (t *Timer) Init(durations []int) *Timer {
+	t.Timer.duration = durations[0]
+
 	t.Timer.init()
+	t.Queue.init()
+
+	for _, duration := range durations {
+		t.Queue.addItem(duration)
+	}
 
 	t.Timer.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
