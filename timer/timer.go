@@ -21,7 +21,7 @@ import (
 //go:embed "ping.flac"
 var pingFile []byte
 
-// Timer component for Timer.
+// Timer component for Timer. Duration must never be zero.
 type timer struct {
 	*tview.TextView
 	km                map[string]*help.Binding
