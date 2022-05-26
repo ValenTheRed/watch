@@ -109,12 +109,7 @@ func (t *timer) String() string {
 }
 
 type Timer struct {
-	*tview.TextView
-	duration, elapsed int
-	running           bool
-	stopMsg           chan struct{}
-	title             string
-	km                keyMap
+	Timer *timer
 
 	app *tview.Application
 }
@@ -123,60 +118,35 @@ type Timer struct {
 func New(duration int, app *tview.Application) *Timer {
 	return &Timer{
 		app:      app,
-		TextView: tview.NewTextView(),
-		// Channel is buffered because: `Stop()` -- which sends on
-		// `stopMsg` -- will be called by the instance of `worker()`
-		// started by `Start()`, which has it's `quit` channel
-		// set to `stopMsg`; `Stop()` will block an unbuffered `stopMsg`.
-		stopMsg:  make(chan struct{}, 1),
-		duration: duration,
-		elapsed:  0,
-		title:    " Timer ",
-		km: keyMap{
-			Reset: help.NewBinding(
-				help.WithRune('r'), help.WithHelp("Reset"),
-			),
-			Stop: help.NewBinding(
-				help.WithRune('p'), help.WithHelp("Pause"),
-			),
-			Start: help.NewBinding(
-				help.WithRune('s'),
-				help.WithHelp("Start"),
-				help.WithDisable(true),
-			),
-		},
+		Timer: newTimer(duration),
 	}
 }
 
-// Init must be run immediately after New().
+// Init initialises components of Timer. Must be run immediately after New().
 func (t *Timer) Init() *Timer {
-	t.
-		SetTextAlign(tview.AlignCenter).
-		SetTitleAlign(tview.AlignLeft).
-		SetBorder(true).
-		SetBackgroundColor(tcell.ColorDefault).
-		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-			switch event.Rune() {
-			case t.km.Reset.Rune():
-				t.Reset()
-				t.km.Start.SetDisable(true)
-				t.km.Stop.SetDisable(false)
-			case t.km.Stop.Rune():
-				if t.km.Stop.IsEnabled() {
-					t.Stop()
-					t.km.Stop.SetDisable(true)
-					t.km.Start.SetDisable(false)
-				}
-			case t.km.Start.Rune():
-				if t.km.Start.IsEnabled() {
-					t.Start()
-					t.km.Start.SetDisable(true)
-					t.km.Stop.SetDisable(false)
-				}
+	t.Timer.init()
+
+	t.Timer.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Rune() {
+		case t.Timer.km["Reset"].Rune():
+			t.Reset()
+			t.Timer.km["Start"].SetDisable(true)
+			t.Timer.km["Stop"].SetDisable(false)
+		case t.Timer.km["Stop"].Rune():
+			if t.Timer.km["Stop"].IsEnabled() {
+				t.Stop()
+				t.Timer.km["Stop"].SetDisable(true)
+				t.Timer.km["Start"].SetDisable(false)
 			}
-			return event
-		}).
-		SetTitle(t.title)
+		case t.Timer.km["Start"].Rune():
+			if t.Timer.km["Start"].IsEnabled() {
+				t.Start()
+				t.Timer.km["Start"].SetDisable(true)
+				t.Timer.km["Stop"].SetDisable(false)
+			}
+		}
+		return event
+	})
 
 	t.UpdateDisplay()
 	return t
