@@ -162,69 +162,41 @@ func (t *Timer) Keys() []*help.Binding {
 }
 
 func (t *Timer) IsTimeLeft() bool {
-	return t.elapsed < t.duration
-}
-
-func (t *Timer) String() string {
-	const (
-		boundary = "┃"
-		fill     = "#"
-	)
-
-	elapsed := utils.FormatSecond(t.elapsed)
-	dur := utils.FormatSecond(t.duration)
-
-	_, _, width, _ := t.GetInnerRect()
-	// +2 is for the boundary chars at the either end of the progress
-	// bar.
-	width -= len(elapsed) + 2*tview.TabSize + 2 + 2*tview.TabSize + len(dur)
-	percent := t.elapsed * 100 / t.duration
-	fillLen := width * percent / 100
-
-	return fmt.Sprintf(
-		"\t%s\t%s\t%s\t", elapsed,
-		strings.Join([]string{
-			boundary,
-			strings.Repeat(fill, fillLen),
-			strings.Repeat(" ", width-fillLen),
-			boundary,
-		}, ""),
-		dur,
-	)
+	return t.Timer.elapsed < t.Timer.duration
 }
 
 func (t *Timer) UpdateDisplay() {
 	go t.app.QueueUpdateDraw(func() {
-		t.SetText(t.String())
+		t.Timer.SetText(t.Timer.String())
 	})
 }
 
 func (t *Timer) Start() {
-	if t.running || !t.IsTimeLeft() {
+	if t.Timer.running || !t.IsTimeLeft() {
 		return
 	}
-	t.running = true
+	t.Timer.running = true
 	go utils.Worker(func() {
-		t.elapsed++
+		t.Timer.elapsed++
 		if !t.IsTimeLeft() {
 			t.Stop()
 			go Ping(bytes.NewReader(pingFile))
-			t.km.Stop.SetDisable(true)
+			t.Timer.km["Stop"].SetDisable(true)
 		}
 		t.UpdateDisplay()
-	}, t.stopMsg)
+	}, t.Timer.stopMsg)
 }
 
 func (t *Timer) Stop() {
-	if t.running {
-		t.running = false
-		t.stopMsg <- struct{}{}
+	if t.Timer.running {
+		t.Timer.running = false
+		t.Timer.stopMsg <- struct{}{}
 	}
 }
 
 func (t *Timer) Reset() {
 	t.Stop()
-	t.elapsed = 0
+	t.Timer.elapsed = 0
 	t.UpdateDisplay()
 	t.Start()
 }
