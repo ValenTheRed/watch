@@ -39,6 +39,7 @@ func (q *queue) init() *queue {
 		SetSelectable(true, true).
 		// select the first duration cell
 		Select(1, 1).
+		SetWrapSelection(true, false).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
