@@ -14,6 +14,9 @@ type queue struct {
 	*tview.Table
 	km    map[string]*help.Binding
 	title string
+	// head tracks durations, not rows so, will always be one less than
+	// rows.
+	head int
 }
 
 // newQueue returns a new queue.
