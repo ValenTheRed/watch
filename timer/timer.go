@@ -135,6 +135,11 @@ func (t *Timer) Init(durations []int) *Timer {
 
 	t.Timer.init()
 	t.Queue.init()
+	t.Queue.setSelectFunc(func() {
+		t.Stop()
+		t.Timer.duration = t.Queue.getCurrentDuration()
+		t.Reset()
+	})
 
 	for _, d := range durations {
 		t.Queue.addDuration(d)
@@ -192,12 +197,16 @@ func (t *Timer) Start() {
 	t.Timer.running = true
 	go utils.Worker(func() {
 		t.Timer.elapsed++
-		if !t.Timer.IsTimeLeft() {
-			t.Stop()
-			go Ping(bytes.NewReader(pingFile))
-			t.Timer.km["Pause"].SetDisable(true)
-		}
 		t.QueueTimerDraw()
+		if t.Timer.IsTimeLeft() {
+			return
+		}
+		t.Stop()
+		go func() {
+			t.Timer.km["Pause"].SetDisable(true)
+			Ping(bytes.NewReader(pingFile))
+			t.Timer.km["Pause"].SetDisable(false)
+		}()
 	}, t.stopMsg)
 }
 
