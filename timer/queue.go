@@ -17,6 +17,9 @@ type queue struct {
 	// head tracks durations, not rows so, will always be one less than
 	// rows.
 	head int
+	// An optional function that is called every time a duration cell is
+	// selected. Doesn't run when cells in header row are selected.
+	selectFunc func()
 }
 
 // newQueue returns a new queue.
@@ -43,6 +46,15 @@ func (q *queue) init() *queue {
 		SetSelectable(true, true).
 		// select the first duration cell
 		Select(1, 1).
+		SetSelectedFunc(func(row, column int) {
+			if !q.km["Select"].IsEnabled() || row == 0 {
+				return
+			}
+			q.head = row - 1
+			if q.selectFunc != nil {
+				q.selectFunc()
+			}
+		}).
 		SetWrapSelection(true, false).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
