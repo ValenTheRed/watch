@@ -136,8 +136,8 @@ func (t *Timer) Init(durations []int) *Timer {
 	t.Timer.init()
 	t.Queue.init()
 
-	for _, duration := range durations {
-		t.Queue.addItem(duration)
+	for _, d := range durations {
+		t.Queue.addDuration(d)
 	}
 
 	t.Timer.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {

@@ -96,13 +96,13 @@ func (q *queue) Title() string {
 	return q.title
 }
 
-// addItem adds a new entry to q.
-func (q *queue) addItem(duration int) *queue {
+// addDuration adds a new entry to q.
+func (q *queue) addDuration(d int) *queue {
 	// Table automatically adds the required cells without having to
 	// insert a row first.
 	row := q.GetRowCount()
 	q.SetCell(row, 0, newQueueCell(fmt.Sprint(row), row))
-	q.SetCell(row, 1, newQueueCell(utils.FormatSecond(duration), duration))
+	q.SetCell(row, 1, newQueueCell(utils.FormatSecond(d), d))
 	return q
 }
 
