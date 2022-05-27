@@ -134,6 +134,13 @@ func (q *queue) setSelectFunc(callback func()) {
 	q.selectFunc = callback
 }
 
+// queueNext changes the head of the queue to next duration.
+func (q *queue) queueNext() {
+	if q.head != q.GetRowCount()-2 {
+		q.head++
+	}
+}
+
 // newQueueCell returns a Table cell with a default style for a laps cell
 // applied.
 func newQueueCell(text string, ref interface{}) *tview.TableCell {
