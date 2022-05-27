@@ -31,7 +31,7 @@ type Wtc struct {
 	panels []Paneler
 }
 
-func NewWtc(app *tview.Application, duration int) *Wtc {
+func NewWtc(app *tview.Application, durations []int) *Wtc {
 	w := &Wtc{
 		app:  app,
 		help: help.NewHelpView(app),
@@ -69,7 +69,7 @@ func NewWtc(app *tview.Application, duration int) *Wtc {
 		return event
 	})
 
-	w.InitMain(duration)
+	w.InitMain(durations)
 	w.help.SetGlobals(w)
 	w.help.UpdateDisplay()
 
@@ -82,8 +82,9 @@ func (w *Wtc) Keys() []*help.Binding {
 	}
 }
 
-func (w *Wtc) InitMain(duration int) {
-	if duration == 0 {
+func (w *Wtc) InitMain(durations []int) {
+	// w.help widget will not be a focus target.
+	if len(durations) == 0 {
 		w.stopwatch = stopwatch.New(w.app)
 		w.stopwatch.Init()
 
@@ -95,12 +96,13 @@ func (w *Wtc) InitMain(duration int) {
 			SetBlurFunc(blurFunc(w.stopwatch.Laps))
 		w.panels = []Paneler{w.stopwatch.Swtc, w.stopwatch.Laps}
 	} else {
-		w.timer = timer.New(duration, w.app)
-		w.timer.
-			SetFocusFunc(focusFunc(w.timer, w.timer)).
-			SetBlurFunc(blurFunc(w.timer))
-		// w.help widget will not be a focus target.
-		w.panels = append(w.panels, w.timer)
+		w.timer = timer.New(w.app)
+		w.timer.Init(durations)
+
+		w.timer.Timer.
+			SetFocusFunc(focusFunc(w.timer.Timer, w.timer)).
+			SetBlurFunc(blurFunc(w.timer.Timer))
+		w.panels = []Paneler{w.timer.Timer}
 	}
 }
 
