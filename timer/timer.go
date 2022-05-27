@@ -28,7 +28,6 @@ type timer struct {
 	title             string
 	duration, elapsed int
 	running           bool
-	stopMsg           chan struct{}
 }
 
 // newTimer returns a new timer.
@@ -36,11 +35,6 @@ func newTimer(duration int) *timer {
 	return &timer{
 		TextView: tview.NewTextView(),
 		title:    " Timer ",
-		// Channel is buffered because: `Stop()` -- which sends on
-		// `stopMsg` -- will be called by the instance of `worker()`
-		// started by `Start()`, which has it's `quit` channel
-		// set to `stopMsg`; `Stop()` will block an unbuffered `stopMsg`.
-		stopMsg:  make(chan struct{}, 1),
 		duration: duration,
 		elapsed:  0,
 		km: map[string]*help.Binding{
@@ -112,8 +106,9 @@ type Timer struct {
 	*tview.Flex
 	app *tview.Application
 
-	Queue *queue
-	Timer *timer
+	Queue   *queue
+	Timer   *timer
+	stopMsg chan struct{}
 }
 
 // New returns a new Timer.
@@ -126,6 +121,11 @@ func New(app *tview.Application) *Timer {
 		// Queue will be used as the storage for all of the durations
 		// information.
 		Queue: newQueue(),
+		// Channel is buffered because: `Stop()` -- which sends on
+		// `stopMsg` -- will be called by the instance of `worker()`
+		// started by `Start()`, which has it's `quit` channel
+		// set to `stopMsg`; `Stop()` will block an unbuffered `stopMsg`.
+		stopMsg: make(chan struct{}, 1),
 	}
 }
 
@@ -198,13 +198,13 @@ func (t *Timer) Start() {
 			t.Timer.km["Pause"].SetDisable(true)
 		}
 		t.QueueTimerDraw()
-	}, t.Timer.stopMsg)
+	}, t.stopMsg)
 }
 
 func (t *Timer) Stop() {
 	if t.Timer.running {
 		t.Timer.running = false
-		t.Timer.stopMsg <- struct{}{}
+		t.stopMsg <- struct{}{}
 	}
 }
 
