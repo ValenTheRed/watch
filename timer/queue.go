@@ -109,6 +109,13 @@ func (q *queue) addDuration(d int) *queue {
 	return q
 }
 
+// getCurrentDuration returns the duration of the current head of the
+// queue.
+func (q *queue) getCurrentDuration() int {
+	cell := q.GetCell(q.head+1, 1)
+	return cell.Reference.(int)
+}
+
 // newQueueCell returns a Table cell with a default style for a laps cell
 // applied.
 func newQueueCell(text string, ref interface{}) *tview.TableCell {
