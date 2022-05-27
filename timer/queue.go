@@ -128,6 +128,12 @@ func (q *queue) getCurrentDuration() int {
 	return cell.Reference.(int)
 }
 
+// setSelectFunc installs callback to be executed every time a duration
+// cell is selected. Doesn't run when cells in header row are selected.
+func (q *queue) setSelectFunc(callback func()) {
+	q.selectFunc = callback
+}
+
 // newQueueCell returns a Table cell with a default style for a laps cell
 // applied.
 func newQueueCell(text string, ref interface{}) *tview.TableCell {
