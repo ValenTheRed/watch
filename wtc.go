@@ -105,6 +105,7 @@ func (w *Wtc) InitMain(durations []int) {
 		w.timer.Queue.
 			SetFocusFunc(focusFunc(w.timer.Queue, w.timer.Queue)).
 			SetBlurFunc(blurFunc(w.timer.Queue))
+		w.panels = []Paneler{w.timer.Timer, w.timer.Queue}
 	}
 }
 
