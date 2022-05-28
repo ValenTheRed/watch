@@ -213,11 +213,9 @@ func (t *Timer) Start() {
 			return
 		}
 		t.Stop()
-		go func() {
-			t.Timer.km["Pause"].SetDisable(true)
-			Ping(t.pingBuffer.Streamer(0, t.pingBuffer.Len()))
-			t.Timer.km["Pause"].SetDisable(false)
-		}()
+		speaker.Play(beep.Seq(
+			t.pingBuffer.Streamer(0, t.pingBuffer.Len()),
+		))
 	}, t.stopMsg)
 }
 
@@ -233,12 +231,4 @@ func (t *Timer) Reset() {
 	t.Timer.elapsed = 0
 	t.QueueTimerDraw()
 	t.Start()
-}
-
-func Ping(p beep.Streamer) {
-	done := make(chan struct{})
-	speaker.Play(beep.Seq(p, beep.Callback(func() {
-		done <- struct{}{}
-	})))
-	<-done
 }
