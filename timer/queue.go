@@ -56,9 +56,14 @@ func (q *queue) init() *queue {
 			if !q.km["Select"].IsEnabled() || row == 0 {
 				return
 			}
+
 			q.head.Lock()
+			prev := q.head.v + 1
 			q.head.v = row - 1
 			q.head.Unlock()
+
+			q.switchCell(prev, row)
+
 			if q.selectFunc != nil {
 				q.selectFunc()
 			}
@@ -92,10 +97,9 @@ func (q *queue) initFirstRow() *queue {
 	if q.GetRowCount() > 0 {
 		return q
 	}
-	q.InsertRow(0)
 	// SetExpansion applies on the whole column.
 	q.SetCell(0, 0,
-		newQueueCell("Turn", nil).
+		newQueueCell("Current", nil).
 			SetAttributes(tcell.AttrBold).
 			SetExpansion(1),
 	)
@@ -124,7 +128,11 @@ func (q *queue) addDuration(d int) *queue {
 	// Table automatically adds the required cells without having to
 	// insert a row first.
 	row := q.GetRowCount()
-	q.SetCell(row, 0, newQueueCell(fmt.Sprint(row), row))
+	current := ""
+	if row == 1 {
+		current = ">"
+	}
+	q.SetCell(row, 0, newQueueCell(current, nil))
 	q.SetCell(row, 1, newQueueCell(utils.FormatSecond(d), d))
 	return q
 }
@@ -146,13 +154,28 @@ func (q *queue) setSelectFunc(callback func()) {
 
 // queueNext changes the head of the queue to next duration.
 func (q *queue) queueNext() error {
-	q.head.Lock()
-	defer q.head.Unlock()
-	if q.head.v != q.GetRowCount()-2 {
-		q.head.v++
-		return nil
+	prev, err := func() (int, error) {
+		q.head.Lock()
+		defer q.head.Unlock()
+		if q.head.v != q.GetRowCount()-2 {
+			q.head.v++
+			return q.head.v, nil
+		}
+		return q.head.v, fmt.Errorf("queueNext: underflow")
+	}()
+	if err != nil {
+		return err
 	}
-	return fmt.Errorf("queueNext: underflow")
+	q.switchCell(prev, prev+1)
+	return nil
+}
+
+// switchCell switches cells at src and dst.
+// NOTE: src and dst are not bound checked.
+func (q *queue) switchCell(src, dst int) {
+	s, d := q.GetCell(src, 0), q.GetCell(dst, 0)
+	q.SetCell(src, 0, d)
+	q.SetCell(dst, 0, s)
 }
 
 // newQueueCell returns a Table cell with a default style for a laps cell
