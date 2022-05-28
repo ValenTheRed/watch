@@ -4,7 +4,6 @@ import (
 	"bytes"
 	_ "embed"
 	"fmt"
-	"io"
 	"strings"
 	"time"
 
@@ -106,13 +105,24 @@ type Timer struct {
 	*tview.Flex
 	app *tview.Application
 
-	Queue   *queue
-	Timer   *timer
-	stopMsg chan struct{}
+	Queue *queue
+	Timer *timer
+
+	pingBuffer *beep.Buffer
+	stopMsg    chan struct{}
 }
 
 // New returns a new Timer.
 func New(app *tview.Application) *Timer {
+	// NOTE: error ignored
+	streamer, format, _ := flac.Decode(bytes.NewReader(pingFile))
+	defer streamer.Close()
+
+	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
+
+	buf := beep.NewBuffer(format)
+	buf.Append(streamer)
+
 	return &Timer{
 		Flex: tview.NewFlex(),
 		app:  app,
@@ -121,6 +131,7 @@ func New(app *tview.Application) *Timer {
 		// Queue will be used as the storage for all of the durations
 		// information.
 		Queue: newQueue(),
+		pingBuffer: buf,
 		// Channel is buffered because: `Stop()` -- which sends on
 		// `stopMsg` -- will be called by the instance of `worker()`
 		// started by `Start()`, which has it's `quit` channel
@@ -204,7 +215,7 @@ func (t *Timer) Start() {
 		t.Stop()
 		go func() {
 			t.Timer.km["Pause"].SetDisable(true)
-			Ping(bytes.NewReader(pingFile))
+			Ping(t.pingBuffer.Streamer(0, t.pingBuffer.Len()))
 			t.Timer.km["Pause"].SetDisable(false)
 		}()
 	}, t.stopMsg)
@@ -224,19 +235,10 @@ func (t *Timer) Reset() {
 	t.Start()
 }
 
-func Ping(r io.Reader) error {
-	streamer, format, err := flac.Decode(r)
-	if err != nil {
-		return err
-	}
-	defer streamer.Close()
-
+func Ping(p beep.Streamer) {
 	done := make(chan struct{})
-	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
-	speaker.Play(beep.Seq(streamer, beep.Callback(func() {
+	speaker.Play(beep.Seq(p, beep.Callback(func() {
 		done <- struct{}{}
 	})))
-
 	<-done
-	return nil
 }
