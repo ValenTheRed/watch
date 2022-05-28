@@ -49,7 +49,7 @@ func (q *queue) init() *queue {
 		initFirstRow().
 		// column headers will always remain in view
 		SetFixed(1, 0).
-		SetSelectable(true, true).
+		SetSelectable(true, false).
 		// select the first duration cell
 		Select(1, 1).
 		SetSelectedFunc(func(row, column int) {
