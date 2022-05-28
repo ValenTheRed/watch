@@ -116,7 +116,7 @@ type Timer struct {
 	pingMsg          chan interval
 	timerSelectedMsg chan struct{}
 
-	pingBuffer       *beep.Buffer
+	pingBuffer *beep.Buffer
 }
 
 // New returns a new Timer.
@@ -254,8 +254,9 @@ func (t *Timer) queueControl() {
 			if selectDone.Sub(interval.start) >= 0 &&
 				interval.end.Sub(selectDone) >= 0 {
 				break
+			} else if err := t.Queue.queueNext(); err != nil {
+				break
 			}
-			t.Queue.queueNext()
 			t.Timer.duration = t.Queue.getCurrentDuration()
 			t.Reset()
 		case <-t.timerSelectedMsg:

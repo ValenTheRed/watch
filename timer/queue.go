@@ -145,12 +145,14 @@ func (q *queue) setSelectFunc(callback func()) {
 }
 
 // queueNext changes the head of the queue to next duration.
-func (q *queue) queueNext() {
+func (q *queue) queueNext() error {
 	q.head.Lock()
 	defer q.head.Unlock()
 	if q.head.v != q.GetRowCount()-2 {
 		q.head.v++
+		return nil
 	}
+	return fmt.Errorf("queueNext: underflow")
 }
 
 // newQueueCell returns a Table cell with a default style for a laps cell
