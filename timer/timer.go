@@ -4,7 +4,6 @@ import (
 	"bytes"
 	_ "embed"
 	"fmt"
-	"io"
 	"strings"
 	"time"
 
@@ -21,93 +20,56 @@ import (
 //go:embed "ping.flac"
 var pingFile []byte
 
-type keyMap struct {
-	Reset, Stop, Start *help.Binding
-}
-
-type Timer struct {
+// Timer component for Timer. Duration must never be zero.
+type timer struct {
 	*tview.TextView
+	km                map[string]*help.Binding
+	title             string
 	duration, elapsed int
 	running           bool
-	stopMsg           chan struct{}
-	title             string
-	km                keyMap
-
-	app *tview.Application
 }
 
-func New(duration int, app *tview.Application) *Timer {
-	t := &Timer{
-		app:      app,
+// newTimer returns a new timer.
+func newTimer(duration int) *timer {
+	return &timer{
 		TextView: tview.NewTextView(),
-		// Channel is buffered because: `Stop()` -- which sends on
-		// `stopMsg` -- will be called by the instance of `worker()`
-		// started by `Start()`, which has it's `quit` channel
-		// set to `stopMsg`; `Stop()` will block an unbuffered `stopMsg`.
-		stopMsg:  make(chan struct{}, 1),
+		title:    " Timer ",
 		duration: duration,
 		elapsed:  0,
-		title:    " Timer ",
-		km: keyMap{
-			Reset: help.NewBinding(
+		km: map[string]*help.Binding{
+			"Reset": help.NewBinding(
 				help.WithRune('r'), help.WithHelp("Reset"),
 			),
-			Stop: help.NewBinding(
+			"Pause": help.NewBinding(
 				help.WithRune('p'), help.WithHelp("Pause"),
 			),
-			Start: help.NewBinding(
+			"Start": help.NewBinding(
 				help.WithRune('s'),
 				help.WithHelp("Start"),
 				help.WithDisable(true),
 			),
 		},
 	}
+}
 
+// init returns an initialised t. Should be run immediately after
+// newTimer().
+func (t *timer) init() *timer {
 	t.
 		SetTextAlign(tview.AlignCenter).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
-		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-			switch event.Rune() {
-			case t.km.Reset.Rune():
-				t.Reset()
-				t.km.Start.SetDisable(true)
-				t.km.Stop.SetDisable(false)
-			case t.km.Stop.Rune():
-				if t.km.Stop.IsEnabled() {
-					t.Stop()
-					t.km.Stop.SetDisable(true)
-					t.km.Start.SetDisable(false)
-				}
-			case t.km.Start.Rune():
-				if t.km.Start.IsEnabled() {
-					t.Start()
-					t.km.Start.SetDisable(true)
-					t.km.Stop.SetDisable(false)
-				}
-			}
-			return event
-		}).
 		SetTitle(t.title)
-
-	t.UpdateDisplay()
 	return t
 }
 
-func (t *Timer) Title() string {
+// Title returns the default title of t.
+func (t *timer) Title() string {
 	return t.title
 }
 
-func (t *Timer) Keys() []*help.Binding {
-	return []*help.Binding{t.km.Reset, t.km.Start, t.km.Stop}
-}
-
-func (t *Timer) IsTimeLeft() bool {
-	return t.elapsed < t.duration
-}
-
-func (t *Timer) String() string {
+func (t *timer) String() string {
 	const (
 		boundary = "┃"
 		fill     = "#"
@@ -135,55 +97,180 @@ func (t *Timer) String() string {
 	)
 }
 
-func (t *Timer) UpdateDisplay() {
+func (t *timer) IsTimeLeft() bool {
+	return t.elapsed < t.duration
+}
+
+type interval struct {
+	start, end time.Time
+}
+
+type Timer struct {
+	*tview.Flex
+	app *tview.Application
+
+	Queue *queue
+	Timer *timer
+
+	stopMsg          chan struct{}
+	pingMsg          chan interval
+	timerSelectedMsg chan struct{}
+
+	pingBuffer *beep.Buffer
+}
+
+// New returns a new Timer.
+func New(app *tview.Application) *Timer {
+	// NOTE: error ignored
+	streamer, format, _ := flac.Decode(bytes.NewReader(pingFile))
+	defer streamer.Close()
+
+	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
+
+	buf := beep.NewBuffer(format)
+	buf.Append(streamer)
+
+	return &Timer{
+		Flex: tview.NewFlex(),
+		app:  app,
+		// Durations will be passed to Init().
+		Timer: newTimer(1),
+		// Queue will be used as the storage for all of the durations
+		// information.
+		Queue:      newQueue(),
+		pingBuffer: buf,
+		// Channel is buffered because: `Stop()` -- which sends on
+		// `stopMsg` -- will be called by the instance of `worker()`
+		// started by `Start()`, which has it's `quit` channel
+		// set to `stopMsg`; `Stop()` will block an unbuffered `stopMsg`.
+		stopMsg:          make(chan struct{}, 1),
+		pingMsg:          make(chan interval),
+		timerSelectedMsg: make(chan struct{}),
+	}
+}
+
+// Init initialises components of Timer. Must be run immediately after New().
+func (t *Timer) Init(durations []int) *Timer {
+	t.Timer.duration = durations[0]
+
+	t.Timer.init()
+	t.Queue.init()
+	t.Queue.setSelectFunc(func() {
+		t.timerSelectedMsg <- struct{}{}
+	})
+	go t.queueControl()
+
+	for _, d := range durations {
+		t.Queue.addDuration(d)
+	}
+
+	t.Timer.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Rune() {
+		case t.Timer.km["Reset"].Rune():
+			t.Reset()
+			t.Timer.km["Start"].SetDisable(true)
+			t.Timer.km["Pause"].SetDisable(false)
+		case t.Timer.km["Pause"].Rune():
+			if t.Timer.km["Pause"].IsEnabled() {
+				t.Stop()
+				t.Timer.km["Pause"].SetDisable(true)
+				t.Timer.km["Start"].SetDisable(false)
+			}
+		case t.Timer.km["Start"].Rune():
+			if t.Timer.km["Start"].IsEnabled() {
+				t.Start()
+				t.Timer.km["Start"].SetDisable(true)
+				t.Timer.km["Pause"].SetDisable(false)
+			}
+		}
+		return event
+	})
+
+	t.SetDirection(tview.FlexRow).
+		AddItem(t.Timer, 3, 0, true).
+		AddItem(t.Queue, 0, 1, false)
+
+	t.QueueTimerDraw()
+	return t
+}
+
+// Keys returns the key bindings t uses for it's timer component.
+func (t *Timer) Keys() []*help.Binding {
+	return []*help.Binding{
+		t.Timer.km["Start"],
+		t.Timer.km["Pause"],
+		t.Timer.km["Reset"],
+	}
+}
+
+func (t *Timer) QueueTimerDraw() {
 	go t.app.QueueUpdateDraw(func() {
-		t.SetText(t.String())
+		t.Timer.SetText(t.Timer.String())
 	})
 }
 
 func (t *Timer) Start() {
-	if t.running || !t.IsTimeLeft() {
+	if t.Timer.running || !t.Timer.IsTimeLeft() {
 		return
 	}
-	t.running = true
+	t.Timer.running = true
 	go utils.Worker(func() {
-		t.elapsed++
-		if !t.IsTimeLeft() {
-			t.Stop()
-			go Ping(bytes.NewReader(pingFile))
-			t.km.Stop.SetDisable(true)
+		t.Timer.elapsed++
+		t.QueueTimerDraw()
+		if t.Timer.IsTimeLeft() {
+			return
 		}
-		t.UpdateDisplay()
+		t.Stop()
+
+		start := time.Now()
+		speaker.Play(beep.Seq(
+			t.pingBuffer.Streamer(0, t.pingBuffer.Len()),
+			beep.Callback(func() {
+				t.pingMsg <- interval{start, time.Now()}
+			}),
+		))
 	}, t.stopMsg)
 }
 
 func (t *Timer) Stop() {
-	if t.running {
-		t.running = false
+	if t.Timer.running {
+		t.Timer.running = false
 		t.stopMsg <- struct{}{}
+	}
+}
+
+// queueControl is the handler that handles switching t
+// - when user selects a timer from the queue
+// - when current timer expires and the next timer from the queue needs
+// to be played
+// NOTE: queueControl needs to be run as a goroutine.
+func (t *Timer) queueControl() {
+	selectDone := time.Now()
+	for {
+		select {
+		case interval := <-t.pingMsg:
+			// If user selects a new timer within the time it takes for
+			// ping sound to start and end, don't autostart next timer.
+			if selectDone.Sub(interval.start) >= 0 &&
+				interval.end.Sub(selectDone) >= 0 {
+				break
+			} else if err := t.Queue.queueNext(); err != nil {
+				break
+			}
+			t.Timer.duration = t.Queue.getCurrentDuration()
+			t.Reset()
+		case <-t.timerSelectedMsg:
+			t.Stop()
+			t.Timer.duration = t.Queue.getCurrentDuration()
+			t.Reset()
+			selectDone = time.Now()
+		}
 	}
 }
 
 func (t *Timer) Reset() {
 	t.Stop()
-	t.elapsed = 0
-	t.UpdateDisplay()
+	t.Timer.elapsed = 0
+	t.QueueTimerDraw()
 	t.Start()
-}
-
-func Ping(r io.Reader) error {
-	streamer, format, err := flac.Decode(r)
-	if err != nil {
-		return err
-	}
-	defer streamer.Close()
-
-	done := make(chan struct{})
-	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
-	speaker.Play(beep.Seq(streamer, beep.Callback(func() {
-		done <- struct{}{}
-	})))
-
-	<-done
-	return nil
 }

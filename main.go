@@ -77,10 +77,16 @@ func main() {
 
 	debug = log.New(file, "", log.LstdFlags|log.Lshortfile)
 
-	duration, err := ParseDuration(flag.Arg(0))
-	exitOnErr(err)
+	durations := make([]int, len(flag.Args()))
+	for i := range durations {
+		durations[i], err = ParseDuration(flag.Arg(i))
+		exitOnErr(err)
+		if durations[i] == 0 {
+			exitOnErr(fmt.Errorf("main: 0 not allowed; only positive integers"))
+		}
+	}
 
-	wtc = NewWtc(tview.NewApplication(), duration)
+	wtc = NewWtc(tview.NewApplication(), durations)
 
 	if err := wtc.Run(); err != nil {
 		panic(err)
