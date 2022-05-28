@@ -94,7 +94,7 @@ func (q *queue) initFirstRow() *queue {
 	}
 	// SetExpansion applies on the whole column.
 	q.SetCell(0, 0,
-		newQueueCell("Turn", nil).
+		newQueueCell("Current", nil).
 			SetAttributes(tcell.AttrBold).
 			SetExpansion(1),
 	)
@@ -123,7 +123,7 @@ func (q *queue) addDuration(d int) *queue {
 	// Table automatically adds the required cells without having to
 	// insert a row first.
 	row := q.GetRowCount()
-	q.SetCell(row, 0, newQueueCell(fmt.Sprint(row), row))
+	q.SetCell(row, 0, newQueueCell("", nil))
 	q.SetCell(row, 1, newQueueCell(utils.FormatSecond(d), d))
 	return q
 }
