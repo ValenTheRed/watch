@@ -2,6 +2,7 @@ package timer
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -10,13 +11,18 @@ import (
 	"github.com/ValenTheRed/watch/utils"
 )
 
+type head struct {
+	sync.Mutex
+	v int
+}
+
 type queue struct {
 	*tview.Table
 	km    map[string]*help.Binding
 	title string
 	// head tracks durations, not rows so, will always be one less than
 	// rows.
-	head int
+	head head
 	// An optional function that is called every time a duration cell is
 	// selected. Doesn't run when cells in header row are selected.
 	selectFunc func()
@@ -50,7 +56,9 @@ func (q *queue) init() *queue {
 			if !q.km["Select"].IsEnabled() || row == 0 {
 				return
 			}
-			q.head = row - 1
+			q.head.Lock()
+			q.head.v = row - 1
+			q.head.Unlock()
 			if q.selectFunc != nil {
 				q.selectFunc()
 			}
@@ -124,7 +132,9 @@ func (q *queue) addDuration(d int) *queue {
 // getCurrentDuration returns the duration of the current head of the
 // queue.
 func (q *queue) getCurrentDuration() int {
-	cell := q.GetCell(q.head+1, 1)
+	q.head.Lock()
+	defer q.head.Unlock()
+	cell := q.GetCell(q.head.v+1, 1)
 	return cell.Reference.(int)
 }
 
@@ -136,8 +146,10 @@ func (q *queue) setSelectFunc(callback func()) {
 
 // queueNext changes the head of the queue to next duration.
 func (q *queue) queueNext() {
-	if q.head != q.GetRowCount()-2 {
-		q.head++
+	q.head.Lock()
+	defer q.head.Unlock()
+	if q.head.v != q.GetRowCount()-2 {
+		q.head.v++
 	}
 }
 
