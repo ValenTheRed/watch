@@ -78,7 +78,7 @@ func NewWtc(app *tview.Application, durations []int) *Wtc {
 
 func (w *Wtc) Keys() []*help.Binding {
 	return []*help.Binding{
-		w.km.Quit, w.km.CycleFocusForward, w.km.CycleFocusBackward,
+		w.km.Quit, //w.km.CycleFocusForward, w.km.CycleFocusBackward,
 	}
 }
 
