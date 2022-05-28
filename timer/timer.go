@@ -101,6 +101,10 @@ func (t *timer) IsTimeLeft() bool {
 	return t.elapsed < t.duration
 }
 
+type interval struct {
+	start, end time.Time
+}
+
 type Timer struct {
 	*tview.Flex
 	app *tview.Application
@@ -108,8 +112,11 @@ type Timer struct {
 	Queue *queue
 	Timer *timer
 
-	pingBuffer *beep.Buffer
-	stopMsg    chan struct{}
+	stopMsg          chan struct{}
+	pingMsg          chan interval
+	timerSelectedMsg chan struct{}
+
+	pingBuffer       *beep.Buffer
 }
 
 // New returns a new Timer.
@@ -130,13 +137,15 @@ func New(app *tview.Application) *Timer {
 		Timer: newTimer(1),
 		// Queue will be used as the storage for all of the durations
 		// information.
-		Queue: newQueue(),
+		Queue:      newQueue(),
 		pingBuffer: buf,
 		// Channel is buffered because: `Stop()` -- which sends on
 		// `stopMsg` -- will be called by the instance of `worker()`
 		// started by `Start()`, which has it's `quit` channel
 		// set to `stopMsg`; `Stop()` will block an unbuffered `stopMsg`.
-		stopMsg: make(chan struct{}, 1),
+		stopMsg:          make(chan struct{}, 1),
+		pingMsg:          make(chan interval),
+		timerSelectedMsg: make(chan struct{}),
 	}
 }
 
@@ -147,10 +156,9 @@ func (t *Timer) Init(durations []int) *Timer {
 	t.Timer.init()
 	t.Queue.init()
 	t.Queue.setSelectFunc(func() {
-		t.Stop()
-		t.Timer.duration = t.Queue.getCurrentDuration()
-		t.Reset()
+		t.timerSelectedMsg <- struct{}{}
 	})
+	go t.queueControl()
 
 	for _, d := range durations {
 		t.Queue.addDuration(d)
@@ -213,8 +221,13 @@ func (t *Timer) Start() {
 			return
 		}
 		t.Stop()
+
+		start := time.Now()
 		speaker.Play(beep.Seq(
 			t.pingBuffer.Streamer(0, t.pingBuffer.Len()),
+			beep.Callback(func() {
+				t.pingMsg <- interval{start, time.Now()}
+			}),
 		))
 	}, t.stopMsg)
 }
@@ -223,6 +236,34 @@ func (t *Timer) Stop() {
 	if t.Timer.running {
 		t.Timer.running = false
 		t.stopMsg <- struct{}{}
+	}
+}
+
+// queueControl is the handler that handles switching t
+// - when user selects a timer from the queue
+// - when current timer expires and the next timer from the queue needs
+// to be played
+// NOTE: queueControl needs to be run as a goroutine.
+func (t *Timer) queueControl() {
+	selectDone := time.Now()
+	for {
+		select {
+		case interval := <-t.pingMsg:
+			// If user selects a new timer within the time it takes for
+			// ping sound to start and end, don't autostart next timer.
+			if selectDone.Sub(interval.start) >= 0 &&
+				interval.end.Sub(selectDone) >= 0 {
+				break
+			}
+			t.Queue.queueNext()
+			t.Timer.duration = t.Queue.getCurrentDuration()
+			t.Reset()
+		case <-t.timerSelectedMsg:
+			t.Stop()
+			t.Timer.duration = t.Queue.getCurrentDuration()
+			t.Reset()
+			selectDone = time.Now()
+		}
 	}
 }
 
