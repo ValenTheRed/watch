@@ -92,7 +92,6 @@ func (q *queue) initFirstRow() *queue {
 	if q.GetRowCount() > 0 {
 		return q
 	}
-	q.InsertRow(0)
 	// SetExpansion applies on the whole column.
 	q.SetCell(0, 0,
 		newQueueCell("Turn", nil).
