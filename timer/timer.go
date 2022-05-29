@@ -31,7 +31,7 @@ type timer struct {
 
 // newTimer returns a new timer.
 func newTimer(duration int) *timer {
-	return &timer{
+	t := &timer{
 		TextView: tview.NewTextView(),
 		title:    " Timer ",
 		duration: duration,
@@ -50,17 +50,13 @@ func newTimer(duration int) *timer {
 			),
 		},
 	}
-}
-
-// init returns an initialised t. Should be run immediately after
-// newTimer().
-func (t *timer) init() *timer {
 	t.
 		SetTextAlign(tview.AlignCenter).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
 		SetTitle(t.title)
+
 	return t
 }
 
@@ -120,7 +116,8 @@ type Timer struct {
 }
 
 // New returns a new Timer.
-func New(app *tview.Application) *Timer {
+func New(durations []int, app *tview.Application) *Timer {
+	// Init ping file
 	// NOTE: error ignored
 	streamer, format, _ := flac.Decode(bytes.NewReader(pingFile))
 	defer streamer.Close()
@@ -130,14 +127,21 @@ func New(app *tview.Application) *Timer {
 	buf := beep.NewBuffer(format)
 	buf.Append(streamer)
 
-	return &Timer{
-		Flex: tview.NewFlex(),
-		app:  app,
-		// Durations will be passed to Init().
-		Timer: newTimer(1),
+	// Init components
+	timer, queue := newTimer(durations[0]), newQueue()
+	for _, d := range durations {
+		queue.addDuration(d)
+	}
+
+	t := &Timer{
+		Flex: tview.NewFlex().SetDirection(tview.FlexRow).
+			AddItem(timer, 3, 0, true).
+			AddItem(queue, 0, 1, false),
+		app:   app,
+		Timer: timer,
 		// Queue will be used as the storage for all of the durations
 		// information.
-		Queue:      newQueue(),
+		Queue:      queue,
 		pingBuffer: buf,
 		// Channel is buffered because: `Stop()` -- which sends on
 		// `stopMsg` -- will be called by the instance of `worker()`
@@ -147,22 +151,11 @@ func New(app *tview.Application) *Timer {
 		pingMsg:          make(chan interval),
 		timerSelectedMsg: make(chan struct{}),
 	}
-}
 
-// Init initialises components of Timer. Must be run immediately after New().
-func (t *Timer) Init(durations []int) *Timer {
-	t.Timer.duration = durations[0]
-
-	t.Timer.init()
-	t.Queue.init()
 	t.Queue.setSelectFunc(func() {
 		t.timerSelectedMsg <- struct{}{}
 	})
 	go t.queueControl()
-
-	for _, d := range durations {
-		t.Queue.addDuration(d)
-	}
 
 	t.Timer.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
@@ -185,10 +178,6 @@ func (t *Timer) Init(durations []int) *Timer {
 		}
 		return event
 	})
-
-	t.SetDirection(tview.FlexRow).
-		AddItem(t.Timer, 3, 0, true).
-		AddItem(t.Queue, 0, 1, false)
 
 	t.QueueTimerDraw()
 	return t

@@ -53,6 +53,8 @@ func NewWtc(app *tview.Application, durations []int) *Wtc {
 	w.help.
 		SetFocusFunc(focusFunc(w.help, w.help)).
 		SetBlurFunc(blurFunc(w.help))
+	w.help.SetGlobals(w)
+	w.help.UpdateDisplay()
 
 	w.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
@@ -69,25 +71,10 @@ func NewWtc(app *tview.Application, durations []int) *Wtc {
 		return event
 	})
 
-	w.InitMain(durations)
-	w.help.SetGlobals(w)
-	w.help.UpdateDisplay()
-
-	return w
-}
-
-func (w *Wtc) Keys() []*help.Binding {
-	return []*help.Binding{
-		w.km.Quit, //w.km.CycleFocusForward, w.km.CycleFocusBackward,
-	}
-}
-
-func (w *Wtc) InitMain(durations []int) {
-	// w.help widget will not be a focus target.
+	// w.help widget will not be a focus target, so will not be included
+	// in w.panels.
 	if len(durations) == 0 {
 		w.stopwatch = stopwatch.New(w.app)
-		w.stopwatch.Init()
-
 		w.stopwatch.Swtc.
 			SetFocusFunc(focusFunc(w.stopwatch.Swtc, w.stopwatch)).
 			SetBlurFunc(blurFunc(w.stopwatch.Swtc))
@@ -96,9 +83,7 @@ func (w *Wtc) InitMain(durations []int) {
 			SetBlurFunc(blurFunc(w.stopwatch.Laps))
 		w.panels = []Paneler{w.stopwatch.Swtc, w.stopwatch.Laps}
 	} else {
-		w.timer = timer.New(w.app)
-		w.timer.Init(durations)
-
+		w.timer = timer.New(durations, w.app)
 		w.timer.Timer.
 			SetFocusFunc(focusFunc(w.timer.Timer, w.timer)).
 			SetBlurFunc(blurFunc(w.timer.Timer))
@@ -106,6 +91,14 @@ func (w *Wtc) InitMain(durations []int) {
 			SetFocusFunc(focusFunc(w.timer.Queue, w.timer.Queue)).
 			SetBlurFunc(blurFunc(w.timer.Queue))
 		w.panels = []Paneler{w.timer.Timer, w.timer.Queue}
+	}
+
+	return w
+}
+
+func (w *Wtc) Keys() []*help.Binding {
+	return []*help.Binding{
+		w.km.Quit, //w.km.CycleFocusForward, w.km.CycleFocusBackward,
 	}
 }
 

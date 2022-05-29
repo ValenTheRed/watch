@@ -30,7 +30,7 @@ type queue struct {
 
 // newQueue returns a new queue.
 func newQueue() *queue {
-	return &queue{
+	q := &queue{
 		Table: tview.NewTable(),
 		title: " Queue ",
 		km: map[string]*help.Binding{
@@ -40,11 +40,6 @@ func newQueue() *queue {
 			),
 		},
 	}
-}
-
-// init returns an initialised q. Should be run immediately after
-// newQueue().
-func (q *queue) init() *queue {
 	q.
 		initFirstRow().
 		// column headers will always remain in view
@@ -52,27 +47,28 @@ func (q *queue) init() *queue {
 		SetSelectable(true, false).
 		// select the first duration cell
 		Select(1, 1).
-		SetSelectedFunc(func(row, column int) {
-			if !q.km["Select"].IsEnabled() || row == 0 {
-				return
-			}
-
-			q.head.Lock()
-			prev := q.head.v + 1
-			q.head.v = row - 1
-			q.head.Unlock()
-
-			q.switchCell(prev, row)
-
-			if q.selectFunc != nil {
-				q.selectFunc()
-			}
-		}).
 		SetWrapSelection(true, false).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
 		SetTitle(q.title)
+
+	q.SetSelectedFunc(func(row, column int) {
+		if !q.km["Select"].IsEnabled() || row == 0 {
+			return
+		}
+
+		q.head.Lock()
+		prev := q.head.v + 1
+		q.head.v = row - 1
+		q.head.Unlock()
+
+		q.switchCell(prev, row)
+
+		if q.selectFunc != nil {
+			q.selectFunc()
+		}
+	})
 
 	// Switch off default keybinds for moving between columns.
 	q.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {

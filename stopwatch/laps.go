@@ -19,7 +19,7 @@ type laps struct {
 
 // newLaps returns a new laps.
 func newLaps() *laps {
-	return &laps{
+	l := &laps{
 		Table: tview.NewTable(),
 		title: " Laps ",
 		km: map[string]*help.Binding{
@@ -37,11 +37,6 @@ func newLaps() *laps {
 			),
 		},
 	}
-}
-
-// init returns an initialised l. Also initialises package clipboard.
-// Should be run immediately after newLaps.
-func (l *laps) init() *laps {
 	l.
 		initFirstRow().
 		SetFixed(1, 0).

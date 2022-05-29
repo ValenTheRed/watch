@@ -22,7 +22,7 @@ type stopwatch struct {
 
 // newStopwatch returns a new stopwatch.
 func newStopwatch() *stopwatch {
-	return &stopwatch{
+	s := &stopwatch{
 		TextView: tview.NewTextView(),
 		stopMsg:  make(chan struct{}),
 		title:    " Stopwatch ",
@@ -39,17 +39,13 @@ func newStopwatch() *stopwatch {
 			),
 		},
 	}
-}
-
-// init returns an initialised s. Should be run immediately after
-// newStopwatch.
-func (s *stopwatch) init() *stopwatch {
 	s.
 		SetTextAlign(tview.AlignCenter).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
 		SetBackgroundColor(tcell.ColorDefault).
 		SetTitle(s.title)
+
 	return s
 }
 
@@ -68,19 +64,12 @@ type Stopwatch struct {
 
 // New returns a new Stopwatch.
 func New(app *tview.Application) *Stopwatch {
-	return &Stopwatch{
+	sw := &Stopwatch{
 		app:  app,
 		Flex: tview.NewFlex(),
 		Swtc: newStopwatch(),
 		Laps: newLaps(),
 	}
-}
-
-// Init initialises Stopwatch and it's components. Should be run
-// immediately after New().
-func (sw *Stopwatch) Init() *Stopwatch {
-	sw.Swtc.init()
-	sw.Laps.init()
 
 	sw.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
