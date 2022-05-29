@@ -120,7 +120,7 @@ func (w *Wtc) setLayout() *tview.Flex {
 	}
 	return tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(prim, 0, 9, true).
-		AddItem(w.help, 0, 1, false)
+		AddItem(w.help, 2, 0, false)
 }
 
 func (w *Wtc) CycleFocusForward() {

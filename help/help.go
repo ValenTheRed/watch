@@ -33,10 +33,7 @@ func NewHelpView(app *tview.Application) *HelpView {
 	}
 	hv.
 		SetTextAlign(tview.AlignCenter).
-		SetTitleAlign(tview.AlignLeft).
-		SetBorder(true).
-		SetBackgroundColor(tcell.ColorDefault).
-		SetTitle(hv.title)
+		SetBackgroundColor(tcell.ColorDefault)
 
 	return hv
 }
