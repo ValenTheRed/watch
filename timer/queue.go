@@ -45,8 +45,6 @@ func newQueue() *queue {
 		// column headers will always remain in view
 		SetFixed(1, 0).
 		SetSelectable(true, false).
-		// select the first duration cell
-		Select(1, 1).
 		SetWrapSelection(true, false).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
