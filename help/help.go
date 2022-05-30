@@ -33,7 +33,7 @@ func NewHelpView(app *tview.Application) *HelpView {
 	}
 	hv.
 		SetTextAlign(tview.AlignCenter).
-		SetBackgroundColor(tcell.ColorDefault)
+		SetDynamicColors(true)
 
 	return hv
 }
@@ -47,7 +47,7 @@ func (hv *HelpView) Keys() []*Binding {
 }
 
 func (hv *HelpView) UpdateDisplay() {
-	sep := " • "
+	const sep = " • "
 
 	var view []string
 	for _, bindings := range [][]*Binding{
@@ -58,18 +58,18 @@ func (hv *HelpView) UpdateDisplay() {
 			if !b.IsEnabled() {
 				continue
 			}
-			var key string
+			key := "[#626262]"
 			if b.Key() == tcell.KeyRune {
-				key = string(b.Rune())
+				key += string(b.Rune())
 			} else {
-				key = tcell.KeyNames[b.Key()]
+				key += tcell.KeyNames[b.Key()]
 			}
-			view = append(view, key+sep+b.Help())
+			view = append(view, key+" "+"[#4a4a4a]"+b.Help())
 		}
 	}
 
 	go hv.app.QueueUpdateDraw(func() {
-		hv.SetText(strings.Join(view, "\t"))
+		hv.SetText(strings.Join(view, sep))
 	})
 }
 

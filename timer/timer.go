@@ -51,10 +51,10 @@ func newTimer(duration int) *timer {
 		},
 	}
 	t.
+		SetDynamicColors(true).
 		SetTextAlign(tview.AlignCenter).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
-		SetBackgroundColor(tcell.ColorDefault).
 		SetTitle(t.title)
 
 	return t
@@ -82,7 +82,7 @@ func (t *timer) String() string {
 	fillLen := width * percent / 100
 
 	return fmt.Sprintf(
-		"\t%s\t%s\t%s\t", elapsed,
+		"\t%s\t[#b1cbd4]%s[-]\t%s\t", elapsed,
 		strings.Join([]string{
 			boundary,
 			strings.Repeat(fill, fillLen),

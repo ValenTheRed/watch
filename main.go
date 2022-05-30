@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -47,6 +48,20 @@ func init() {
 	tview.Borders.TopRightFocus = tview.Borders.TopRight
 	tview.Borders.BottomLeftFocus = tview.Borders.BottomLeft
 	tview.Borders.BottomRightFocus = tview.Borders.BottomRight
+
+	tview.Styles = tview.Theme{
+		PrimitiveBackgroundColor:    tcell.NewHexColor(0x121014),
+		ContrastBackgroundColor:     tcell.ColorBlue,
+		MoreContrastBackgroundColor: tcell.ColorGreen,
+		BorderColor:                 tcell.NewHexColor(0x51576a),
+		TitleColor:                  tcell.NewHexColor(0x51576a),
+		GraphicsColor:               tcell.ColorWhite,
+		PrimaryTextColor:            tcell.NewHexColor(0xb3b3b3),
+		SecondaryTextColor:          tcell.ColorYellow,
+		TertiaryTextColor:           tcell.ColorGreen,
+		InverseTextColor:            tcell.ColorBlue,
+		ContrastSecondaryTextColor:  tcell.ColorDarkBlue,
+	}
 }
 
 func exitOnErr(err error) {

@@ -43,7 +43,6 @@ func newLaps() *laps {
 		SetSelectable(true, false).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
-		SetBackgroundColor(tcell.ColorDefault).
 		SetTitle(l.title)
 
 	err := clipboard.Init()

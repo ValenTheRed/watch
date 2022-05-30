@@ -79,6 +79,11 @@ func NewWtc(app *tview.Application, durations []int) *Wtc {
 			SetFocusFunc(focusFunc(w.stopwatch.Swtc, w.stopwatch)).
 			SetBlurFunc(blurFunc(w.stopwatch.Swtc))
 		w.stopwatch.Laps.
+			SetSelectedStyle(
+				tcell.Style{}.
+					Background(tcell.NewHexColor(0xc591e9)).
+					Foreground(tview.Styles.PrimitiveBackgroundColor),
+			).
 			SetFocusFunc(focusFunc(w.stopwatch.Laps, w.stopwatch.Laps)).
 			SetBlurFunc(blurFunc(w.stopwatch.Laps))
 		w.panels = []Paneler{w.stopwatch.Swtc, w.stopwatch.Laps}
@@ -88,6 +93,11 @@ func NewWtc(app *tview.Application, durations []int) *Wtc {
 			SetFocusFunc(focusFunc(w.timer.Timer, w.timer)).
 			SetBlurFunc(blurFunc(w.timer.Timer))
 		w.timer.Queue.
+			SetSelectedStyle(
+				tcell.Style{}.
+					Background(tcell.NewHexColor(0xc591e9)).
+					Foreground(tview.Styles.PrimitiveBackgroundColor),
+			).
 			SetFocusFunc(focusFunc(w.timer.Queue, w.timer.Queue)).
 			SetBlurFunc(blurFunc(w.timer.Queue))
 		w.panels = []Paneler{w.timer.Timer, w.timer.Queue}

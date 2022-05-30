@@ -48,7 +48,6 @@ func newQueue() *queue {
 		SetWrapSelection(true, false).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
-		SetBackgroundColor(tcell.ColorDefault).
 		SetTitle(q.title)
 
 	q.SetSelectedFunc(func(row, column int) {

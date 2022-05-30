@@ -19,8 +19,8 @@ func focusFunc(widget Focuser, km help.KeyMaper) func() {
 	return func() {
 		widget.
 			SetTitle("[" + widget.Title() + "]").
-			SetTitleColor(tcell.ColorOrange).
-			SetBorderColor(tcell.ColorOrange)
+			SetTitleColor(tcell.NewHexColor(0xf06db7)).
+			SetBorderColor(tcell.NewHexColor(0xf06db7))
 		wtc.help.SetLocals(km)
 		wtc.help.UpdateDisplay()
 	}

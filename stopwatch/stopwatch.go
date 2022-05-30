@@ -43,7 +43,6 @@ func newStopwatch() *stopwatch {
 		SetTextAlign(tview.AlignCenter).
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true).
-		SetBackgroundColor(tcell.ColorDefault).
 		SetTitle(s.title)
 
 	return s
