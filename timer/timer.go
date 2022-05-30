@@ -68,7 +68,7 @@ func (t *timer) Title() string {
 func (t *timer) String() string {
 	const (
 		boundary = "┃"
-		fill     = "#"
+		fill     = "█"
 	)
 
 	elapsed := utils.FormatSecond(t.elapsed)
