@@ -1,4 +1,4 @@
-// Program wtc implements a watch with timer and stopwatch functionality
+// A clock application with a stopwatch and a timer mode.
 package main
 
 import (
@@ -15,11 +15,9 @@ import (
 	"github.com/rivo/tview"
 )
 
-const binaryName = "wtc"
-
 var (
-	usage = fmt.Sprintf("usage: %s [-help] [duration]", binaryName) + `
-Terminal based watch with timer and stopwatch functionality.
+	usage = `usage: watch [-help] [duration]
+A clock with a stopwatch and a timer.
 
 Specify no arguments to start a stopwatch.
 Specify duration to start a timer.
@@ -30,7 +28,7 @@ duration	supported formats - [[hh:]mm:]ss
 -help	    display this help message and exit`
 
 	// Global controller for the whole application.
-	wtc *Wtc
+	watch *Watch
 
 	logArg bool
 	debug  *log.Logger
@@ -77,7 +75,7 @@ func main() {
 	if logArg {
 		t := time.Now()
 		logFilename = fmt.Sprintf(
-			"wtc_log_%d%02d%02d_%02d%02d%02d.log",
+			"watch_log_%d%02d%02d_%02d%02d%02d.log",
 			t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(),
 		)
 	} else {
@@ -86,7 +84,7 @@ func main() {
 
 	file, err := os.OpenFile(logFilename, os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
-		log.Fatalf("%s: %v\n", binaryName, err)
+		log.Fatalf("main: %v\n", err)
 	}
 	defer file.Close()
 
@@ -101,9 +99,9 @@ func main() {
 		}
 	}
 
-	wtc = NewWtc(tview.NewApplication(), durations)
+	watch = NewWatch(tview.NewApplication(), durations)
 
-	if err := wtc.Run(); err != nil {
+	if err := watch.Run(); err != nil {
 		panic(err)
 	}
 }

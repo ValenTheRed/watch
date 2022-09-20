@@ -21,8 +21,8 @@ func focusFunc(widget Focuser, km help.KeyMaper) func() {
 			SetTitle("[" + widget.Title() + "]").
 			SetTitleColor(tcell.NewHexColor(0xf06db7)).
 			SetBorderColor(tcell.NewHexColor(0xf06db7))
-		wtc.help.SetLocals(km)
-		wtc.help.UpdateDisplay()
+		watch.help.SetLocals(km)
+		watch.help.UpdateDisplay()
 	}
 }
 
@@ -32,7 +32,7 @@ func blurFunc(widget Focuser) func() {
 			SetTitle(widget.Title()).
 			SetTitleColor(tview.Styles.TitleColor).
 			SetBorderColor(tview.Styles.BorderColor)
-		wtc.help.UnsetLocals()
-		wtc.help.UpdateDisplay()
+		watch.help.UnsetLocals()
+		watch.help.UpdateDisplay()
 	}
 }

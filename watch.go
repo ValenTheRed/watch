@@ -18,7 +18,7 @@ type Paneler interface {
 	HasFocus() bool
 }
 
-type Wtc struct {
+type Watch struct {
 	app *tview.Application
 
 	stopwatch *stopwatch.Stopwatch
@@ -31,8 +31,8 @@ type Wtc struct {
 	panels []Paneler
 }
 
-func NewWtc(app *tview.Application, durations []int) *Wtc {
-	w := &Wtc{
+func NewWatch(app *tview.Application, durations []int) *Watch {
+	w := &Watch{
 		app:  app,
 		help: help.NewHelpView(app),
 		km: keyMap{
@@ -61,12 +61,12 @@ func NewWtc(app *tview.Application, durations []int) *Wtc {
 		case tcell.KeyRune:
 			switch event.Rune() {
 			case w.km.Quit.Rune():
-				wtc.app.Stop()
+				watch.app.Stop()
 			}
 		case w.km.CycleFocusForward.Key():
-			wtc.CycleFocusForward()
+			watch.CycleFocusForward()
 		case w.km.CycleFocusBackward.Key():
-			wtc.CycleFocusBackward()
+			watch.CycleFocusBackward()
 		}
 		return event
 	})
@@ -106,13 +106,13 @@ func NewWtc(app *tview.Application, durations []int) *Wtc {
 	return w
 }
 
-func (w *Wtc) Keys() []*help.Binding {
+func (w *Watch) Keys() []*help.Binding {
 	return []*help.Binding{
 		w.km.Quit, //w.km.CycleFocusForward, w.km.CycleFocusBackward,
 	}
 }
 
-func (w *Wtc) Run() error {
+func (w *Watch) Run() error {
 	if w.timer != nil {
 		w.timer.Start()
 	} else {
@@ -121,7 +121,7 @@ func (w *Wtc) Run() error {
 	return w.app.SetRoot(w.setLayout(), true).EnableMouse(true).Run()
 }
 
-func (w *Wtc) setLayout() *tview.Flex {
+func (w *Watch) setLayout() *tview.Flex {
 	var prim tview.Primitive
 	if w.timer != nil {
 		prim = w.timer
@@ -133,15 +133,15 @@ func (w *Wtc) setLayout() *tview.Flex {
 		AddItem(w.help, 2, 0, false)
 }
 
-func (w *Wtc) CycleFocusForward() {
+func (w *Watch) CycleFocusForward() {
 	w.cycleFocus(1)
 }
 
-func (w *Wtc) CycleFocusBackward() {
+func (w *Watch) CycleFocusBackward() {
 	w.cycleFocus(-1)
 }
 
-func (w *Wtc) cycleFocus(offset int) {
+func (w *Watch) cycleFocus(offset int) {
 	if len(w.panels) == 1 && w.panels[0].HasFocus() {
 		return
 	}
