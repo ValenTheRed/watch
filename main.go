@@ -19,11 +19,10 @@ var (
 	usage = `usage: watch [-help] [duration]
 A clock with a stopwatch and a timer.
 
-Specify no arguments to start a stopwatch.
-Specify duration to start a timer.
+Specify a duration to start a timer. Or, leave it alone to start a stopwatch.
 
 optional arguments:
-duration	supported formats - [[hh:]mm:]ss
+duration    supported formats - [[hh:]mm:]ss
 -log        log to a file
 -help	    display this help message and exit`
 
