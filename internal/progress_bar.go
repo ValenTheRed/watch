@@ -2,6 +2,7 @@ package widget
 
 import (
 	"github.com/gdamore/tcell/v2"
+	"github.com/lucasb-eyer/go-colorful"
 	"github.com/rivo/tview"
 )
 
@@ -36,6 +37,18 @@ func NewProgressBar() *ProgressBar {
 		color: tcell.ColorWhite,
 		shadowColor: tcell.ColorGrey,
 	}
+}
+
+// SetColor sets the color for the fill characters.
+func (p *ProgressBar) SetColor(c colorful.Color) *ProgressBar {
+	p.color = tcell.GetColor(c.Hex())
+	return p
+}
+
+// SetColor sets the color for the shadow characters.
+func (p *ProgressBar) SetShadowColor(c colorful.Color) *ProgressBar {
+	p.shadowColor = tcell.GetColor(c.Hex())
+	return p
 }
 
 // SetAlign sets the vertical alignment of the progress bar. Must be one
