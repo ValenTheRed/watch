@@ -1,5 +1,7 @@
 package widget
 
+import "time"
+
 // Vertical alignment.
 const (
 	AlignCenter = iota
@@ -21,4 +23,20 @@ func getCenter(totalLen, reservedLen int) int {
 // decomposeSecond breaks seconds s into hours, minutes and seconds.
 func DecomposeSecond(s int) (hrs, min, sec int) {
 	return s / 3600, (s / 60) % 60, s % 60
+}
+
+// Worker executes work after every second. If a message is sent to
+// quit, Worker returns.
+func Worker(work func(), quit <-chan struct{}) {
+	t := time.NewTicker(1 * time.Second)
+	defer t.Stop()
+
+	for {
+		select {
+		case <-t.C:
+			work()
+		case <-quit:
+			return
+		}
+	}
 }
