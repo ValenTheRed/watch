@@ -18,8 +18,8 @@ type ProgressBar struct {
 	// all of the available width.
 	align int
 
-	// Color is the color for the fill characters of the progress bar.
-	Color tcell.Color
+	// TextColor is the color for the fill characters of the progress bar.
+	TextColor tcell.Color
 
 	// ShadowColor is the color for the shadow characters of the
 	// progress bar.
@@ -33,7 +33,7 @@ func NewProgressBar() *ProgressBar {
 		Box:         tview.NewBox(),
 		percent:     0,
 		align:       AlignCenter,
-		Color:   tcell.ColorWhite,
+		TextColor:   tcell.ColorWhite,
 		ShadowColor: tcell.ColorGrey,
 	}
 }
@@ -84,7 +84,7 @@ func (p *ProgressBar) Draw(screen tcell.Screen) {
 	)
 
 	shadowStyle := tcell.StyleDefault.Foreground(p.ShadowColor).Background(p.GetBackgroundColor())
-	fillStyle := tcell.StyleDefault.Foreground(p.Color).Background(p.GetBackgroundColor())
+	fillStyle := tcell.StyleDefault.Foreground(p.TextColor).Background(p.GetBackgroundColor())
 
 	xProgressEnd := width * p.percent / 100
 	xEnd := x + width - 1
