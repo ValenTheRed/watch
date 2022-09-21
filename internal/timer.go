@@ -53,6 +53,24 @@ func (t *Timer) IsTimeLeft() bool {
 	return t.elapsed < t.total
 }
 
+// Start starts the Timer if time is left.
+func (t *Timer) Start() *Timer {
+	if !t.IsTimeLeft() {
+		return t
+	}
+	go Worker(func() {
+		t.elapsed++
+		if t.IsTimeLeft() {
+			return
+		}
+		t.Stop()
+		if t.done != nil {
+			t.done()
+		}
+	}, t.stopCh)
+	return t
+}
+
 // Stop stops the Timer if time is left.
 func (t *Timer) Stop() *Timer {
 	if t.IsTimeLeft() {
