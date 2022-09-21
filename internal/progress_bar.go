@@ -9,3 +9,11 @@ type ProgressBar struct {
 	// interval [0, 100].
 	percent int
 }
+
+// NewProgressBar returns a new ProgressBar initialised at 0% progress.
+func NewProgressBar() *ProgressBar {
+	return &ProgressBar{
+		Box: tview.NewBox(),
+		percent: 0,
+	}
+}
