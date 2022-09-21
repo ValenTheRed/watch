@@ -2,7 +2,6 @@ package widget
 
 import (
 	"github.com/gdamore/tcell/v2"
-	"github.com/lucasb-eyer/go-colorful"
 	"github.com/rivo/tview"
 )
 
@@ -19,12 +18,12 @@ type ProgressBar struct {
 	// all of the available width.
 	align int
 
-	// color is the color for the fill characters of the progress bar.
-	color tcell.Color
+	// Color is the color for the fill characters of the progress bar.
+	Color tcell.Color
 
-	// shadowColor is the color for the shadow characters of the
+	// ShadowColor is the color for the shadow characters of the
 	// progress bar.
-	shadowColor tcell.Color
+	ShadowColor tcell.Color
 }
 
 // NewProgressBar returns a new ProgressBar initialised at 0% progress
@@ -34,21 +33,9 @@ func NewProgressBar() *ProgressBar {
 		Box:         tview.NewBox(),
 		percent:     0,
 		align:       AlignCenter,
-		color:       tcell.ColorWhite,
-		shadowColor: tcell.ColorGrey,
+		Color:   tcell.ColorWhite,
+		ShadowColor: tcell.ColorGrey,
 	}
-}
-
-// SetColor sets the color for the fill characters.
-func (p *ProgressBar) SetColor(c colorful.Color) *ProgressBar {
-	p.color = tcell.GetColor(c.Hex())
-	return p
-}
-
-// SetColor sets the color for the shadow characters.
-func (p *ProgressBar) SetShadowColor(c colorful.Color) *ProgressBar {
-	p.shadowColor = tcell.GetColor(c.Hex())
-	return p
 }
 
 // SetAlign sets the vertical alignment of the progress bar. Must be one
@@ -96,8 +83,8 @@ func (p *ProgressBar) Draw(screen tcell.Screen) {
 		shadowLowerRightChar = '╝'
 	)
 
-	shadowStyle := tcell.StyleDefault.Foreground(p.shadowColor).Background(p.GetBackgroundColor())
-	fillStyle := tcell.StyleDefault.Foreground(p.color).Background(p.GetBackgroundColor())
+	shadowStyle := tcell.StyleDefault.Foreground(p.ShadowColor).Background(p.GetBackgroundColor())
+	fillStyle := tcell.StyleDefault.Foreground(p.Color).Background(p.GetBackgroundColor())
 
 	xProgressEnd := width * p.percent / 100
 	xEnd := x + width - 1
