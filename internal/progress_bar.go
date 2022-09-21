@@ -1,6 +1,9 @@
 package widget
 
-import "github.com/rivo/tview"
+import (
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
+)
 
 type ProgressBar struct {
 	*tview.Box
@@ -14,6 +17,13 @@ type ProgressBar struct {
 	// There is no horizontal alignment since the progress bar will fill
 	// all of the available width.
 	align int
+
+	// color is the color for the fill characters of the progress bar.
+	color tcell.Color
+
+	// shadowColor is the color for the shadow characters of the
+	// progress bar.
+	shadowColor tcell.Color
 }
 
 // NewProgressBar returns a new ProgressBar initialised at 0% progress
@@ -23,6 +33,8 @@ func NewProgressBar() *ProgressBar {
 		Box: tview.NewBox(),
 		percent: 0,
 		align: AlignCenter,
+		color: tcell.ColorWhite,
+		shadowColor: tcell.ColorGrey,
 	}
 }
 
