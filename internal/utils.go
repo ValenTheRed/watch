@@ -17,3 +17,8 @@ const (
 func getCenter(totalLen, reservedLen int) int {
 	return (totalLen - reservedLen - 1) / 2
 }
+
+// decomposeSecond breaks seconds s into hours, minutes and seconds.
+func DecomposeSecond(s int) (hrs, min, sec int) {
+	return s / 3600, (s / 60) % 60, s % 60
+}
