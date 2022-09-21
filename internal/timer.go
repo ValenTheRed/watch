@@ -21,3 +21,21 @@ type Timer struct {
 	// finishes.
 	done func()
 }
+
+// NewTimer returns an initialised Timer that would counting down for
+// duration seconds, and has it's text centered aligned both, vertically
+// and horizontally.
+func NewTimer(duration int) *Timer {
+	return &Timer{
+		Box:             tview.NewBox(),
+		total:           duration,
+		verticalAlign:   AlignCenter,
+		horizontalAlign: tview.AlignCenter,
+		// Timer will tick every second using Worker(). stopCh will be
+		// used as the quit channel for Worker() and will be called from
+		// the work() function being executed by Worker(). Since work()
+		// is not executed in a go routine, signaling quit/stopCh
+		// channel from work() would lead to a deadlock.
+		stopCh: make(chan struct{}, 1),
+	}
+}
