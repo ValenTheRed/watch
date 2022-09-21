@@ -52,3 +52,11 @@ func (t *Timer) SetDoneFunc(handler func()) *Timer {
 func (t *Timer) IsTimeLeft() bool {
 	return t.elapsed < t.total
 }
+
+// Stop stops the Timer if time is left.
+func (t *Timer) Stop() *Timer {
+	if t.IsTimeLeft() {
+		t.stopCh <- struct{}{}
+	}
+	return t
+}
