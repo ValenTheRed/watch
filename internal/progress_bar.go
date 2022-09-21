@@ -26,6 +26,13 @@ func NewProgressBar() *ProgressBar {
 	}
 }
 
+// SetAlign sets the vertical alignment of the progress bar. Must be one
+// of AlignCenter, AlignDown or AlignUp.
+func (p *ProgressBar) SetAlign(align int) *ProgressBar {
+	p.align = align
+	return p
+}
+
 // Percent returns the progress percent.
 func (p *ProgressBar) Percent() int {
 	return p.percent
