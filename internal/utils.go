@@ -151,6 +151,18 @@ func DecomposeSecond(s int) (hrs, min, sec int) {
 	return s / 3600, (s / 60) % 60, s % 60
 }
 
+func stringToANSIShadow(str string) []string {
+	text := make([]string, 6)
+	for i := 0; i < len(text); i++ {
+		rs := []rune{}
+		for _, r := range str {
+			rs = append(rs, []rune(ANSIShadow[r][i])...)
+		}
+		text[i] = string(rs)
+	}
+	return text
+}
+
 // Worker executes work after every second. If a message is sent to
 // quit, Worker returns.
 func Worker(work func(), quit <-chan struct{}) {
