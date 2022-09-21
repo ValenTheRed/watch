@@ -1,6 +1,9 @@
 package widget
 
-import "github.com/rivo/tview"
+import (
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
+)
 
 type Timer struct {
 	*tview.Box
@@ -16,6 +19,12 @@ type Timer struct {
 
 	// stopCh will be used to signal to timer to stop ticking.
 	stopCh chan struct{}
+
+	// TextColor is the text color timer.
+	TextColor tcell.Color
+
+	// ShadowColor is the color for the shadow characters of the text.
+	ShadowColor tcell.Color
 
 	// done is an optional function that would be executed when timer
 	// finishes.
@@ -36,7 +45,9 @@ func NewTimer(duration int) *Timer {
 		// the work() function being executed by Worker(). Since work()
 		// is not executed in a go routine, signaling quit/stopCh
 		// channel from work() would lead to a deadlock.
-		stopCh: make(chan struct{}, 1),
+		stopCh:      make(chan struct{}, 1),
+		TextColor:   tcell.ColorWhite,
+		ShadowColor: tcell.ColorGrey,
 	}
 }
 
