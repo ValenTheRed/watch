@@ -17,3 +17,15 @@ func NewProgressBar() *ProgressBar {
 		percent: 0,
 	}
 }
+
+// Percent returns the progress percent.
+func (p *ProgressBar) Percent() int {
+	return p.percent
+}
+
+// SetPercent sets the progress to v percent. v must belong to the
+// closed interval [0, 100].
+func (p *ProgressBar) SetPercent(v int) *ProgressBar {
+	p.percent = v
+	return p
+}
