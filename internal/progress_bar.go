@@ -8,13 +8,21 @@ type ProgressBar struct {
 	// percent tracks the progress percentage, and belongs to the closed
 	// interval [0, 100].
 	percent int
+
+	// align determines the vertical alignment of the progress bar.
+	//
+	// There is no horizontal alignment since the progress bar will fill
+	// all of the available width.
+	align int
 }
 
-// NewProgressBar returns a new ProgressBar initialised at 0% progress.
+// NewProgressBar returns a new ProgressBar initialised at 0% progress
+// and center aligned.
 func NewProgressBar() *ProgressBar {
 	return &ProgressBar{
 		Box: tview.NewBox(),
 		percent: 0,
+		align: AlignCenter,
 	}
 }
 
