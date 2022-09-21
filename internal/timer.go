@@ -46,3 +46,9 @@ func (t *Timer) SetDoneFunc(handler func()) *Timer {
 	t.done = handler
 	return t
 }
+
+// IsTimeLeft returns whether t has count down for duration it was set
+// for.
+func (t *Timer) IsTimeLeft() bool {
+	return t.elapsed < t.total
+}
