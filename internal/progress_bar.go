@@ -1,6 +1,8 @@
 package widget
 
 import (
+	"fmt"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -51,10 +53,15 @@ func (p *ProgressBar) Percent() int {
 }
 
 // SetPercent sets the progress to v percent. v must belong to the
-// closed interval [0, 100].
-func (p *ProgressBar) SetPercent(v int) *ProgressBar {
+// closed interval [0, 100], returns p and error otherwise.
+func (p *ProgressBar) SetPercent(v int) (*ProgressBar, error) {
+	if v < 0 {
+		return p, fmt.Errorf("progress: negative progress percent %d", v)
+	} else if v > 100 {
+		return p, fmt.Errorf("progress: progress percent %d larger than 100", v)
+	}
 	p.percent = v
-	return p
+	return p, nil
 }
 
 func (p *ProgressBar) Draw(screen tcell.Screen) {
