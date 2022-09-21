@@ -39,3 +39,10 @@ func NewTimer(duration int) *Timer {
 		stopCh: make(chan struct{}, 1),
 	}
 }
+
+// SetDoneFunc sets a handler which is called when the timer has
+// finished.
+func (t *Timer) SetDoneFunc(handler func()) *Timer {
+	t.done = handler
+	return t
+}
