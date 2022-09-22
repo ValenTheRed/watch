@@ -41,16 +41,22 @@ type Clock struct {
 	value func() int
 }
 
-// newClock returns a Clock with horizontal and vertical aligment set to
-// center, and an uninitialised stopCh.
+// newClock returns a new Clock. It has horizontal and vertical aligment
+// set to center, stopCh is uninitialised, value is the elapsed seconds,
+// and Format is SecondToANSIShadowWithColons.
 func newClock() *Clock {
-	return &Clock{
+	c := &Clock{
 		Box:             tview.NewBox(),
 		verticalAlign:   AlignCenter,
 		horizontalAlign: tview.AlignCenter,
 		TextColor:       tcell.ColorWhite,
 		ShadowColor:     tcell.ColorGrey,
 	}
+	c.value = func() int {
+		return c.elapsed
+	}
+	c.Format = SecondToANSIShadowWithColons
+	return c
 }
 
 // NewTimer returns an initialised Clock that behaves like a timer. It
@@ -136,7 +142,7 @@ func (c *Clock) Stop() *Clock {
 func (c *Clock) Draw(screen tcell.Screen) {
 	c.DrawForSubclass(screen, c)
 
-	text := SecondToANSIShadowWithLetters(c.total - c.elapsed)
+	text := c.Format(c.value())
 
 	x, y, width, height := c.GetInnerRect()
 	if c.verticalAlign == AlignCenter {
