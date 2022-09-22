@@ -167,6 +167,14 @@ func (c *Clock) Stop() *Clock {
 	return c
 }
 
+// Restart resets Clock's elapsed time to 0 and starts it again.
+func (c *Clock) Restart() *Clock {
+	c.Stop()
+	c.SetElapsed(0)
+	c.Start()
+	return c
+}
+
 func (c *Clock) Draw(screen tcell.Screen) {
 	c.DrawForSubclass(screen, c)
 
