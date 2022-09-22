@@ -6,7 +6,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-type Timer struct {
+type Clock struct {
 	*tview.Box
 
 	// total is the total time in seconds.
@@ -15,19 +15,19 @@ type Timer struct {
 	// elapsed is the time passed in seconds.
 	elapsed int
 
-	// Both determine the alignment of the timer text.
+	// Both determine the alignment of the clock text.
 	verticalAlign, horizontalAlign int
 
-	// stopCh will be used to signal to timer to stop ticking.
+	// stopCh will be used to signal to clock to stop ticking.
 	stopCh chan struct{}
 
-	// TextColor is the text color timer.
+	// TextColor is the text color clock.
 	TextColor tcell.Color
 
 	// ShadowColor is the color for the shadow characters of the text.
 	ShadowColor tcell.Color
 
-	// done is an optional function that would be executed when timer
+	// done is an optional function that would be executed when clock
 	// finishes.
 	done func()
 }
@@ -35,8 +35,8 @@ type Timer struct {
 // NewTimer returns an initialised Timer that would counting down for
 // duration seconds, and has it's text centered aligned both, vertically
 // and horizontally.
-func NewTimer(duration int) *Timer {
-	return &Timer{
+func NewTimer(duration int) *Clock {
+	return &Clock{
 		Box:             tview.NewBox(),
 		total:           duration,
 		verticalAlign:   AlignCenter,
@@ -54,76 +54,76 @@ func NewTimer(duration int) *Timer {
 
 // SetHorizontalAlign sets the veritcal alignment of the text. Must be
 // one of tview.AlignCenter, tview.AlignLeft or tview.AlignRight.
-func (t *Timer) SetHorizontalAlign(align int) *Timer {
-	t.horizontalAlign = align
-	return t
+func (c *Clock) SetHorizontalAlign(align int) *Clock {
+	c.horizontalAlign = align
+	return c
 }
 
 // SetVerticalAlign sets the veritcal alignment of the text. Must be
 // one of AlignCenter, AlignUp or AlignDown.
-func (t *Timer) SetVerticalAlign(align int) *Timer {
-	t.verticalAlign = align
-	return t
+func (c *Clock) SetVerticalAlign(align int) *Clock {
+	c.verticalAlign = align
+	return c
 }
 
-// SetDoneFunc sets a handler which is called when the timer has
+// SetDoneFunc sets a handler which is called when the clock has
 // finished.
-func (t *Timer) SetDoneFunc(handler func()) *Timer {
-	t.done = handler
-	return t
+func (c *Clock) SetDoneFunc(handler func()) *Clock {
+	c.done = handler
+	return c
 }
 
-// IsTimeLeft returns whether t has count down for duration it was set
+// IsTimeLeft returns whether c has count down for duration it was set
 // for.
-func (t *Timer) IsTimeLeft() bool {
-	return t.elapsed < t.total
+func (c *Clock) IsTimeLeft() bool {
+	return c.elapsed < c.total
 }
 
-// Start starts the Timer if time is left.
-func (t *Timer) Start() *Timer {
-	if !t.IsTimeLeft() {
-		return t
+// Start starts the clock if time is left.
+func (c *Clock) Start() *Clock {
+	if !c.IsTimeLeft() {
+		return c
 	}
 	go Worker(func() {
-		t.elapsed++
-		if t.IsTimeLeft() {
+		c.elapsed++
+		if c.IsTimeLeft() {
 			return
 		}
-		t.Stop()
-		if t.done != nil {
-			t.done()
+		c.Stop()
+		if c.done != nil {
+			c.done()
 		}
-	}, t.stopCh)
-	return t
+	}, c.stopCh)
+	return c
 }
 
-// Stop stops the Timer if time is left.
-func (t *Timer) Stop() *Timer {
-	if t.IsTimeLeft() {
-		t.stopCh <- struct{}{}
+// Stop stops the clock if time is left.
+func (c *Clock) Stop() *Clock {
+	if c.IsTimeLeft() {
+		c.stopCh <- struct{}{}
 	}
-	return t
+	return c
 }
 
-func (t *Timer) Draw(screen tcell.Screen) {
-	t.DrawForSubclass(screen, t)
+func (c *Clock) Draw(screen tcell.Screen) {
+	c.DrawForSubclass(screen, c)
 
-	text := SecondToANSIShadowWithLetters(t.total - t.elapsed)
+	text := SecondToANSIShadowWithLetters(c.total - c.elapsed)
 
-	x, y, width, height := t.GetInnerRect()
-	if t.verticalAlign == AlignCenter {
+	x, y, width, height := c.GetInnerRect()
+	if c.verticalAlign == AlignCenter {
 		y += getCenter(height, len(text))
-	} else if t.verticalAlign == AlignDown {
+	} else if c.verticalAlign == AlignDown {
 		y += height - len(text)
 	}
-	if t.horizontalAlign == tview.AlignCenter {
+	if c.horizontalAlign == tview.AlignCenter {
 		x += getCenter(width, runewidth.StringWidth(text[0]))
-	} else if t.horizontalAlign == tview.AlignRight {
+	} else if c.horizontalAlign == tview.AlignRight {
 		x += width - runewidth.StringWidth(text[0])
 	}
 
-	shadowStyle := tcell.StyleDefault.Foreground(t.ShadowColor).Background(t.GetBackgroundColor())
-	textStyle := tcell.StyleDefault.Foreground(t.TextColor).Background(t.GetBackgroundColor())
+	shadowStyle := tcell.StyleDefault.Foreground(c.ShadowColor).Background(c.GetBackgroundColor())
+	textStyle := tcell.StyleDefault.Foreground(c.TextColor).Background(c.GetBackgroundColor())
 
 	for _, s := range text {
 		i := 0
