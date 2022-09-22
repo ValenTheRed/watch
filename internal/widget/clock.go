@@ -103,6 +103,16 @@ func NewStopwatch() *Clock {
 	return c
 }
 
+// TotalSeconds returns the total seconds clock will run for.
+func (c *Clock) TotalSeconds() int {
+	return c.total
+}
+
+// ElapsedSeconds returns the seconds clock has been running for.
+func (c *Clock) ElapsedSeconds() int {
+	return c.elapsed
+}
+
 // SetHorizontalAlign sets the veritcal alignment of the text. Must be
 // one of tview.AlignCenter, tview.AlignLeft or tview.AlignRight.
 func (c *Clock) SetHorizontalAlign(align int) *Clock {
