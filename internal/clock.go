@@ -32,6 +32,13 @@ type Clock struct {
 	// done is an optional function that would be executed when clock
 	// finishes.
 	done func()
+
+	// Format returns Clock value in ANSI Shadow font.
+	Format func(second int) []string
+
+	// value will be used by Format to generate the text of Clock to
+	// draw.
+	value func() int
 }
 
 // newClock returns a Clock with horizontal and vertical aligment set to
