@@ -32,6 +32,18 @@ type Clock struct {
 	done func()
 }
 
+// newClock returns a Clock with horizontal and vertical aligment set to
+// center, and an uninitialised stopCh.
+func newClock() *Clock {
+	return &Clock{
+		Box:             tview.NewBox(),
+		verticalAlign:   AlignCenter,
+		horizontalAlign: tview.AlignCenter,
+		TextColor:       tcell.ColorWhite,
+		ShadowColor:     tcell.ColorGrey,
+	}
+}
+
 // NewTimer returns an initialised Timer that would counting down for
 // duration seconds, and has it's text centered aligned both, vertically
 // and horizontally.
