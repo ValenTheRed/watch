@@ -52,6 +52,20 @@ func NewTimer(duration int) *Timer {
 	}
 }
 
+// SetHorizontalAlign sets the veritcal alignment of the text. Must be
+// one of tview.AlignCenter, tview.AlignLeft or tview.AlignRight.
+func (t *Timer) SetHorizontalAlign(align int) *Timer {
+	t.horizontalAlign = align
+	return t
+}
+
+// SetVerticalAlign sets the veritcal alignment of the text. Must be
+// one of AlignCenter, AlignUp or AlignDown.
+func (t *Timer) SetVerticalAlign(align int) *Timer {
+	t.verticalAlign = align
+	return t
+}
+
 // SetDoneFunc sets a handler which is called when the timer has
 // finished.
 func (t *Timer) SetDoneFunc(handler func()) *Timer {
