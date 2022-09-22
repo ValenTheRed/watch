@@ -39,6 +39,10 @@ type Clock struct {
 	// value will be used by Format to generate the text of Clock to
 	// draw.
 	value func() int
+
+	// Changed is an optional function that will be called when the
+	// clock ticks. It is always safe to call app.Draw() from changed.
+	Changed func()
 }
 
 // newClock returns a new Clock. It has horizontal and vertical aligment
