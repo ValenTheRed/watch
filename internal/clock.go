@@ -43,6 +43,9 @@ type Clock struct {
 	// Changed is an optional function that will be called when the
 	// clock ticks. It is always safe to call app.Draw() from changed.
 	Changed func()
+
+	// Whether clock is running or not.
+	running bool
 }
 
 // newClock returns a new Clock. It has horizontal and vertical aligment
@@ -138,9 +141,10 @@ func (c *Clock) SetElapsed(sec int) *Clock {
 
 // Start starts the clock if time is left.
 func (c *Clock) Start() *Clock {
-	if !c.IsTimeLeft() {
+	if c.running || !c.IsTimeLeft() {
 		return c
 	}
+	c.running = true
 	go Worker(func() {
 		c.SetElapsed(c.elapsed + 1)
 		if c.IsTimeLeft() {
@@ -154,9 +158,10 @@ func (c *Clock) Start() *Clock {
 	return c
 }
 
-// Stop stops the clock if time is left.
+// Stop signals clock to stop ticking.
 func (c *Clock) Stop() *Clock {
-	if c.IsTimeLeft() {
+	if c.running {
+		c.running = false
 		c.stopCh <- struct{}{}
 	}
 	return c
