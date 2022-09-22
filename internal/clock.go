@@ -127,6 +127,15 @@ func (c *Clock) IsTimeLeft() bool {
 	return c.elapsed < c.total
 }
 
+// SetElapsed sets the Clock's elapsed seconds to sec.
+func (c *Clock) SetElapsed(sec int) *Clock {
+	c.elapsed = sec
+	if c.Changed != nil {
+		go c.Changed()
+	}
+	return c
+}
+
 // Start starts the clock if time is left.
 func (c *Clock) Start() *Clock {
 	if !c.IsTimeLeft() {
