@@ -61,7 +61,8 @@ func newClock() *Clock {
 
 // NewTimer returns an initialised Clock that behaves like a timer. It
 // counts down for duration seconds, and has it's text centered aligned
-// both, vertically and horizontally.
+// both, vertically and horizontally. It uses
+// SecondToANSIShadowWithLetters to format it's value.
 func NewTimer(duration int) *Clock {
 	c := newClock()
 	c.total = duration
@@ -71,18 +72,27 @@ func NewTimer(duration int) *Clock {
 	// is not executed in a go routine, signaling quit/stopCh
 	// channel from work() would lead to a deadlock.
 	c.stopCh = make(chan struct{}, 1)
+	c.value = func() int {
+		return c.total - c.elapsed
+	}
+	c.Format = SecondToANSIShadowWithLetters
 	return c
 }
 
 // NewStopwatch returns an initialised Clock that behaves like a
 // stopwatch. It has it's text centered aligned both, vertically and
-// horizontally.
+// horizontally. It uses SecondToANSIShadowWithLetters to format it's
+// value.
 func NewStopwatch() *Clock {
 	c := newClock()
 	c.total = math.MaxInt
 	// Stopwatch will never call Stop() from Worker(), so we don't need
 	// stopCh to be buffered.
 	c.stopCh = make(chan struct{})
+	c.value = func() int {
+		return c.elapsed
+	}
+	c.Format = SecondToANSIShadowWithLetters
 	return c
 }
 
