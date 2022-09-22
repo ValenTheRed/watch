@@ -142,7 +142,7 @@ func (c *Clock) Start() *Clock {
 		return c
 	}
 	go Worker(func() {
-		c.elapsed++
+		c.SetElapsed(c.elapsed + 1)
 		if c.IsTimeLeft() {
 			return
 		}
