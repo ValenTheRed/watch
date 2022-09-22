@@ -2,6 +2,7 @@ package widget
 
 import (
 	"github.com/gdamore/tcell/v2"
+	"github.com/mattn/go-runewidth"
 	"github.com/rivo/tview"
 )
 
@@ -88,4 +89,38 @@ func (t *Timer) Stop() *Timer {
 		t.stopCh <- struct{}{}
 	}
 	return t
+}
+
+func (t *Timer) Draw(screen tcell.Screen) {
+	t.DrawForSubclass(screen, t)
+
+	text := SecondToANSIShadowWithLetters(t.total - t.elapsed)
+
+	x, y, width, height := t.GetInnerRect()
+	if t.verticalAlign == AlignCenter {
+		y += getCenter(height, len(text))
+	} else if t.verticalAlign == AlignDown {
+		y += height - len(text)
+	}
+	if t.horizontalAlign == tview.AlignCenter {
+		x += getCenter(width, runewidth.StringWidth(text[0]))
+	} else if t.horizontalAlign == tview.AlignRight {
+		x += width - runewidth.StringWidth(text[0])
+	}
+
+	shadowStyle := tcell.StyleDefault.Foreground(t.ShadowColor).Background(t.GetBackgroundColor())
+	textStyle := tcell.StyleDefault.Foreground(t.TextColor).Background(t.GetBackgroundColor())
+
+	for _, s := range text {
+		i := 0
+		for _, r := range s {
+			style := textStyle
+			if r != '█' {
+				style = shadowStyle
+			}
+			screen.SetContent(x+i, y, r, nil, style)
+			i++
+		}
+		y++
+	}
 }
