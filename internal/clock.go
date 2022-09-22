@@ -1,6 +1,8 @@
 package widget
 
 import (
+	"math"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/mattn/go-runewidth"
 	"github.com/rivo/tview"
@@ -56,6 +58,18 @@ func NewTimer(duration int) *Clock {
 	// is not executed in a go routine, signaling quit/stopCh
 	// channel from work() would lead to a deadlock.
 	c.stopCh = make(chan struct{}, 1)
+	return c
+}
+
+// NewStopwatch returns an initialised Clock that behaves like a
+// stopwatch. It has it's text centered aligned both, vertically and
+// horizontally.
+func NewStopwatch() *Clock {
+	c := newClock()
+	c.total = math.MaxInt
+	// Stopwatch will never call Stop() from Worker(), so we don't need
+	// stopCh to be buffered.
+	c.stopCh = make(chan struct{})
 	return c
 }
 
