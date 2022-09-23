@@ -40,3 +40,35 @@ func NewTable(headers ...string) *Table {
 	t.SetSelectable(true, false)
 	return &Table{t}
 }
+
+// GetCell returns the cell at the given position. The position
+// calculation doesn't consider the header cells. A row of 0 and col of
+// 0 returns the first cell with data.
+//
+// A valid TableCell object is always returned but it will be
+// uninitialized if the cell was not previously set. Such an
+// uninitialized object will not automatically be inserted. Therefore,
+// repeated calls to this function may return different pointers for
+// uninitialized cells.
+func (t *Table) GetCell(row, col int) *tview.TableCell {
+	return t.Table.GetCell(row+2, col)
+}
+
+// SetCell sets a cell at the given position. The position calculation
+// doesn't consider the header cells. A row of 0 and col of 0 returns
+// the first cell with data.
+//
+// It is ok to directly instantiate a TableCell object. If the cell has
+// content, at least the Text and Color fields should be set.
+//
+// Note that setting cells in previously unknown rows and columns will
+// automatically extend the internal table representation with empty
+// TableCell objects, e.g. starting with a row of 100,000 will
+// immediately create 100,000 empty rows.
+//
+// To avoid unnecessary garbage collection, fill columns from left to
+// right.
+func (t *Table) SetCell(row, col int, cell *tview.TableCell) *Table {
+	t.Table.SetCell(row+2, col, cell)
+	return t
+}
