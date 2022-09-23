@@ -189,12 +189,11 @@ func SecondToANSIShadowWithLetters(s int) []string {
 	return stringToANSIShadow(SecondWithLetters(s))
 }
 
-// SecondToANSIShadowWithColons returns s in the format, 12:34:55, in
-// ANSIShadow font. 00 is used in case any one of hours, minutes or
-// seconds is zero.
+// SecondToANSIShadowWithColons formats seconds s as 'XX:XX:XX' or
+// 'XX:XX', without omitting leading zeros, and returns it in ANSI
+// Shadow font.
 func SecondToANSIShadowWithColons(s int) []string {
-	hrs, min, sec := DecomposeSecond(s)
-	return stringToANSIShadow(fmt.Sprintf("%02d:%02d:%02d", hrs, min, sec))
+	return stringToANSIShadow(SecondWithColons(s))
 }
 
 func stringToANSIShadow(str string) []string {
