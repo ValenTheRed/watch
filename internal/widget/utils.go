@@ -155,6 +155,21 @@ func DecomposeSecond(s int) (hrs, min, sec int) {
 	return s / 3600, (s / 60) % 60, s % 60
 }
 
+// SecondWithLetters formats seconds s as 'XXh XXm XXs' or 'XXm XXs' or
+// 'XXs'. Leading zeros are omitted.
+func SecondWithLetters(s int) string {
+	hrs, min, sec := DecomposeSecond(s)
+	var str strings.Builder
+	if hrs != 0 {
+		str.WriteString(fmt.Sprintf("%dh ", hrs))
+	}
+	if hrs != 0 || min != 0 {
+		str.WriteString(fmt.Sprintf("%dm ", min))
+	}
+	str.WriteString(fmt.Sprintf("%ds", sec))
+	return str.String()
+}
+
 // SecondToANSIShadowWithLetters returns s in the format, 12h 34m 55s,
 // in ANSIShadow font. If hours in zero, then minutes will be omitted if
 // it is zero. If hours is not zero, minutes is not omitted.
