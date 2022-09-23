@@ -170,6 +170,18 @@ func SecondWithLetters(s int) string {
 	return str.String()
 }
 
+// SecondWithColons formats seconds s as 'XX:XX:XX' or 'XX:XX'. Leading
+// zeros are not omitted.
+func SecondWithColons(s int) string {
+	hrs, min, sec := DecomposeSecond(s)
+	var str strings.Builder
+	if hrs != 0 {
+		str.WriteString(fmt.Sprintf( "%02d:", hrs))
+	}
+	str.WriteString(fmt.Sprintf("%02d:%02d", min, sec))
+	return str.String()
+}
+
 // SecondToANSIShadowWithLetters returns s in the format, 12h 34m 55s,
 // in ANSIShadow font. If hours in zero, then minutes will be omitted if
 // it is zero. If hours is not zero, minutes is not omitted.
