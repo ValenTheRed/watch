@@ -186,16 +186,7 @@ func SecondWithColons(s int) string {
 // in ANSIShadow font. If hours in zero, then minutes will be omitted if
 // it is zero. If hours is not zero, minutes is not omitted.
 func SecondToANSIShadowWithLetters(s int) []string {
-	hrs, min, sec := DecomposeSecond(s)
-	var str strings.Builder
-	if hrs != 0 {
-		str.WriteString(fmt.Sprintf("%dh ", hrs))
-	}
-	if hrs != 0 || min != 0 {
-		str.WriteString(fmt.Sprintf("%dm ", min))
-	}
-	str.WriteString(fmt.Sprintf("%ds", sec))
-	return stringToANSIShadow(str.String())
+	return stringToANSIShadow(SecondWithLetters(s))
 }
 
 // SecondToANSIShadowWithColons returns s in the format, 12:34:55, in
