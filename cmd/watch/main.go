@@ -65,9 +65,21 @@ func main() {
 			p.SetPercent(t.ElapsedSeconds() * 100 / t.TotalSeconds())
 			app.Draw()
 		}
+		q := widget.NewQueue(durations...)
+		q.SetSelectedFunc(func(row int) {
+			duration := q.GetCell(row, 1).GetReference().(int)
+			t.SetTotalDuration(duration)
+			t.Restart()
+		})
+		t.SetDoneFunc(func() {
+			q.Next()
+		})
+
 		root.SetRows(0, 0)
-		root.AddItem(t, 0, 0, 1, 1, 0, 0, false)
-		root.AddItem(p, 1, 0, 1, 1, 0, 0, false)
+		root.SetColumns(0, 0)
+		root.AddItem(q, 0, 0, 2, 1, 0, 0, true)
+		root.AddItem(t, 0, 1, 1, 1, 0, 0, false)
+		root.AddItem(p, 1, 1, 1, 1, 0, 0, false)
 		t.Start()
 	}
 
