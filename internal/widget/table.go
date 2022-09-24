@@ -38,6 +38,7 @@ func NewTable(headers ...string) *Table {
 	}
 
 	t.SetSelectable(true, false)
+	t.SetFixed(2, 0)
 	return &Table{t}
 }
 
