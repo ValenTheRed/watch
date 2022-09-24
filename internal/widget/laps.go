@@ -45,3 +45,12 @@ func (l *LapTable) AddLap(lapSeconds int, totalSeconds int) *LapTable {
 	l.SetCell(2, 2, newCell(l.Format(totalSeconds), totalSeconds))
 	return l
 }
+
+// GetLap returns the lap at row row. Row indexing starts with the row
+// after the header rows.
+func (l *LapTable) GetLap(row int) (lap, lapSeconds, totalSeconds int) {
+	var getData = func(col int) int {
+		return l.GetCell(row, col).GetReference().(int)
+	}
+	return getData(0), getData(1), getData(2)
+}
