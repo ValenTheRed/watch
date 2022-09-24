@@ -149,6 +149,12 @@ func (c *Clock) SetElapsed(sec int) *Clock {
 	return c
 }
 
+// SetTotalDuration sets the total seconds of Clock to sec.
+func (c *Clock) SetTotalDuration(sec int) *Clock {
+	c.total = sec
+	return c
+}
+
 // Start starts the clock if time is left.
 func (c *Clock) Start() *Clock {
 	if c.running || !c.IsTimeLeft() {
