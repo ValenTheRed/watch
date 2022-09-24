@@ -53,7 +53,10 @@ func main() {
 		s.Changed = func() {
 			app.Draw()
 		}
-		root.AddItem(s, 0, 1, false)
+		l := widget.NewLapTable()
+
+		root.AddItem(l, 0, 1, true)
+		root.AddItem(s, 0, 3, false)
 		s.Start()
 	} else {
 		t := widget.NewTimer(durations[0])
