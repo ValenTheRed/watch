@@ -68,3 +68,12 @@ func NewQueue(durations ...int) *Queue {
 
 	return q
 }
+
+// SetSelectedFunc sets an optional function which gets called whenever
+// the user selects a cell (eg: presses Enter on a cell). row is the row
+// of the selected cell. Row indexing starts with the row after the
+// header rows.
+func (q *Queue) SetSelectedFunc(handler func(row int)) *Queue {
+	q.selected = handler
+	return q
+}
