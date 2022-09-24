@@ -83,3 +83,23 @@ func (q *Queue) Select(row int) *Queue {
 	}
 	return q
 }
+
+// Next "selects" the next item from the queue.
+func (q *Queue) Next() *Queue {
+	next := q.head + 1
+	// If queue has not reached it's last timer
+	if next < q.GetRowCount() - 2 {
+		q.Select(next)
+	}
+	return q
+}
+
+// Previous "selects" the previous item from the queue.
+func (q *Queue) Previous() *Queue {
+	prev := q.head - 1
+	// If queue has not moved further than it's first timer
+	if prev > -1 {
+		q.Select(prev)
+	}
+	return q
+}
