@@ -1,5 +1,12 @@
 package widget
 
+import (
+	"fmt"
+
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
+)
+
 type LapTable struct {
 	*Table
 
@@ -15,4 +22,26 @@ func NewLapTable() *LapTable {
 		Table: t,
 		Format: SecondWithColons,
 	}
+}
+
+// AddLap adds a new lap into l with Lap time lapSeconds and total time
+// as totalSeconds.
+func (l *LapTable) AddLap(lapSeconds int, totalSeconds int) *LapTable {
+	// Accounting for header rows.
+	l.InsertRow(2)
+
+	var newCell = func(text string, ref interface{}) *tview.TableCell {
+		c := tview.NewTableCell(text)
+		c.SetReference(ref)
+		c.SetAlign(tview.AlignCenter)
+		c.SetStyle(tcell.StyleDefault.Background(l.GetBackgroundColor()).Foreground(tcell.ColorWhite))
+		return c
+	}
+
+	// laps will start counting from 1.
+	lap := l.GetRowCount()-1
+	l.SetCell(2, 0, newCell(fmt.Sprint(lap), lap))
+	l.SetCell(2, 1, newCell(l.Format(lapSeconds), lapSeconds))
+	l.SetCell(2, 2, newCell(l.Format(totalSeconds), totalSeconds))
+	return l
 }
