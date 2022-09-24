@@ -55,6 +55,15 @@ func NewQueue(durations ...int) *Queue {
 	return q
 }
 
+// SetDurationFormat formats the duration column's text using format.
+func (q *Queue) SetDurationFormat(format func(seconds int) string) *Queue {
+	for r := 0; r < q.GetRowCount()-2; r++ {
+		cell := q.GetCell(r, 1)
+		cell.SetText(format(cell.GetReference().(int)))
+	}
+	return q
+}
+
 // SetSelectedFunc sets an optional function which gets called whenever
 // the user selects a cell (eg: presses Enter on a cell). row is the row
 // of the selected cell. Row indexing starts with the row after the
