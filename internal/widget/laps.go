@@ -19,7 +19,7 @@ type LapTable struct {
 func NewLapTable() *LapTable {
 	t := NewTable("Lap", "Lap time", "Total")
 	return &LapTable{
-		Table: t,
+		Table:  t,
 		Format: SecondWithColons,
 	}
 }
@@ -39,7 +39,7 @@ func (l *LapTable) AddLap(lapSeconds int, totalSeconds int) *LapTable {
 	}
 
 	// laps will start counting from 1.
-	lap := l.GetRowCount()-1
+	lap := l.GetRowCount() - 1
 	l.SetCell(2, 0, newCell(fmt.Sprint(lap), lap))
 	l.SetCell(2, 1, newCell(l.Format(lapSeconds), lapSeconds))
 	l.SetCell(2, 2, newCell(l.Format(totalSeconds), totalSeconds))
@@ -53,4 +53,10 @@ func (l *LapTable) GetLap(row int) (lap, lapSeconds, totalSeconds int) {
 		return l.GetCell(row, col).GetReference().(int)
 	}
 	return getData(0), getData(1), getData(2)
+}
+
+// GetHighlightedLap returns the currently highlighted lap.
+func (l *LapTable) GetHighlightedLap() (lap, lapSeconds, totalSeconds int) {
+	row, _ := l.GetSelection()
+	return l.GetLap(row - 2)
 }
