@@ -46,25 +46,30 @@ func main() {
 	}
 
 	app := tview.NewApplication().EnableMouse(true)
-	root := tview.NewGrid()
+	root := tview.NewFlex()
 
 	if len(durations) == 0 {
 		s := widget.NewStopwatch()
 		s.Changed = func() {
 			app.Draw()
 		}
-		root.SetRows(0)
-		root.AddItem(s, 0, 0, 1, 1, 0, 0, false)
+		root.AddItem(s, 0, 1, false)
 		s.Start()
 	} else {
 		t := widget.NewTimer(durations[0])
 		p := widget.NewProgressBar()
+
+		f := tview.NewFlex().SetDirection(tview.FlexRow)
+		f.AddItem(t, 0, 1, false)
+		f.AddItem(p, 0, 1, false)
+
 		t.SetVerticalAlign(widget.AlignDown)
 		p.SetAlign(widget.AlignUp)
 		t.Changed = func() {
 			p.SetPercent(t.ElapsedSeconds() * 100 / t.TotalSeconds())
 			app.Draw()
 		}
+
 		q := widget.NewQueue(durations...)
 		q.SetSelectedFunc(func(row int) {
 			duration := q.GetCell(row, 1).GetReference().(int)
@@ -75,11 +80,8 @@ func main() {
 			q.Next()
 		})
 
-		root.SetRows(0, 0)
-		root.SetColumns(0, 0)
-		root.AddItem(q, 0, 0, 2, 1, 0, 0, true)
-		root.AddItem(t, 0, 1, 1, 1, 0, 0, false)
-		root.AddItem(p, 1, 1, 1, 1, 0, 0, false)
+		root.AddItem(q, 0, 1, true)
+		root.AddItem(f, 0, 3, false)
 		t.Start()
 	}
 
