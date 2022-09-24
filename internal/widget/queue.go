@@ -77,3 +77,20 @@ func (q *Queue) SetSelectedFunc(handler func(row int)) *Queue {
 	q.selected = handler
 	return q
 }
+
+// Select selects row row. This also fires "selected" handler, if set.
+// Row indexing starts with the row after the header rows.
+func (q *Queue) Select(row int) *Queue {
+	// Remove queueHeadIcon from current row.
+	cell := q.GetCell(q.head, 0)
+	cell.SetText(fmt.Sprint(cell.GetReference()))
+
+	// Attach queueHeadIcon to the given row.
+	q.head = row
+	q.GetCell(q.head, 0).SetText(queueHeadIcon)
+
+	if q.selected != nil {
+		q.selected(row)
+	}
+	return q
+}
