@@ -16,6 +16,12 @@ type Queue struct {
 
 	// Format will be used to format seconds in durations column.
 	Format func(seconds int) string
+
+	// An optional function which gets called whenever the user selects
+	// a cell (eg: presses Enter on a cell). row is the row of the
+	// selected cell. Row indexing starts with the row after the header
+	// rows.
+	selected func(row int)
 }
 
 const queueHeadIcon = "->"
@@ -54,6 +60,10 @@ func NewQueue(durations ...int) *Queue {
 		// attach queueHeadIcon to the currently selected row.
 		q.head = row
 		q.GetCell(q.head, 0).SetText(queueHeadIcon)
+
+		if q.selected != nil {
+			q.selected(row)
+		}
 	})
 
 	return q
