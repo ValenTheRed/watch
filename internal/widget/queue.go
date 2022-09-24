@@ -43,5 +43,18 @@ func NewQueue(durations ...int) *Queue {
 	q.head = 0
 	q.GetCell(0, 0).SetText(queueHeadIcon)
 
+	q.Table.SetSelectedFunc(func(row, column int) {
+		// remove the header rows from further calculations
+		row -= 2
+
+		// remove queueHeadIcon from the previously selected row.
+		cell := q.GetCell(q.head, 0)
+		cell.SetText(fmt.Sprint(cell.GetReference()))
+
+		// attach queueHeadIcon to the currently selected row.
+		q.head = row
+		q.GetCell(q.head, 0).SetText(queueHeadIcon)
+	})
+
 	return q
 }
