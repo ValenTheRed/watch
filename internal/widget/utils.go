@@ -143,11 +143,11 @@ var ANSIShadow = map[rune][][]rune{
 // length reservedLen would looked centered on a screen of size
 // totalLen. Assuming 0 is the origin.
 // Eg.
-// total = 100, reserved = 10 => center = (100-10-1)/2 = floor(44.5) = 44
-// So, in the interval [0, 99], if drawn from point 44, an object of
+// total = 100, reserved = 10 => center = (100-10)/2 = floor(45) = 45
+// So, in the interval [0, 99], if drawn from point 45, an object of
 // length 10 will look centered.
 func getCenter(totalLen, reservedLen int) int {
-	return (totalLen - reservedLen - 1) / 2
+	return (totalLen - reservedLen) / 2
 }
 
 // decomposeSecond breaks seconds s into hours, minutes and seconds.
