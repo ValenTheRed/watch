@@ -32,6 +32,20 @@ func NewButtonColumn(buttons []*tview.Button) *ButtonColumn {
 	}
 }
 
+// SetHorizontalAlign sets the veritcal alignment of the buttons. Must be
+// one of tview.AlignCenter, tview.AlignLeft or tview.AlignRight.
+func (br *ButtonColumn) SetHorizontalAlign(align int) *ButtonColumn {
+	br.horizontalAlign = align
+	return br
+}
+
+// SetVerticalAlign sets the veritcal alignment of the buttons. Must be
+// one of AlignCenter, AlignUp or AlignDown.
+func (br *ButtonColumn) SetVerticalAlign(align int) *ButtonColumn {
+	br.verticalAlign = align
+	return br
+}
+
 // HasFocus returns whether or not this primitive has focus.
 func (bc *ButtonColumn) HasFocus() bool {
 	for _, b := range bc.buttons {
