@@ -2,6 +2,7 @@ package widget
 
 import (
 	"github.com/gdamore/tcell/v2"
+	"github.com/mattn/go-runewidth"
 	"github.com/rivo/tview"
 )
 
@@ -56,6 +57,41 @@ func (bc *ButtonColumn) HasFocus() bool {
 	return bc.Box.HasFocus()
 }
 
+func (bc *ButtonColumn) Draw(screen tcell.Screen) {
+	bc.DrawForSubclass(screen, bc)
+
+	maxButtonWidth := func() int {
+		m := -1
+		for _, b := range bc.buttons {
+			// 2 account for the left and right padding of the buttons.
+			m = max(m, 2+runewidth.StringWidth(b.GetLabel()))
+		}
+		return m
+	}()
+
+	x, y, width, height := bc.GetInnerRect()
+
+	if fixedHeight := 1; bc.verticalAlign == AlignCenter {
+		y += getCenter(height, fixedHeight)
+	} else if bc.verticalAlign == AlignDown {
+		y += height - fixedHeight
+	}
+	if fixedWidth := maxButtonWidth*len(bc.buttons) + (len(bc.buttons) - 1); bc.horizontalAlign == tview.AlignCenter {
+		x += getCenter(width, fixedWidth)
+	} else if bc.horizontalAlign == tview.AlignRight {
+		x += width - fixedWidth
+	}
+
+	sepStyle := tcell.StyleDefault.Background(bc.GetBackgroundColor())
+	for _, b := range bc.buttons {
+		b.SetRect(x, y, maxButtonWidth, 1)
+		b.Draw(screen)
+		x += maxButtonWidth
+		screen.SetContent(x, y, ' ', nil, sepStyle)
+		x += 1
+	}
+}
+
 // MouseHandler returns the mouse handler for this primitive.
 func (bc *ButtonColumn) MouseHandler() func(tview.MouseAction, *tcell.EventMouse, func(p tview.Primitive)) (bool, tview.Primitive) {
 	return bc.WrapMouseHandler(func(action tview.MouseAction, event *tcell.EventMouse, setFocus func(p tview.Primitive)) (consumed bool, capture tview.Primitive) {
@@ -74,4 +110,11 @@ func (bc *ButtonColumn) MouseHandler() func(tview.MouseAction, *tcell.EventMouse
 		}
 		return
 	})
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
