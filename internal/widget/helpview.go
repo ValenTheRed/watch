@@ -23,6 +23,33 @@ type HelpView struct {
 	keyStyle, descStyle, separatorStyle tcell.Style
 }
 
+// toTextViewString converts the keymaps in hv to string that can be
+// processed by the embedded tview.TextView.
+func (hv *HelpView) toTextViewString() string {
+	const separator = '•'
+
+	keyTag := parseStyleToTag(hv.keyStyle)
+	descTag := parseStyleToTag(hv.descStyle)
+	separatorTag := parseStyleToTag(hv.separatorStyle)
+
+	var s strings.Builder
+	for i, km := range hv.keys {
+		s.WriteString(keyTag)
+		s.WriteString(km.Key)
+		s.WriteString("[-:-:-] ")
+		s.WriteString(descTag)
+		s.WriteString(km.Desc)
+		// write separator only if this isn't the last keybind.
+		if i < len(hv.keys)-1 {
+			s.WriteString("[-:-:-] ")
+			s.WriteString(separatorTag)
+			s.WriteRune(separator)
+			s.WriteString("[-:-:-] ")
+		}
+	}
+	return s.String()
+}
+
 // parseStyleToTag converts style to tview color tags.
 func parseStyleToTag(style tcell.Style) string {
 	var s strings.Builder
