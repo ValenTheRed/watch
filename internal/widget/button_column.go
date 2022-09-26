@@ -13,6 +13,9 @@ type ButtonColumn struct {
 
 	// The contained buttons.
 	buttons []*tview.Button
+
+	// Both determine the alignment of the buttons.
+	horizontalAlign, verticalAlign int
 }
 
 // NewButtonColumn returns a new ButtonColumn. It also set the left and
@@ -22,8 +25,10 @@ func NewButtonColumn(buttons []*tview.Button) *ButtonColumn {
 		b.SetBorderPadding(0, 0, 1, 1)
 	}
 	return &ButtonColumn{
-		Box: tview.NewBox(),
-		buttons: buttons,
+		Box:             tview.NewBox(),
+		buttons:         buttons,
+		horizontalAlign: tview.AlignCenter,
+		verticalAlign:   AlignCenter,
 	}
 }
 
