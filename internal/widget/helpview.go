@@ -23,6 +23,33 @@ type HelpView struct {
 	keyStyle, descStyle, separatorStyle tcell.Style
 }
 
+// SetKeyStyle sets the style of keymap's key shortcut.
+// NOTE: key style will inherit the background of HelpView, so no need to
+// specify that.
+func (hv *HelpView) SetKeyStyle(style tcell.Style) *HelpView {
+	hv.keyStyle = style
+	hv.TextView.SetText(hv.toTextViewString())
+	return hv
+}
+
+// SetDescStyle sets the style of keymap's key description. NOTE: desc
+// style will inherit the background of HelpView, so no need to
+// specify that.
+func (hv *HelpView) SetDescStyle(style tcell.Style) *HelpView {
+	hv.descStyle = style
+	hv.TextView.SetText(hv.toTextViewString())
+	return hv
+}
+
+// SetSeparatorStyle sets the style of separator between two keymap.
+// NOTE: separator style will inherit the background of HelpView, so no
+// need to specify that.
+func (hv *HelpView) SetSeparatorStyle(style tcell.Style) *HelpView {
+	hv.separatorStyle = style
+	hv.TextView.SetText(hv.toTextViewString())
+	return hv
+}
+
 // toTextViewString converts the keymaps in hv to string that can be
 // processed by the embedded tview.TextView.
 func (hv *HelpView) toTextViewString() string {
