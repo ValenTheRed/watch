@@ -103,6 +103,11 @@ func NewStopwatch() *Clock {
 	return c
 }
 
+// Running returns Clock status i.e. currently running or not.
+func (c *Clock) Running() bool {
+	return c.running
+}
+
 // TotalSeconds returns the total seconds clock will run for.
 func (c *Clock) TotalSeconds() int {
 	return c.total
