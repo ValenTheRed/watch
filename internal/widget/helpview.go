@@ -23,6 +23,13 @@ type HelpView struct {
 	keyStyle, descStyle, separatorStyle tcell.Style
 }
 
+// NewHelpView returns a new HelpView.
+func NewHelpView(keymaps []KeyMap) *HelpView {
+	hv := &HelpView{keys: keymaps}
+	hv.TextView = tview.NewTextView().SetText(hv.toTextViewString())
+	return hv
+}
+
 // SetKeyStyle sets the style of keymap's key shortcut.
 // NOTE: key style will inherit the background of HelpView, so no need to
 // specify that.
