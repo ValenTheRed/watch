@@ -46,51 +46,67 @@ func main() {
 	}
 
 	app := tview.NewApplication().EnableMouse(true)
-	root := tview.NewFlex()
-
 	if len(durations) == 0 {
-		s := widget.NewStopwatch()
-		s.Changed = func() {
-			app.Draw()
-		}
-		l := widget.NewLapTable()
-
-		root.AddItem(l, 0, 1, true)
-		root.AddItem(s, 0, 3, false)
-		s.Start()
+		app = Stopwatch(app)
 	} else {
-		t := widget.NewTimer(durations[0])
-		p := widget.NewProgressBar()
-
-		f := tview.NewFlex().SetDirection(tview.FlexRow)
-		f.AddItem(t, 0, 1, false)
-		f.AddItem(p, 0, 1, false)
-
-		t.SetVerticalAlign(widget.AlignDown)
-		p.SetAlign(widget.AlignUp)
-		t.Changed = func() {
-			p.SetPercent(t.ElapsedSeconds() * 100 / t.TotalSeconds())
-			app.Draw()
-		}
-
-		q := widget.NewQueue(durations...)
-		q.SetSelectedFunc(func(row int) {
-			duration := q.GetCell(row, 1).GetReference().(int)
-			t.SetTotalDuration(duration)
-			t.Restart()
-		})
-		t.SetDoneFunc(func() {
-			q.Next()
-		})
-
-		root.AddItem(q, 0, 1, true)
-		root.AddItem(f, 0, 3, false)
-		t.Start()
+		app = Timer(app, durations)
 	}
 
-	if err := app.SetRoot(root, true).Run(); err != nil {
+	if err := app.Run(); err != nil {
 		panic(err)
 	}
+}
+
+// Stopwatch returns app after setting the root and starting the
+// stopwatch.
+func Stopwatch(app *tview.Application) *tview.Application {
+	s := widget.NewStopwatch()
+	s.Changed = func() {
+		app.Draw()
+	}
+	l := widget.NewLapTable()
+
+	root := tview.NewFlex()
+	root.AddItem(l, 0, 1, true)
+	root.AddItem(s, 0, 3, false)
+
+	s.Start()
+	return app.SetRoot(root, true)
+}
+
+// Timer returns app after setting the root and starting the timer.
+func Timer(app *tview.Application, durations []int) *tview.Application {
+	t := widget.NewTimer(durations[0])
+	p := widget.NewProgressBar()
+
+	t.Changed = func() {
+		p.SetPercent(t.ElapsedSeconds() * 100 / t.TotalSeconds())
+		app.Draw()
+	}
+
+	q := widget.NewQueue(durations...)
+	q.SetSelectedFunc(func(row int) {
+		duration := q.GetCell(row, 1).GetReference().(int)
+		t.SetTotalDuration(duration)
+		t.Restart()
+	})
+	t.SetDoneFunc(func() {
+		q.Next()
+	})
+
+	f := tview.NewFlex().SetDirection(tview.FlexRow)
+	f.AddItem(t, 0, 1, false)
+	f.AddItem(p, 0, 1, false)
+
+	t.SetVerticalAlign(widget.AlignDown)
+	p.SetAlign(widget.AlignUp)
+
+	root := tview.NewFlex()
+	root.AddItem(q, 0, 1, true)
+	root.AddItem(f, 0, 3, false)
+
+	t.Start()
+	return app.SetRoot(root, true)
 }
 
 // ParseDuration returns the total number of seconds in dur, which must
