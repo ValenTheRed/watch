@@ -15,6 +15,18 @@ type ButtonColumn struct {
 	buttons []*tview.Button
 }
 
+// NewButtonColumn returns a new ButtonColumn. It also set the left and
+// right border padding of the buttons to 1.
+func NewButtonColumn(buttons []*tview.Button) *ButtonColumn {
+	for _, b := range buttons {
+		b.SetBorderPadding(0, 0, 1, 1)
+	}
+	return &ButtonColumn{
+		Box: tview.NewBox(),
+		buttons: buttons,
+	}
+}
+
 // HasFocus returns whether or not this primitive has focus.
 func (bc *ButtonColumn) HasFocus() bool {
 	for _, b := range bc.buttons {
