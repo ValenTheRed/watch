@@ -11,3 +11,13 @@ type ButtonColumn struct {
 	// The contained buttons.
 	buttons []*tview.Button
 }
+
+// HasFocus returns whether or not this primitive has focus.
+func (bc *ButtonColumn) HasFocus() bool {
+	for _, b := range bc.buttons {
+		if b.HasFocus() {
+			return true
+		}
+	}
+	return bc.Box.HasFocus()
+}
