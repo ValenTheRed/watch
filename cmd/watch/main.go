@@ -66,6 +66,32 @@ func Stopwatch(app *tview.Application) *tview.Application {
 	}
 	l := widget.NewLapTable()
 
+	type info struct {
+		km     widget.KeyMap
+		button *tview.Button
+		action func()
+	}
+	interactions := struct {
+		lap, playpause, restart, quit info
+	}{
+		lap: info{
+			km:     widget.KeyMap{Key: "l", Desc: "lap"},
+			button: tview.NewButton("⚑ lap"),
+		},
+		restart: info{
+			km:     widget.KeyMap{Key: "r", Desc: "restart"},
+			button: tview.NewButton("● restart"),
+		},
+		playpause: info{
+			km:     widget.KeyMap{Key: "space", Desc: "play/pause"},
+			button: tview.NewButton("❚❚ pause"),
+		},
+		quit: info{
+			km: widget.KeyMap{Key: "q", Desc: "quit"},
+			button: nil,
+		},
+	}
+
 	root := tview.NewFlex()
 	root.AddItem(l, 0, 1, true)
 	root.AddItem(s, 0, 3, false)
@@ -93,6 +119,36 @@ func Timer(app *tview.Application, durations []int) *tview.Application {
 	t.SetDoneFunc(func() {
 		q.Next()
 	})
+
+	type info struct {
+		km     widget.KeyMap
+		button *tview.Button
+		action func()
+	}
+	interactions := struct {
+		prev, next, playpause, restart, quit info
+	}{
+		prev: info{
+			km:     widget.KeyMap{Key: "p", Desc: "prev"},
+			button: tview.NewButton("← prev"),
+		},
+		next: info{
+			km:     widget.KeyMap{Key: "n", Desc: "next"},
+			button: tview.NewButton("→ next"),
+		},
+		restart: info{
+			km:     widget.KeyMap{Key: "r", Desc: "restart"},
+			button: tview.NewButton("● restart"),
+		},
+		playpause: info{
+			km:     widget.KeyMap{Key: "space", Desc: "play/pause"},
+			button: tview.NewButton("❚❚ pause"),
+		},
+		quit: info{
+			km: widget.KeyMap{Key: "q", Desc: "quit"},
+			button: nil,
+		},
+	}
 
 	f := tview.NewFlex().SetDirection(tview.FlexRow)
 	f.AddItem(t, 0, 1, false)
