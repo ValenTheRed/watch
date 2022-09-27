@@ -11,6 +11,7 @@ import (
 
 	"github.com/ValenTheRed/watch/internal/widget"
 	"github.com/gdamore/tcell/v2"
+	"github.com/lucasb-eyer/go-colorful"
 	"github.com/rivo/tview"
 )
 
@@ -29,7 +30,29 @@ func init() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "%s\n", usage)
 	}
+
+	tview.Borders.HorizontalFocus  = tview.Borders.Horizontal
+	tview.Borders.VerticalFocus    = tview.Borders.Vertical
+	tview.Borders.TopLeftFocus     = tview.Borders.TopLeft
+	tview.Borders.TopRightFocus    = tview.Borders.TopRight
+	tview.Borders.BottomLeftFocus  = tview.Borders.BottomLeft
+	tview.Borders.BottomRightFocus = tview.Borders.BottomRight
 }
+
+var (
+	// SetTheme will be called before the running to application and
+	// is expected to set the style of the widgets that will be
+	// displayed.
+	SetTheme func()
+
+	ColorBackground = tcell.GetColor(colorful.Hcl(308.3, 0.02548, 0.04965).Hex())
+	ColorForeground = tcell.GetColor(colorful.Hcl(0, 0.0001262, 0.8941).Hex())
+	ColorPrimary    = tcell.GetColor(colorful.Hcl(15, .7, .5).Hex())
+	ColorSecondary  = tcell.GetColor(colorful.Hcl(300, .5, .5).Hex())
+	ColorBorder     = tcell.GetColor(colorful.Hcl(0, 4.714e-05, 0.2262).Hex())
+	ColorSurface    = tcell.GetColor(colorful.Hcl(0, 6.055e-05, 0.336).Hex())
+	ColorShadow     = tcell.ColorGrey
+)
 
 func main() {
 	flag.Parse()
@@ -53,6 +76,7 @@ func main() {
 		app = Timer(app, durations)
 	}
 
+	SetTheme()
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
@@ -88,7 +112,7 @@ func Stopwatch(app *tview.Application) *tview.Application {
 			button: tview.NewButton("❚❚ pause"),
 		},
 		quit: info{
-			km: widget.KeyMap{Key: "q", Desc: "quit"},
+			km:     widget.KeyMap{Key: "q", Desc: "quit"},
 			button: nil,
 		},
 	}
@@ -188,6 +212,33 @@ func Stopwatch(app *tview.Application) *tview.Application {
 	root.AddItem(l, 0, 1, true)
 	root.AddItem(f, 0, 3, false)
 
+	SetTheme = func() {
+		l.SetBorder(true)
+		l.SetBorderColor(ColorSecondary)
+		l.SetSelectedStyle(tcell.StyleDefault.Background(ColorPrimary))
+		l.SetBackgroundColor(ColorBackground)
+		l.SetHeaderStyle(tcell.StyleDefault.Foreground(ColorForeground))
+		l.SetUnderlineStyle(tcell.StyleDefault.Foreground(ColorSecondary))
+		l.SetCellStyle(tcell.StyleDefault.Foreground(ColorForeground))
+		s.SetBackgroundColor(ColorBackground)
+		bc.SetBackgroundColor(ColorBackground)
+		hv.SetBackgroundColor(ColorBackground)
+		s.TextColor = ColorForeground
+		s.ShadowColor = ColorShadow
+		hv.SetKeyStyle(tcell.StyleDefault.Foreground(ColorSurface))
+		hv.SetDescStyle(tcell.StyleDefault.Foreground(ColorBorder))
+		hv.SetSeparatorStyle(tcell.StyleDefault.Foreground(ColorBorder))
+		var setButtonColor = func(b *tview.Button) {
+			b.SetBackgroundColor(ColorPrimary)
+			b.SetBackgroundColorActivated(ColorSurface)
+			b.SetLabelColor(ColorForeground)
+			b.SetLabelColorActivated(ColorPrimary)
+		}
+		setButtonColor(interactions.lap.button)
+		setButtonColor(interactions.restart.button)
+		setButtonColor(interactions.playpause.button)
+	}
+
 	s.Start()
 	return app.SetRoot(root, true)
 }
@@ -237,7 +288,7 @@ func Timer(app *tview.Application, durations []int) *tview.Application {
 			button: tview.NewButton("❚❚ pause"),
 		},
 		quit: info{
-			km: widget.KeyMap{Key: "q", Desc: "quit"},
+			km:     widget.KeyMap{Key: "q", Desc: "quit"},
 			button: nil,
 		},
 	}
@@ -349,6 +400,37 @@ func Timer(app *tview.Application, durations []int) *tview.Application {
 	root := tview.NewFlex()
 	root.AddItem(q, 0, 1, true)
 	root.AddItem(f, 0, 3, false)
+
+	SetTheme = func() {
+		q.SetBorder(true)
+		q.SetBorderColor(ColorSecondary)
+		q.SetBackgroundColor(ColorBackground)
+		q.SetSelectedStyle(tcell.StyleDefault.Background(ColorPrimary))
+		q.SetHeaderStyle(tcell.StyleDefault.Foreground(ColorForeground))
+		q.SetUnderlineStyle(tcell.StyleDefault.Foreground(ColorSecondary))
+		q.SetCellStyle(tcell.StyleDefault.Foreground(ColorForeground))
+		t.SetBackgroundColor(ColorBackground)
+		p.SetBackgroundColor(ColorBackground)
+		bc.SetBackgroundColor(ColorBackground)
+		hv.SetBackgroundColor(ColorBackground)
+		t.TextColor = ColorForeground
+		t.ShadowColor = ColorShadow
+		p.TextColor = ColorForeground
+		p.ShadowColor = ColorShadow
+		hv.SetKeyStyle(tcell.StyleDefault.Foreground(ColorSurface))
+		hv.SetDescStyle(tcell.StyleDefault.Foreground(ColorBorder))
+		hv.SetSeparatorStyle(tcell.StyleDefault.Foreground(ColorBorder))
+		var setButtonColor = func(b *tview.Button) {
+			b.SetBackgroundColor(ColorPrimary)
+			b.SetBackgroundColorActivated(ColorSurface)
+			b.SetLabelColor(ColorForeground)
+			b.SetLabelColorActivated(ColorPrimary)
+		}
+		setButtonColor(interactions.prev.button)
+		setButtonColor(interactions.next.button)
+		setButtonColor(interactions.restart.button)
+		setButtonColor(interactions.playpause.button)
+	}
 
 	t.Start()
 	return app.SetRoot(root, true)

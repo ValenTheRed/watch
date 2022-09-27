@@ -9,6 +9,9 @@ import (
 
 type Table struct {
 	*tview.Table
+
+	// The default style for data cells.
+	cellStyle tcell.Style
 }
 
 // NewTable returns a new Table.
@@ -23,23 +26,17 @@ func NewTable(headers ...string) *Table {
 	}
 
 	t := tview.NewTable()
-	defStyle := tcell.StyleDefault.Background(t.GetBackgroundColor())
+	defStyle := tcell.StyleDefault
 	for i, header := range headers {
-		t.SetCell(0, i, newCell(
-			header,
-			defStyle.Foreground(tcell.ColorWhite),
-		))
+		t.SetCell(0, i, newCell(header, defStyle))
 	}
 	for i, header := range headers {
-		t.SetCell(1, i, newCell(
-			strings.Repeat("▔", len(header)),
-			defStyle.Foreground(tcell.ColorBlue),
-		))
+		t.SetCell(1, i, newCell( strings.Repeat("▔", len(header)), defStyle))
 	}
 
 	t.SetSelectable(true, false)
 	t.SetFixed(2, 0)
-	return &Table{t}
+	return &Table{t, defStyle}
 }
 
 // GetCell returns the cell at the given position. The position
@@ -74,24 +71,31 @@ func (t *Table) SetCell(row, col int, cell *tview.TableCell) *Table {
 	return t
 }
 
-// SetHeaderStyle sets the style of the header of the table as s.
+// SetHeaderStyle sets the style of all header cells as s.
 func (t *Table) SetHeaderStyle(s tcell.Style) *Table {
 	for i := 0; i < t.GetColumnCount(); i++ {
-		t.GetCell(0, i).SetStyle(s)
+		t.Table.GetCell(0, i).SetStyle(s)
 	}
 	return t
 }
 
-// SetUnderlineStyle sets the style of the header underline as s.
+// SetUnderlineStyle sets the style for all of the underline cells as s.
 func (t *Table) SetUnderlineStyle(s tcell.Style) *Table {
 	for i := 0; i < t.GetColumnCount(); i++ {
-		t.GetCell(1, i).SetStyle(s)
+		t.Table.GetCell(1, i).SetStyle(s)
 	}
 	return t
 }
 
-// SetCellStyle sets the style of the cells of the table as s.
+// GetCellStyle returns Table's cell style.
+func (t *Table) GetCellStyle() tcell.Style {
+	return t.cellStyle
+}
+
+// SetCellStyle sets s as the default style for all previously added
+// cells and any newly added cells.
 func (t *Table) SetCellStyle(s tcell.Style) *Table {
+	t.cellStyle = s
 	for r := 0; r < t.GetRowCount(); r++ {
 		for c := 0; c < t.GetColumnCount(); c++ {
 			t.GetCell(r, c).SetStyle(s)

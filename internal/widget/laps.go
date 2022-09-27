@@ -3,7 +3,6 @@ package widget
 import (
 	"fmt"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -31,7 +30,7 @@ func (l *LapTable) AddLap(totalSeconds int) *LapTable {
 		c := tview.NewTableCell(text)
 		c.SetReference(ref)
 		c.SetAlign(tview.AlignCenter)
-		c.SetStyle(tcell.StyleDefault.Background(l.GetBackgroundColor()).Foreground(tcell.ColorWhite))
+		c.SetStyle(l.Table.GetCellStyle())
 		return c
 	}
 

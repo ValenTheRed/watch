@@ -3,7 +3,6 @@ package widget
 import (
 	"fmt"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -35,7 +34,7 @@ func NewQueue(durations ...int) *Queue {
 		c := tview.NewTableCell(text)
 		c.SetReference(ref)
 		c.SetAlign(tview.AlignCenter)
-		c.SetStyle(tcell.StyleDefault.Background(q.GetBackgroundColor()).Foreground(tcell.ColorWhite))
+		c.SetStyle(q.Table.GetCellStyle())
 		return c
 	}
 
