@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	_ "embed"
 	"flag"
 	"fmt"
 	"log"
@@ -11,6 +13,9 @@ import (
 	"time"
 
 	"github.com/ValenTheRed/watch/internal/widget"
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/flac"
+	"github.com/faiface/beep/speaker"
 	"github.com/gdamore/tcell/v2"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/rivo/tview"
@@ -27,6 +32,9 @@ optional arguments:
 duration    supported formats - [[hh:]mm:]ss
 -help	    display this help message and exit`
 )
+
+//go:embed "ping.flac"
+var pingFile []byte
 
 func init() {
 	flag.Usage = func() {
@@ -266,7 +274,7 @@ func Stopwatch(app *tview.Application) *tview.Application {
 		hv.SetSeparatorStyle(tcell.StyleDefault.Foreground(ColorBorder))
 		var setButtonColor = func(b *tview.Button) {
 			b.SetBackgroundColor(ColorPrimary)
-			b.SetBackgroundColorActivated(ColorSurface)
+			b.SetBackgroundColorActivated(ColorForeground)
 			b.SetLabelColor(ColorForeground)
 			b.SetLabelColorActivated(ColorPrimary)
 		}
@@ -296,9 +304,29 @@ func Timer(app *tview.Application, durations []int) *tview.Application {
 		t.SetTotalDuration(duration)
 		t.Restart()
 	})
-	t.SetDoneFunc(func() {
-		q.Next()
-	})
+	t.SetDoneFunc(func() func() {
+		// Init ping file
+		// NOTE: error ignored
+		streamer, format, _ := flac.Decode(bytes.NewReader(pingFile))
+		defer streamer.Close()
+
+		speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
+
+		buffer := beep.NewBuffer(format)
+		buffer.Append(streamer)
+		return func() {
+			// BUG: if the current timer is the last one in the queue,
+			// then a stream of more than one second leads to a race
+			// condition where the timer ticks one extra second. This
+			// causes panic as there is no character for negative sign
+			// in the ANSIShadow font map.
+			speaker.Play(buffer.Streamer(0, buffer.Len()))
+			// In lieu of above bug, don't wait for the stream to, just
+			// in case it turns out to be longer than one seoncd.
+			<-time.After(800 * time.Millisecond)
+			q.Next()
+		}
+	}())
 
 	type info struct {
 		km     widget.KeyMap
@@ -465,7 +493,7 @@ func Timer(app *tview.Application, durations []int) *tview.Application {
 		hv.SetSeparatorStyle(tcell.StyleDefault.Foreground(ColorBorder))
 		var setButtonColor = func(b *tview.Button) {
 			b.SetBackgroundColor(ColorPrimary)
-			b.SetBackgroundColorActivated(ColorSurface)
+			b.SetBackgroundColorActivated(ColorForeground)
 			b.SetLabelColor(ColorForeground)
 			b.SetLabelColorActivated(ColorPrimary)
 		}
