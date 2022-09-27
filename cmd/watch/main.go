@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/ValenTheRed/watch/internal/widget"
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -152,6 +153,27 @@ func Stopwatch(app *tview.Application) *tview.Application {
 	hv.SetDynamicColors(true)
 	hv.SetTextAlign(tview.AlignCenter)
 
+	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyRune:
+			switch event.Rune() {
+			case 'l':
+				interactions.lap.action()
+				return nil
+			case 'r':
+				interactions.restart.action()
+				return nil
+			case 'q':
+				interactions.quit.action()
+				return nil
+			case ' ':
+				interactions.playpause.action()
+				return nil
+			}
+		}
+		return event
+	})
+
 	f := tview.NewFlex().SetDirection(tview.FlexRow)
 	f.AddItem(s, 0, 1, false)
 	f.AddItem(bc, 0, 1, false)
@@ -286,6 +308,30 @@ func Timer(app *tview.Application, durations []int) *tview.Application {
 	})
 	hv.SetDynamicColors(true)
 	hv.SetTextAlign(tview.AlignCenter)
+
+	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyRune:
+			switch event.Rune() {
+			case 'p':
+				interactions.prev.action()
+				return nil
+			case 'n':
+				interactions.next.action()
+				return nil
+			case 'r':
+				interactions.restart.action()
+				return nil
+			case 'q':
+				interactions.quit.action()
+				return nil
+			case ' ':
+				interactions.playpause.action()
+				return nil
+			}
+		}
+		return event
+	})
 
 	f := tview.NewFlex().SetDirection(tview.FlexRow)
 	f.AddItem(t, 0, 2, false)
