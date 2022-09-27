@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ValenTheRed/watch/internal/widget"
 	"github.com/gdamore/tcell/v2"
@@ -128,7 +129,7 @@ func Stopwatch(app *tview.Application) *tview.Application {
 
 	interactions.copy.action = func() {
 		var lines []byte
-		for row := l.GetRowCount()-1; row > -1; row-- {
+		for row := l.GetRowCount() - 1; row > -1; row-- {
 			lap, time, overall := l.GetLap(row)
 			lines = append(lines, []byte(fmt.Sprintf("%2d", lap))...)
 			lines = append(lines, ' ')
@@ -138,22 +139,12 @@ func Stopwatch(app *tview.Application) *tview.Application {
 			lines = append(lines, '\n')
 		}
 		clipboard.Write(clipboard.FmtText, lines)
-		if !l.HasFocus() {
-			app.SetFocus(l)
-		}
 	}
-
 	interactions.lap.action = func() {
 		l.AddLap(s.ElapsedSeconds())
-		if !l.HasFocus() {
-			app.SetFocus(l)
-		}
 	}
 	interactions.restart.action = func() {
 		s.Restart()
-		if !l.HasFocus() {
-			app.SetFocus(l)
-		}
 	}
 	interactions.playpause.action = func() {
 		if s.Running() {
@@ -161,17 +152,44 @@ func Stopwatch(app *tview.Application) *tview.Application {
 		} else {
 			s.Start()
 		}
-		if !l.HasFocus() {
-			app.SetFocus(l)
-		}
 	}
 	interactions.quit.action = func() {
 		app.Stop()
 	}
-	interactions.lap.button.SetSelectedFunc(interactions.lap.action)
-	interactions.restart.button.SetSelectedFunc(interactions.restart.action)
-	interactions.playpause.button.SetSelectedFunc(interactions.playpause.action)
-	interactions.copy.button.SetSelectedFunc(interactions.copy.action)
+
+	var setSelectedButton = func(interaction info) {
+		interaction.button.SetSelectedFunc(func() {
+			interaction.action()
+			// This simulates a button press.
+			//
+			// How?
+			// Things to know:
+			// - app.Draw() is called automatically after a Input/MouseHandler
+			// - tview.Button's Draw() will use the highlight colors only
+			// when it is in focus,
+			// - tview.Button's mousehandler sets the focus to itself,
+			// calls selected func in the same goroutine and then
+			// returns.
+			//
+			// So, when we click a button, tview.Button's MouseHandler
+			// get's called. This sets the focus to itself. As soon as
+			// MouseHandler ends, the button updates and looks
+			// highlighted. After __ milliseconds, the focus goes back
+			// to another widget and the screen redraws. This
+			// unhiglights the button.
+			//
+			// In a goroutine prevent deadlock.
+			go func() {
+				<-time.After(80 * time.Millisecond)
+				app.SetFocus(l)
+				app.Draw()
+			}()
+		})
+	}
+	setSelectedButton(interactions.lap)
+	setSelectedButton(interactions.copy)
+	setSelectedButton(interactions.restart)
+	setSelectedButton(interactions.playpause)
 
 	// Match playpause label to the action that the button will take
 	// when pressed. Why not change labels inside of action() func of
@@ -326,21 +344,12 @@ func Timer(app *tview.Application, durations []int) *tview.Application {
 
 	interactions.next.action = func() {
 		q.Next()
-		if !q.HasFocus() {
-			app.SetFocus(q)
-		}
 	}
 	interactions.prev.action = func() {
 		q.Previous()
-		if !q.HasFocus() {
-			app.SetFocus(q)
-		}
 	}
 	interactions.restart.action = func() {
 		t.Restart()
-		if !q.HasFocus() {
-			app.SetFocus(q)
-		}
 	}
 	interactions.playpause.action = func() {
 		if t.Running() {
@@ -348,17 +357,44 @@ func Timer(app *tview.Application, durations []int) *tview.Application {
 		} else {
 			t.Start()
 		}
-		if !q.HasFocus() {
-			app.SetFocus(q)
-		}
 	}
 	interactions.quit.action = func() {
 		app.Stop()
 	}
-	interactions.next.button.SetSelectedFunc(interactions.next.action)
-	interactions.prev.button.SetSelectedFunc(interactions.prev.action)
-	interactions.restart.button.SetSelectedFunc(interactions.restart.action)
-	interactions.playpause.button.SetSelectedFunc(interactions.playpause.action)
+
+	var setSelectedButton = func(interaction info) {
+		interaction.button.SetSelectedFunc(func() {
+			interaction.action()
+			// This simulates a button press.
+			//
+			// How?
+			// Things to know:
+			// - app.Draw() is called automatically after a Input/MouseHandler
+			// - tview.Button's Draw() will use the highlight colors only
+			// when it is in focus,
+			// - tview.Button's mousehandler sets the focus to itself,
+			// calls selected func in the same goroutine and then
+			// returns.
+			//
+			// So, when we click a button, tview.Button's MouseHandler
+			// get's called. This sets the focus to itself. As soon as
+			// MouseHandler ends, the button updates and looks
+			// highlighted. After __ milliseconds, the focus goes back
+			// to another widget and the screen redraws. This
+			// unhiglights the button.
+			//
+			// In a goroutine prevent deadlock.
+			go func() {
+				<-time.After(80 * time.Millisecond)
+				app.SetFocus(q)
+				app.Draw()
+			}()
+		})
+	}
+	setSelectedButton(interactions.next)
+	setSelectedButton(interactions.prev)
+	setSelectedButton(interactions.restart)
+	setSelectedButton(interactions.playpause)
 
 	// Match playpause label to the action that the button will take
 	// when pressed. Why not change labels inside of action() func of
