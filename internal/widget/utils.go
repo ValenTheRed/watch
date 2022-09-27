@@ -137,6 +137,14 @@ var ANSIShadow = map[rune][][]rune{
 		[]rune("    "),
 		[]rune("    "),
 	},
+	'-': {
+		[]rune("       "),
+		[]rune("       "),
+		[]rune("██████╗"),
+		[]rune("╚═════╝"),
+		[]rune("       "),
+		[]rune("       "),
+	},
 }
 
 // getCenter returns the coordinate from where, if drawn, an object of
