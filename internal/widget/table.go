@@ -9,6 +9,9 @@ import (
 
 type Table struct {
 	*tview.Table
+
+	// The default style for data cells.
+	CellStyle tcell.Style
 }
 
 // NewTable returns a new Table.
@@ -33,7 +36,7 @@ func NewTable(headers ...string) *Table {
 
 	t.SetSelectable(true, false)
 	t.SetFixed(2, 0)
-	return &Table{t}
+	return &Table{t, defStyle}
 }
 
 // GetCell returns the cell at the given position. The position
