@@ -126,6 +126,23 @@ func Stopwatch(app *tview.Application) *tview.Application {
 		},
 	}
 
+	interactions.copy.action = func() {
+		var lines []byte
+		for row := l.GetRowCount()-1; row > -1; row-- {
+			lap, time, overall := l.GetLap(row)
+			lines = append(lines, []byte(fmt.Sprintf("%2d", lap))...)
+			lines = append(lines, ' ')
+			lines = append(lines, []byte(widget.SecondWithColons(time))...)
+			lines = append(lines, ' ')
+			lines = append(lines, []byte(widget.SecondWithColons(overall))...)
+			lines = append(lines, '\n')
+		}
+		clipboard.Write(clipboard.FmtText, lines)
+		if !l.HasFocus() {
+			app.SetFocus(l)
+		}
+	}
+
 	interactions.lap.action = func() {
 		l.AddLap(s.ElapsedSeconds())
 		if !l.HasFocus() {
@@ -154,6 +171,7 @@ func Stopwatch(app *tview.Application) *tview.Application {
 	interactions.lap.button.SetSelectedFunc(interactions.lap.action)
 	interactions.restart.button.SetSelectedFunc(interactions.restart.action)
 	interactions.playpause.button.SetSelectedFunc(interactions.playpause.action)
+	interactions.copy.button.SetSelectedFunc(interactions.copy.action)
 
 	// Match playpause label to the action that the button will take
 	// when pressed. Why not change labels inside of action() func of
@@ -201,6 +219,9 @@ func Stopwatch(app *tview.Application) *tview.Application {
 				return nil
 			case ' ':
 				interactions.playpause.action()
+				return nil
+			case 'y', 'c':
+				interactions.copy.action()
 				return nil
 			}
 		}
