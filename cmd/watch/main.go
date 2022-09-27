@@ -11,6 +11,7 @@ import (
 
 	"github.com/ValenTheRed/watch/internal/widget"
 	"github.com/gdamore/tcell/v2"
+	"github.com/lucasb-eyer/go-colorful"
 	"github.com/rivo/tview"
 )
 
@@ -30,6 +31,16 @@ func init() {
 		fmt.Fprintf(os.Stderr, "%s\n", usage)
 	}
 }
+
+var (
+	ColorBackground = tcell.GetColor(colorful.Hcl(308.3, 0.02548, 0.04965).Hex())
+	ColorForeground = tcell.GetColor(colorful.Hcl(0, 0.0001262, 0.8941).Hex())
+	ColorPrimary    = tcell.GetColor(colorful.Hcl(15, .7, .5).Hex())
+	ColorSecondary  = tcell.GetColor(colorful.Hcl(300, .5, .5).Hex())
+	ColorBorder     = tcell.GetColor(colorful.Hcl(0, 4.714e-05, 0.2262).Hex())
+	ColorSurface    = tcell.GetColor(colorful.Hcl(0, 6.055e-05, 0.336).Hex())
+	ColorShadow     = tcell.ColorGrey
+)
 
 func main() {
 	flag.Parse()
