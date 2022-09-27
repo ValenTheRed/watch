@@ -278,7 +278,7 @@ func Stopwatch(app *tview.Application) *tview.Application {
 		hv.SetSeparatorStyle(tcell.StyleDefault.Foreground(ColorBorder))
 		var setButtonColor = func(b *tview.Button) {
 			b.SetBackgroundColor(ColorPrimary)
-			b.SetBackgroundColorActivated(ColorSurface)
+			b.SetBackgroundColorActivated(ColorForeground)
 			b.SetLabelColor(ColorForeground)
 			b.SetLabelColorActivated(ColorPrimary)
 		}
@@ -489,7 +489,7 @@ func Timer(app *tview.Application, durations []int) *tview.Application {
 		hv.SetSeparatorStyle(tcell.StyleDefault.Foreground(ColorBorder))
 		var setButtonColor = func(b *tview.Button) {
 			b.SetBackgroundColor(ColorPrimary)
-			b.SetBackgroundColorActivated(ColorSurface)
+			b.SetBackgroundColorActivated(ColorForeground)
 			b.SetLabelColor(ColorForeground)
 			b.SetLabelColorActivated(ColorPrimary)
 		}
