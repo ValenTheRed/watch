@@ -46,6 +46,10 @@ type Clock struct {
 
 	// Whether clock is running or not.
 	running bool
+
+	// Started and Stopped are optional handlers that are fired just
+	// after Clock has started and stopped.
+	Started, Stopped func()
 }
 
 // newClock returns a new Clock. It has horizontal and vertical aligment
@@ -176,6 +180,9 @@ func (c *Clock) Start() *Clock {
 			c.done()
 		}
 	}, c.stopCh)
+	if c.Started != nil {
+		c.Started()
+	}
 	return c
 }
 
@@ -184,6 +191,9 @@ func (c *Clock) Stop() *Clock {
 	if c.running {
 		c.running = false
 		c.stopCh <- struct{}{}
+		if c.Stopped != nil {
+			c.Stopped()
+		}
 	}
 	return c
 }
