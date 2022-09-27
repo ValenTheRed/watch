@@ -36,7 +36,7 @@ func (l *LapTable) AddLap(totalSeconds int) *LapTable {
 
 	var lap, lapSeconds int
 
-	if l.GetRowCount() == 2 {
+	if l.GetRowCount() == 0 {
 		lap, lapSeconds = 1, totalSeconds
 	} else {
 		i, _, total := l.GetLap(0)

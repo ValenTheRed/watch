@@ -103,3 +103,8 @@ func (t *Table) SetCellStyle(s tcell.Style) *Table {
 	}
 	return t
 }
+
+// GetRowCount returns the number of rows (except header rows) in t.
+func (t *Table) GetRowCount() int {
+	return t.Table.GetRowCount()-2
+}

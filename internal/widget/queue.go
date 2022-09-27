@@ -56,7 +56,7 @@ func NewQueue(durations ...int) *Queue {
 
 // SetDurationFormat formats the duration column's text using format.
 func (q *Queue) SetDurationFormat(format func(seconds int) string) *Queue {
-	for r := 0; r < q.GetRowCount()-2; r++ {
+	for r := 0; r < q.GetRowCount(); r++ {
 		cell := q.GetCell(r, 1)
 		cell.SetText(format(cell.GetReference().(int)))
 	}
@@ -93,7 +93,7 @@ func (q *Queue) Select(row int) *Queue {
 func (q *Queue) Next() *Queue {
 	next := q.head + 1
 	// If queue has not reached it's last timer
-	if next < q.GetRowCount() - 2 {
+	if next < q.GetRowCount() {
 		q.Select(next)
 	}
 	return q
