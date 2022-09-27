@@ -33,6 +33,11 @@ func init() {
 }
 
 var (
+	// SetTheme will be called before the running to application and
+	// is expected to set the style of the widgets that will be
+	// displayed.
+	SetTheme func()
+
 	ColorBackground = tcell.GetColor(colorful.Hcl(308.3, 0.02548, 0.04965).Hex())
 	ColorForeground = tcell.GetColor(colorful.Hcl(0, 0.0001262, 0.8941).Hex())
 	ColorPrimary    = tcell.GetColor(colorful.Hcl(15, .7, .5).Hex())
@@ -64,6 +69,7 @@ func main() {
 		app = Timer(app, durations)
 	}
 
+	SetTheme()
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
