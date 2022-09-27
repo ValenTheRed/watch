@@ -327,14 +327,15 @@ func Timer(app *tview.Application, durations []int) *tview.Application {
 		buffer := beep.NewBuffer(format)
 		buffer.Append(streamer)
 		return func() {
-			done := make(chan bool)
-			speaker.Play(beep.Seq(
-				buffer.Streamer(0, buffer.Len()),
-				beep.Callback(func() {
-					done <- true
-				}),
-			))
-			<-done
+			// BUG: if the current timer is the last one in the queue,
+			// then a stream of more than one second leads to a race
+			// condition where the timer ticks one extra second. This
+			// causes panic as there is no character for negative sign
+			// in the ANSIShadow font map.
+			speaker.Play(buffer.Streamer(0, buffer.Len()))
+			// In lieu of above bug, don't wait for the stream to, just
+			// in case it turns out to be longer than one seoncd.
+			<-time.After(800 * time.Millisecond)
 			q.Next()
 		}
 	}())
