@@ -87,8 +87,11 @@ func (t *Table) SetUnderlineStyle(s tcell.Style) *Table {
 	return t
 }
 
-// SetCellStyle sets the style for all of the (data) cells of the table
-// as s.
+// GetCellStyle returns Table's cell style.
+func (t *Table) GetCellStyle() tcell.Style {
+	return t.cellStyle
+}
+
 func (t *Table) SetCellStyle(s tcell.Style) *Table {
 	for r := 0; r < t.GetRowCount(); r++ {
 		for c := 0; c < t.GetColumnCount(); c++ {
