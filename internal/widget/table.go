@@ -23,18 +23,12 @@ func NewTable(headers ...string) *Table {
 	}
 
 	t := tview.NewTable()
-	defStyle := tcell.StyleDefault.Background(t.GetBackgroundColor())
+	defStyle := tcell.StyleDefault
 	for i, header := range headers {
-		t.SetCell(0, i, newCell(
-			header,
-			defStyle.Foreground(tcell.ColorWhite),
-		))
+		t.SetCell(0, i, newCell(header, defStyle))
 	}
 	for i, header := range headers {
-		t.SetCell(1, i, newCell(
-			strings.Repeat("▔", len(header)),
-			defStyle.Foreground(tcell.ColorBlue),
-		))
+		t.SetCell(1, i, newCell( strings.Repeat("▔", len(header)), defStyle))
 	}
 
 	t.SetSelectable(true, false)
