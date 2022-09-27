@@ -191,24 +191,12 @@ func Stopwatch(app *tview.Application) *tview.Application {
 	setSelectedButton(interactions.restart)
 	setSelectedButton(interactions.playpause)
 
-	// Match playpause label to the action that the button will take
-	// when pressed. Why not change labels inside of action() func of
-	// playpause? Because, in the case when stopwatch is restarted, the
-	// button label would not update.
-	go func() {
-		const (
-			play  = "▶ play"
-			pause = "❚❚ pause"
-		)
-		b := interactions.playpause.button
-		for {
-			if label := b.GetLabel(); s.Running() && label != pause {
-				b.SetLabel(pause)
-			} else if !s.Running() && label != play {
-				b.SetLabel(play)
-			}
-		}
-	}()
+	s.Started = func() {
+		interactions.playpause.button.SetLabel("❚❚ pause")
+	}
+	s.Stopped = func() {
+		interactions.playpause.button.SetLabel("▶ play")
+	}
 
 	bc := widget.NewButtonColumn([]*tview.Button{
 		interactions.lap.button, interactions.playpause.button,
@@ -396,24 +384,12 @@ func Timer(app *tview.Application, durations []int) *tview.Application {
 	setSelectedButton(interactions.restart)
 	setSelectedButton(interactions.playpause)
 
-	// Match playpause label to the action that the button will take
-	// when pressed. Why not change labels inside of action() func of
-	// playpause? Because, in the case when stopwatch is restarted, the
-	// button label would not update.
-	go func() {
-		const (
-			play  = "▶ play"
-			pause = "❚❚ pause"
-		)
-		b := interactions.playpause.button
-		for {
-			if label := b.GetLabel(); t.Running() && label != pause {
-				b.SetLabel(pause)
-			} else if !t.Running() && label != play {
-				b.SetLabel(play)
-			}
-		}
-	}()
+	t.Started = func() {
+		interactions.playpause.button.SetLabel("❚❚ pause")
+	}
+	t.Stopped = func() {
+		interactions.playpause.button.SetLabel("▶ play")
+	}
 
 	bc := widget.NewButtonColumn([]*tview.Button{
 		interactions.prev.button, interactions.playpause.button,
