@@ -66,9 +66,97 @@ func Stopwatch(app *tview.Application) *tview.Application {
 	}
 	l := widget.NewLapTable()
 
+	type info struct {
+		km     widget.KeyMap
+		button *tview.Button
+		action func()
+	}
+	interactions := struct {
+		lap, playpause, restart, quit info
+	}{
+		lap: info{
+			km:     widget.KeyMap{Key: "l", Desc: "lap"},
+			button: tview.NewButton("⚑ lap"),
+		},
+		restart: info{
+			km:     widget.KeyMap{Key: "r", Desc: "restart"},
+			button: tview.NewButton("● restart"),
+		},
+		playpause: info{
+			km:     widget.KeyMap{Key: "space", Desc: "play/pause"},
+			button: tview.NewButton("❚❚ pause"),
+		},
+		quit: info{
+			km: widget.KeyMap{Key: "q", Desc: "quit"},
+			button: nil,
+		},
+	}
+
+	interactions.lap.action = func() {
+		l.AddLap(s.ElapsedSeconds())
+		if !l.HasFocus() {
+			app.SetFocus(l)
+		}
+	}
+	interactions.restart.action = func() {
+		s.Restart()
+		if !l.HasFocus() {
+			app.SetFocus(l)
+		}
+	}
+	interactions.playpause.action = func() {
+		if s.Running() {
+			s.Stop()
+		} else {
+			s.Start()
+		}
+		if !l.HasFocus() {
+			app.SetFocus(l)
+		}
+	}
+	interactions.quit.action = func() {
+		app.Stop()
+	}
+	interactions.lap.button.SetSelectedFunc(interactions.lap.action)
+	interactions.restart.button.SetSelectedFunc(interactions.restart.action)
+	interactions.playpause.button.SetSelectedFunc(interactions.playpause.action)
+
+	// Match playpause label to the action that the button will take
+	// when pressed. Why not change labels inside of action() func of
+	// playpause? Because, in the case when stopwatch is restarted, the
+	// button label would not update.
+	go func() {
+		const (
+			play  = "▶ play"
+			pause = "❚❚ pause"
+		)
+		b := interactions.playpause.button
+		for {
+			if label := b.GetLabel(); s.Running() && label != pause {
+				b.SetLabel(pause)
+			} else if !s.Running() && label != play {
+				b.SetLabel(play)
+			}
+		}
+	}()
+
+	bc := widget.NewButtonColumn([]*tview.Button{
+		interactions.lap.button, interactions.playpause.button,
+		interactions.restart.button,
+	})
+
+	f := tview.NewFlex().SetDirection(tview.FlexRow)
+	f.AddItem(s, 0, 1, false)
+	f.AddItem(bc, 0, 1, false)
+
+	s.SetVerticalAlign(widget.AlignDown)
+	s.SetBorderPadding(1, 1, 2, 2)
+	bc.SetVerticalAlign(widget.AlignUp)
+	bc.SetBorderPadding(1, 1, 2, 2)
+
 	root := tview.NewFlex()
 	root.AddItem(l, 0, 1, true)
-	root.AddItem(s, 0, 3, false)
+	root.AddItem(f, 0, 3, false)
 
 	s.Start()
 	return app.SetRoot(root, true)
@@ -94,12 +182,107 @@ func Timer(app *tview.Application, durations []int) *tview.Application {
 		q.Next()
 	})
 
+	type info struct {
+		km     widget.KeyMap
+		button *tview.Button
+		action func()
+	}
+	interactions := struct {
+		prev, next, playpause, restart, quit info
+	}{
+		prev: info{
+			km:     widget.KeyMap{Key: "p", Desc: "prev"},
+			button: tview.NewButton("← prev"),
+		},
+		next: info{
+			km:     widget.KeyMap{Key: "n", Desc: "next"},
+			button: tview.NewButton("→ next"),
+		},
+		restart: info{
+			km:     widget.KeyMap{Key: "r", Desc: "restart"},
+			button: tview.NewButton("● restart"),
+		},
+		playpause: info{
+			km:     widget.KeyMap{Key: "space", Desc: "play/pause"},
+			button: tview.NewButton("❚❚ pause"),
+		},
+		quit: info{
+			km: widget.KeyMap{Key: "q", Desc: "quit"},
+			button: nil,
+		},
+	}
+
+	interactions.next.action = func() {
+		q.Next()
+		if !q.HasFocus() {
+			app.SetFocus(q)
+		}
+	}
+	interactions.prev.action = func() {
+		q.Previous()
+		if !q.HasFocus() {
+			app.SetFocus(q)
+		}
+	}
+	interactions.restart.action = func() {
+		t.Restart()
+		if !q.HasFocus() {
+			app.SetFocus(q)
+		}
+	}
+	interactions.playpause.action = func() {
+		if t.Running() {
+			t.Stop()
+		} else {
+			t.Start()
+		}
+		if !q.HasFocus() {
+			app.SetFocus(q)
+		}
+	}
+	interactions.quit.action = func() {
+		app.Stop()
+	}
+	interactions.next.button.SetSelectedFunc(interactions.next.action)
+	interactions.prev.button.SetSelectedFunc(interactions.prev.action)
+	interactions.restart.button.SetSelectedFunc(interactions.restart.action)
+	interactions.playpause.button.SetSelectedFunc(interactions.playpause.action)
+
+	// Match playpause label to the action that the button will take
+	// when pressed. Why not change labels inside of action() func of
+	// playpause? Because, in the case when stopwatch is restarted, the
+	// button label would not update.
+	go func() {
+		const (
+			play  = "▶ play"
+			pause = "❚❚ pause"
+		)
+		b := interactions.playpause.button
+		for {
+			if label := b.GetLabel(); t.Running() && label != pause {
+				b.SetLabel(pause)
+			} else if !t.Running() && label != play {
+				b.SetLabel(play)
+			}
+		}
+	}()
+
+	bc := widget.NewButtonColumn([]*tview.Button{
+		interactions.prev.button, interactions.playpause.button,
+		interactions.restart.button, interactions.next.button,
+	})
+
 	f := tview.NewFlex().SetDirection(tview.FlexRow)
-	f.AddItem(t, 0, 1, false)
+	f.AddItem(t, 0, 2, false)
 	f.AddItem(p, 0, 1, false)
+	f.AddItem(bc, 0, 2, false)
 
 	t.SetVerticalAlign(widget.AlignDown)
-	p.SetAlign(widget.AlignUp)
+	t.SetBorderPadding(1, 1, 2, 2)
+	p.SetAlign(widget.AlignCenter)
+	p.SetBorderPadding(0, 0, 2, 2)
+	bc.SetVerticalAlign(widget.AlignUp)
+	bc.SetBorderPadding(1, 1, 2, 2)
 
 	root := tview.NewFlex()
 	root.AddItem(q, 0, 1, true)
