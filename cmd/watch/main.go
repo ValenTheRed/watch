@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	_ "embed"
 	"flag"
 	"fmt"
@@ -12,6 +13,9 @@ import (
 	"time"
 
 	"github.com/ValenTheRed/watch/internal/widget"
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/flac"
+	"github.com/faiface/beep/speaker"
 	"github.com/gdamore/tcell/v2"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/rivo/tview"
@@ -312,9 +316,28 @@ func Timer(app *tview.Application, durations []int) *tview.Application {
 		t.SetTotalDuration(duration)
 		t.Restart()
 	})
-	t.SetDoneFunc(func() {
-		q.Next()
-	})
+	t.SetDoneFunc(func() func() {
+		// Init ping file
+		// NOTE: error ignored
+		streamer, format, _ := flac.Decode(bytes.NewReader(pingFile))
+		defer streamer.Close()
+
+		speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
+
+		buffer := beep.NewBuffer(format)
+		buffer.Append(streamer)
+		return func() {
+			done := make(chan bool)
+			speaker.Play(beep.Seq(
+				buffer.Streamer(0, buffer.Len()),
+				beep.Callback(func() {
+					done <- true
+				}),
+			))
+			<-done
+			q.Next()
+		}
+	}())
 
 	type info struct {
 		km     widget.KeyMap
