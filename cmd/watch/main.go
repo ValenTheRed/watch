@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"flag"
 	"fmt"
 	"log"
@@ -27,6 +28,9 @@ optional arguments:
 duration    supported formats - [[hh:]mm:]ss
 -help	    display this help message and exit`
 )
+
+//go:embed "ping.flac"
+var pingFile []byte
 
 func init() {
 	flag.Usage = func() {
