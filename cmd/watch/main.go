@@ -102,7 +102,7 @@ func Stopwatch(app *tview.Application) *tview.Application {
 		action func()
 	}
 	interactions := struct {
-		lap, playpause, restart, quit info
+		lap, playpause, restart, quit, copy info
 	}{
 		lap: info{
 			km:     widget.KeyMap{Key: "l", Desc: "lap"},
@@ -119,6 +119,10 @@ func Stopwatch(app *tview.Application) *tview.Application {
 		quit: info{
 			km:     widget.KeyMap{Key: "q", Desc: "quit"},
 			button: nil,
+		},
+		copy: info{
+			km:     widget.KeyMap{Key: "y/c", Desc: "copy laps"},
+			button: tview.NewButton(":: copy laps"),
 		},
 	}
 
@@ -172,12 +176,12 @@ func Stopwatch(app *tview.Application) *tview.Application {
 
 	bc := widget.NewButtonColumn([]*tview.Button{
 		interactions.lap.button, interactions.playpause.button,
-		interactions.restart.button,
+		interactions.restart.button, interactions.copy.button,
 	})
 
 	hv := widget.NewHelpView([]widget.KeyMap{
 		interactions.lap.km, interactions.playpause.km,
-		interactions.restart.km, interactions.quit.km,
+		interactions.restart.km, interactions.quit.km, interactions.copy.km,
 	})
 	hv.SetDynamicColors(true)
 	hv.SetTextAlign(tview.AlignCenter)
@@ -242,6 +246,7 @@ func Stopwatch(app *tview.Application) *tview.Application {
 		setButtonColor(interactions.lap.button)
 		setButtonColor(interactions.restart.button)
 		setButtonColor(interactions.playpause.button)
+		setButtonColor(interactions.copy.button)
 	}
 
 	s.Start()
