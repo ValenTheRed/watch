@@ -77,7 +77,7 @@ func (t *Table) SetCell(row, col int, cell *tview.TableCell) *Table {
 // SetHeaderStyle sets the style of the header of the table as s.
 func (t *Table) SetHeaderStyle(s tcell.Style) *Table {
 	for i := 0; i < t.GetColumnCount(); i++ {
-		t.GetCell(0, i).SetStyle(s)
+		t.Table.GetCell(0, i).SetStyle(s)
 	}
 	return t
 }
@@ -85,7 +85,7 @@ func (t *Table) SetHeaderStyle(s tcell.Style) *Table {
 // SetUnderlineStyle sets the style of the header underline as s.
 func (t *Table) SetUnderlineStyle(s tcell.Style) *Table {
 	for i := 0; i < t.GetColumnCount(); i++ {
-		t.GetCell(1, i).SetStyle(s)
+		t.Table.GetCell(1, i).SetStyle(s)
 	}
 	return t
 }
