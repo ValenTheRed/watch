@@ -145,9 +145,17 @@ func Stopwatch(app *tview.Application) *tview.Application {
 		interactions.restart.button,
 	})
 
+	hv := widget.NewHelpView([]widget.KeyMap{
+		interactions.lap.km, interactions.playpause.km,
+		interactions.restart.km, interactions.quit.km,
+	})
+	hv.SetDynamicColors(true)
+	hv.SetTextAlign(tview.AlignCenter)
+
 	f := tview.NewFlex().SetDirection(tview.FlexRow)
 	f.AddItem(s, 0, 1, false)
 	f.AddItem(bc, 0, 1, false)
+	f.AddItem(hv, 2, 1, false)
 
 	s.SetVerticalAlign(widget.AlignDown)
 	s.SetBorderPadding(1, 1, 2, 2)
@@ -272,10 +280,18 @@ func Timer(app *tview.Application, durations []int) *tview.Application {
 		interactions.restart.button, interactions.next.button,
 	})
 
+	hv := widget.NewHelpView([]widget.KeyMap{
+		interactions.prev.km, interactions.playpause.km,
+		interactions.restart.km, interactions.next.km, interactions.quit.km,
+	})
+	hv.SetDynamicColors(true)
+	hv.SetTextAlign(tview.AlignCenter)
+
 	f := tview.NewFlex().SetDirection(tview.FlexRow)
 	f.AddItem(t, 0, 2, false)
 	f.AddItem(p, 0, 1, false)
 	f.AddItem(bc, 0, 2, false)
+	f.AddItem(hv, 2, 1, false)
 
 	t.SetVerticalAlign(widget.AlignDown)
 	t.SetBorderPadding(1, 1, 2, 2)
