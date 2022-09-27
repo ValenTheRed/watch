@@ -13,6 +13,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/rivo/tview"
+	"golang.design/x/clipboard"
 )
 
 var (
@@ -31,12 +32,16 @@ func init() {
 		fmt.Fprintf(os.Stderr, "%s\n", usage)
 	}
 
-	tview.Borders.HorizontalFocus  = tview.Borders.Horizontal
-	tview.Borders.VerticalFocus    = tview.Borders.Vertical
-	tview.Borders.TopLeftFocus     = tview.Borders.TopLeft
-	tview.Borders.TopRightFocus    = tview.Borders.TopRight
-	tview.Borders.BottomLeftFocus  = tview.Borders.BottomLeft
+	tview.Borders.HorizontalFocus = tview.Borders.Horizontal
+	tview.Borders.VerticalFocus = tview.Borders.Vertical
+	tview.Borders.TopLeftFocus = tview.Borders.TopLeft
+	tview.Borders.TopRightFocus = tview.Borders.TopRight
+	tview.Borders.BottomLeftFocus = tview.Borders.BottomLeft
 	tview.Borders.BottomRightFocus = tview.Borders.BottomRight
+
+	if err := clipboard.Init(); err != nil {
+		panic(err)
+	}
 }
 
 var (
@@ -97,7 +102,7 @@ func Stopwatch(app *tview.Application) *tview.Application {
 		action func()
 	}
 	interactions := struct {
-		lap, playpause, restart, quit info
+		lap, playpause, restart, quit, copy info
 	}{
 		lap: info{
 			km:     widget.KeyMap{Key: "l", Desc: "lap"},
@@ -115,6 +120,27 @@ func Stopwatch(app *tview.Application) *tview.Application {
 			km:     widget.KeyMap{Key: "q", Desc: "quit"},
 			button: nil,
 		},
+		copy: info{
+			km:     widget.KeyMap{Key: "y/c", Desc: "copy laps"},
+			button: tview.NewButton(":: copy laps"),
+		},
+	}
+
+	interactions.copy.action = func() {
+		var lines []byte
+		for row := l.GetRowCount()-1; row > -1; row-- {
+			lap, time, overall := l.GetLap(row)
+			lines = append(lines, []byte(fmt.Sprintf("%2d", lap))...)
+			lines = append(lines, ' ')
+			lines = append(lines, []byte(widget.SecondWithColons(time))...)
+			lines = append(lines, ' ')
+			lines = append(lines, []byte(widget.SecondWithColons(overall))...)
+			lines = append(lines, '\n')
+		}
+		clipboard.Write(clipboard.FmtText, lines)
+		if !l.HasFocus() {
+			app.SetFocus(l)
+		}
 	}
 
 	interactions.lap.action = func() {
@@ -145,6 +171,7 @@ func Stopwatch(app *tview.Application) *tview.Application {
 	interactions.lap.button.SetSelectedFunc(interactions.lap.action)
 	interactions.restart.button.SetSelectedFunc(interactions.restart.action)
 	interactions.playpause.button.SetSelectedFunc(interactions.playpause.action)
+	interactions.copy.button.SetSelectedFunc(interactions.copy.action)
 
 	// Match playpause label to the action that the button will take
 	// when pressed. Why not change labels inside of action() func of
@@ -167,12 +194,12 @@ func Stopwatch(app *tview.Application) *tview.Application {
 
 	bc := widget.NewButtonColumn([]*tview.Button{
 		interactions.lap.button, interactions.playpause.button,
-		interactions.restart.button,
+		interactions.restart.button, interactions.copy.button,
 	})
 
 	hv := widget.NewHelpView([]widget.KeyMap{
 		interactions.lap.km, interactions.playpause.km,
-		interactions.restart.km, interactions.quit.km,
+		interactions.restart.km, interactions.quit.km, interactions.copy.km,
 	})
 	hv.SetDynamicColors(true)
 	hv.SetTextAlign(tview.AlignCenter)
@@ -192,6 +219,9 @@ func Stopwatch(app *tview.Application) *tview.Application {
 				return nil
 			case ' ':
 				interactions.playpause.action()
+				return nil
+			case 'y', 'c':
+				interactions.copy.action()
 				return nil
 			}
 		}
@@ -237,6 +267,7 @@ func Stopwatch(app *tview.Application) *tview.Application {
 		setButtonColor(interactions.lap.button)
 		setButtonColor(interactions.restart.button)
 		setButtonColor(interactions.playpause.button)
+		setButtonColor(interactions.copy.button)
 	}
 
 	s.Start()
