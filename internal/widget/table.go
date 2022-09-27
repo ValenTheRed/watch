@@ -11,7 +11,7 @@ type Table struct {
 	*tview.Table
 
 	// The default style for data cells.
-	CellStyle tcell.Style
+	cellStyle tcell.Style
 }
 
 // NewTable returns a new Table.
