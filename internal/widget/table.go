@@ -92,7 +92,10 @@ func (t *Table) GetCellStyle() tcell.Style {
 	return t.cellStyle
 }
 
+// SetCellStyle sets s as the default style for all previously added
+// cells and any newly added cells.
 func (t *Table) SetCellStyle(s tcell.Style) *Table {
+	t.cellStyle = s
 	for r := 0; r < t.GetRowCount(); r++ {
 		for c := 0; c < t.GetColumnCount(); c++ {
 			t.GetCell(r, c).SetStyle(s)
